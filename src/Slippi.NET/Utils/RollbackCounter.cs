@@ -36,13 +36,13 @@ public class RollbackCounter
             // Note: We detect during PreFrameUpdate, but new versions have a
             // FrameStart command that has already initialized the frame, so we must
             // check for player data too.
-            if (_rollbackFrames.TryGetValue(currentFrame.Frame, out List<FrameEntry>? value))
+            if (_rollbackFrames.TryGetValue(currentFrame.Frame!.Value, out List<FrameEntry>? value))
             {
                 value.Add(currentFrame);
             }
             else
             {
-                _rollbackFrames[currentFrame.Frame] = [currentFrame];
+                _rollbackFrames[currentFrame.Frame!.Value] = [currentFrame];
             }
 
             _rollbackFrameCount++;

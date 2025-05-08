@@ -59,7 +59,7 @@ public class Stats
 
     public void AddFrame(FrameEntry frame)
     {
-        _frames[frame.Frame] = frame;
+        _frames[frame.Frame!.Value] = frame;
 
         if (_options.ProcessOnTheFly)
         {
@@ -76,7 +76,7 @@ public class Stats
 
         foreach (var player in players)
         {
-            if (!frame.Players.TryGetValue(player, out PlayerFrameData? value) || value?.Post == null)
+            if (frame.Players is null || !frame.Players.TryGetValue(player, out PlayerFrameData? value) || value?.Post is null)
             {
                 return false;
             }

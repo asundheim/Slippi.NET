@@ -37,7 +37,7 @@ public record class TargetBreakComputer : IStatComputer<IList<TargetBreakType>>
         FrameEntry frame,
         List<TargetBreakType> targetBreaks)
     {
-        var currentFrameNumber = frame.Frame;
+        var currentFrameNumber = frame.Frame!.Value;
         var prevFrameNumber = currentFrameNumber - 1;
 
         // Add all targets on the first frame

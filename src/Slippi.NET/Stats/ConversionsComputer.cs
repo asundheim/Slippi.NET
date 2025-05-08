@@ -120,8 +120,8 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
         FrameEntry frame,
         IList<ConversionType> conversions)
     {
-        int currentFrameNumber = frame.Frame;
-        var playerFrame = frame.Players[indices.PlayerIndex]!.Post;
+        int currentFrameNumber = frame.Frame!.Value;
+        var playerFrame = frame.Players![indices.PlayerIndex]!.Post;
         var opponentFrame = frame.Players[indices.OpponentIndex]!.Post;
 
         int prevFrameNumber = currentFrameNumber - 1;
@@ -130,11 +130,11 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
 
         if (frames.TryGetValue(prevFrameNumber, out var prevFrame))
         {
-            prevPlayerFrame = prevFrame.Players[indices.PlayerIndex]!.Post;
+            prevPlayerFrame = prevFrame.Players![indices.PlayerIndex]!.Post;
             prevOpponentFrame = prevFrame.Players[indices.OpponentIndex]!.Post;
         }
 
-        var oppActionStateId = opponentFrame.ActionStateId;
+        var oppActionStateId = opponentFrame!.ActionStateId;
         bool opntIsDamaged = oppActionStateId is not null && StatsUtils.IsDamaged((State)oppActionStateId);
         bool opntIsGrabbed = oppActionStateId is not null && StatsUtils.IsGrabbed((State)oppActionStateId);
         bool opntIsCommandGrabbed = oppActionStateId is not null && StatsUtils.IsCommandGrabbed((State)oppActionStateId);
@@ -146,9 +146,9 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
         // the actionStateCounter at this point which counts the number of frames since
         // an animation started. Should be more robust, for old files it should always be
         // null and null < null = false
-        bool actionChangedSinceHit = playerFrame.ActionStateId != state.LastHitAnimation;
-        int? actionCounter = playerFrame.ActionStateCounter;
-        int prevActionCounter = prevPlayerFrame?.ActionStateCounter ?? 0;
+        bool actionChangedSinceHit = playerFrame!.ActionStateId != state.LastHitAnimation;
+        float? actionCounter = playerFrame.ActionStateCounter;
+        float prevActionCounter = prevPlayerFrame?.ActionStateCounter ?? 0;
         bool actionFrameCounterReset = actionCounter < prevActionCounter;
 
         if (actionChangedSinceHit || actionFrameCounterReset)

@@ -75,8 +75,8 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
         IList<ComboType> combos)
     {
         int currentFrameNumber = frame.Frame!.Value;
-        PostFrameUpdate playerFrame = frame.Players![indices.PlayerIndex]!.Post;
-        PostFrameUpdate opponentFrame = frame.Players[indices.OpponentIndex]!.Post;
+        PostFrameUpdate playerFrame = frame.Players![indices.PlayerIndex]!.Post!;
+        PostFrameUpdate opponentFrame = frame.Players[indices.OpponentIndex]!.Post!;
 
         int prevFrameNumber = currentFrameNumber - 1;
         PostFrameUpdate? prevPlayerFrame = null;

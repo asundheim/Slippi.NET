@@ -1,6 +1,4 @@
 ﻿using Slippi.NET.Slp.Reader.Types;
-using Slippi.NET.Slp.Reader.Types.File;
-using Slippi.NET.Slp.Types.File;
 
 namespace Slippi.NET.Slp.Reader.File;
 

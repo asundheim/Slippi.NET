@@ -4,5 +4,5 @@ public record class PlayerActionState
 {
     public required ActionCountsType PlayerCounts { get; init; }
     public required List<int> Animations { get; init; }
-    public required List<int> ActionFrameCounters { get; init; }
+    public required List<float> ActionFrameCounters { get; init; }
 }

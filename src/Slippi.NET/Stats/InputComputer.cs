@@ -55,13 +55,13 @@ public record class InputComputer : IStatComputer<IList<PlayerInput>>
         PlayerIndexedType indices,
         FrameEntry frame)
     {
-        var playerFrame = frame.Players[indices.PlayerIndex]?.Pre;
+        var playerFrame = frame.Players![indices.PlayerIndex]?.Pre;
         if (playerFrame == null) return;
 
         var currentFrameNumber = playerFrame.Frame ?? 0;
         var prevFrameNumber = currentFrameNumber - 1;
         var prevPlayerFrame = frames.TryGetValue(prevFrameNumber, out var prevFrame)
-            ? prevFrame.Players[indices.PlayerIndex]?.Pre
+            ? prevFrame.Players![indices.PlayerIndex]?.Pre
             : null;
 
         if (currentFrameNumber < (int)Frames.FIRST_PLAYABLE || prevPlayerFrame == null)

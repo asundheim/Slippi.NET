@@ -46,8 +46,8 @@ public class StockComputer : IStatComputer<IList<StockType>>
         FrameEntry frame,
         List<StockType> stocks)
     {
-        var playerFrame = frame.Players[indices.PlayerIndex]?.Post;
-        if (playerFrame == null)
+        var playerFrame = frame.Players?[indices.PlayerIndex]?.Post;
+        if (playerFrame is null)
         {
             return;
         }
@@ -55,7 +55,7 @@ public class StockComputer : IStatComputer<IList<StockType>>
         var currentFrameNumber = playerFrame.Frame ?? 0;
         var prevFrameNumber = currentFrameNumber - 1;
         var prevPlayerFrame = frames.TryGetValue(prevFrameNumber, out var prevFrame)
-            ? prevFrame.Players[indices.PlayerIndex]?.Post
+            ? prevFrame.Players![indices.PlayerIndex]?.Post
             : null;
 
         // If there is currently no active stock, wait until the player is no longer spawning.

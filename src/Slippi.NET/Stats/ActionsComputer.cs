@@ -57,7 +57,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
             {
                 PlayerCounts = playerCounts,
                 Animations = new List<int>(),
-                ActionFrameCounters = new List<int>()
+                ActionFrameCounters = new List<float>()
             };
 
             _state[indices] = playerState;
@@ -82,7 +82,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
 
     private static void HandleActionCompute(PlayerActionState state, PlayerIndexedType indices, FrameEntry frame)
     {
-        var playerFrame = frame.Players[indices.PlayerIndex]!.Post;
+        var playerFrame = frame.Players![indices.PlayerIndex]!.Post;
         var opponentFrame = frame.Players[indices.OpponentIndex]!.Post;
 
         static void ExecuteIf(Action execute, bool condition)
@@ -96,7 +96,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
         }
 
         // Manage animation state
-        int currentAnimation = playerFrame.ActionStateId!.Value;
+        int currentAnimation = playerFrame!.ActionStateId!.Value;
         state.Animations.Add(currentAnimation);
         var currentFrameCounter = playerFrame.ActionStateCounter!.Value;
         state.ActionFrameCounters.Add(currentFrameCounter);
@@ -174,7 +174,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
         ExecuteIf(() => state.PlayerCounts.ThrowCount.Back++, currentAnimation == (int)State.THROW_BACK);
 
         // Techs
-        var opponentDir = playerFrame.PositionX > opponentFrame.PositionX ? -1 : 1;
+        var opponentDir = playerFrame.PositionX > opponentFrame!.PositionX ? -1 : 1;
         var facingOpponent = playerFrame.FacingDirection == opponentDir;
 
         ExecuteIf(() => state.PlayerCounts.GroundTechCount.Fail++, IsMissGroundTech((State)currentAnimation));

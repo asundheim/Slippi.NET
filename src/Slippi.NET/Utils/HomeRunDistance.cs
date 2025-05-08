@@ -46,8 +46,8 @@ public static class HomeRunDistance
 
     public static HomeRunDistanceInfo? ExtractDistanceInfoFromFrame(Language language, FrameEntry lastFrame)
     {
-        var sandbagLastFrame = lastFrame.Players.Values
-            .FirstOrDefault(playerFrame => playerFrame is not null && playerFrame.Post.InternalCharacterId == SANDBAG_INTERNAL_ID);
+        var sandbagLastFrame = lastFrame.Players?.Values
+            .FirstOrDefault(playerFrame => playerFrame is not null && playerFrame.Post?.InternalCharacterId == SANDBAG_INTERNAL_ID);
 
         if (sandbagLastFrame is null)
         {
@@ -58,7 +58,7 @@ public static class HomeRunDistance
         // Technically we should check if the replay is PAL but we don't yet support
         // stadium replays in PAL.
         string units = language == Language.JAPANESE ? METERS : FEET;
-        float distance = PositionToHomeRunDistance(sandbagLastFrame.Post.PositionX ?? 0, units);
+        float distance = PositionToHomeRunDistance(sandbagLastFrame.Post?.PositionX ?? 0, units);
 
         return new HomeRunDistanceInfo()
         {
