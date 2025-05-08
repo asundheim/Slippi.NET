@@ -1,13 +1,13 @@
 namespace Slippi.NET.Types;
 
-public record class PreFrameUpdateType
+public record class PreFrameUpdate : FrameUpdate
 {
-    public PreFrameUpdateType(
+    public PreFrameUpdate(
         int? frame, 
-        int? playerIndex, 
+        byte? playerIndex, 
         bool? isFollower, 
-        int? seed, 
-        int? actionStateId, 
+        uint? seed, 
+        ushort? actionStateId, 
         float? positionX, 
         float? positionY, 
         float? facingDirection, 
@@ -16,11 +16,11 @@ public record class PreFrameUpdateType
         float? cStickX, 
         float? cStickY, 
         float? trigger, 
-        int? buttons, 
-        int? physicalButtons, 
+        uint? buttons, 
+        ushort? physicalButtons, 
         float? physicalLTrigger, 
         float? physicalRTrigger, 
-        float? rawJoystickX, 
+        sbyte? rawJoystickX, 
         float? percent)
     {
         Frame = frame;
@@ -44,23 +44,16 @@ public record class PreFrameUpdateType
         Percent = percent;
     }
 
-    public int? Frame { get; set; }
-    public int? PlayerIndex { get; set; }
-    public bool? IsFollower { get; set; }
-    public int? Seed { get; set; }
-    public int? ActionStateId { get; set; }
-    public float? PositionX { get; set; }
-    public float? PositionY { get; set; }
-    public float? FacingDirection { get; set; }
+    public uint? Seed { get; set; }
     public float? JoystickX { get; set; }
     public float? JoystickY { get; set; }
     public float? CStickX { get; set; }
     public float? CStickY { get; set; }
     public float? Trigger { get; set; }
-    public int? Buttons { get; set; }
-    public int? PhysicalButtons { get; set; }
+    public uint? Buttons { get; set; }
+    public ushort? PhysicalButtons { get; set; }
     public float? PhysicalLTrigger { get; set; }
     public float? PhysicalRTrigger { get; set; }
-    public float? RawJoystickX { get; set; }
+    public sbyte? RawJoystickX { get; set; }
     public float? Percent { get; set; }
 }

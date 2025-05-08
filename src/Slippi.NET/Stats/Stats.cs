@@ -15,7 +15,7 @@ public class Stats
         _options = options ?? new StatOptions { ProcessOnTheFly = false };
     }
 
-    public void Setup(GameStartType settings)
+    public void Setup(GameStart settings)
     {
         _frames = new FramesType();
         _players = settings.Players.ConvertAll(v => v.PlayerIndex);
@@ -57,7 +57,7 @@ public class Stats
         }
     }
 
-    public void AddFrame(FrameEntryType frame)
+    public void AddFrame(FrameEntry frame)
     {
         _frames[frame.Frame] = frame;
 
@@ -67,7 +67,7 @@ public class Stats
         }
     }
 
-    private static bool IsCompletedFrame(List<int> players, FrameEntryType? frame)
+    private static bool IsCompletedFrame(List<int> players, FrameEntry? frame)
     {
         if (frame == null)
         {

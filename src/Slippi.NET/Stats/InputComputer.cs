@@ -10,7 +10,7 @@ public record class InputComputer : IStatComputer<IList<PlayerInput>>
     private readonly Dictionary<PlayerIndexedType, PlayerInput> _state = new();
     private List<PlayerIndexedType> _playerPermutations = new();
 
-    public void Setup(GameStartType settings)
+    public void Setup(GameStart settings)
     {
         // Reset the state
         _state.Clear();
@@ -33,7 +33,7 @@ public record class InputComputer : IStatComputer<IList<PlayerInput>>
         }
     }
 
-    public void ProcessFrame(FrameEntryType frame, FramesType allFrames)
+    public void ProcessFrame(FrameEntry frame, FramesType allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -53,7 +53,7 @@ public record class InputComputer : IStatComputer<IList<PlayerInput>>
         FramesType frames,
         PlayerInput state,
         PlayerIndexedType indices,
-        FrameEntryType frame)
+        FrameEntry frame)
     {
         var playerFrame = frame.Players[indices.PlayerIndex]?.Pre;
         if (playerFrame == null) return;

@@ -10,14 +10,14 @@ public record class TargetBreakComputer : IStatComputer<IList<TargetBreakType>>
     private List<TargetBreakType> TargetBreaks { get; set; } = new();
     private bool IsTargetTestGame { get; set; } = false;
 
-    public void Setup(GameStartType settings)
+    public void Setup(GameStart settings)
     {
         // Reset the state
         TargetBreaks.Clear();
         IsTargetTestGame = settings.GameMode == GameMode.TARGET_TEST;
     }
 
-    public void ProcessFrame(FrameEntryType frame, FramesType allFrames)
+    public void ProcessFrame(FrameEntry frame, FramesType allFrames)
     {
         if (!IsTargetTestGame)
         {
@@ -34,7 +34,7 @@ public record class TargetBreakComputer : IStatComputer<IList<TargetBreakType>>
 
     private static void HandleTargetBreak(
         FramesType frames,
-        FrameEntryType frame,
+        FrameEntry frame,
         List<TargetBreakType> targetBreaks)
     {
         var currentFrameNumber = frame.Frame;

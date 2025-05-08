@@ -1,23 +1,23 @@
 namespace Slippi.NET.Types;
 
-public record class GameStartType
+public record class GameStart
 {
-    public GameStartType(
+    public GameStart(
         string? slpVersion, 
         TimerType? timerType, 
         int? inGameMode, 
         bool? friendlyFireEnabled, 
         bool? isTeams, 
         int? stageId, 
-        int? startingTimerSeconds, 
+        uint? startingTimerSeconds, 
         ItemSpawnType? itemSpawnBehavior, 
-        int? enabledItems, 
-        List<PlayerType> players, 
-        int? scene, 
+        ulong? enabledItems, 
+        List<Player> players, 
+        byte? scene, 
         GameMode? gameMode, 
         Language? language, 
-        GameInfoType? gameInfoBlock, 
-        int? randomSeed, 
+        GameInfo? gameInfoBlock, 
+        uint? randomSeed, 
         bool? isPAL, 
         bool? isFrozenPS, 
         MatchInfo? matchInfo)
@@ -48,15 +48,15 @@ public record class GameStartType
     public bool? FriendlyFireEnabled { get; set; }
     public bool? IsTeams { get; set; }
     public int? StageId { get; set; }
-    public int? StartingTimerSeconds { get; set; }
+    public uint? StartingTimerSeconds { get; set; }
     public ItemSpawnType? ItemSpawnBehavior { get; set; }
-    public int? EnabledItems { get; set; }
-    public List<PlayerType> Players { get; set; }
-    public int? Scene { get; set; }
+    public ulong? EnabledItems { get; set; }
+    public List<Player> Players { get; set; }
+    public byte? Scene { get; set; }
     public GameMode? GameMode { get; set; }
     public Language? Language { get; set; }
-    public GameInfoType? GameInfoBlock { get; set; }
-    public int? RandomSeed { get; set; }
+    public GameInfo? GameInfoBlock { get; set; }
+    public uint? RandomSeed { get; set; }
     public bool? IsPAL { get; set; }
     public bool? IsFrozenPS { get; set; }
     public MatchInfo? MatchInfo { get; set; }

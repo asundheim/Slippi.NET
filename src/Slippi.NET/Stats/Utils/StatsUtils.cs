@@ -5,7 +5,7 @@ namespace Slippi.NET.Stats.Utils;
 
 public static class StatsUtils
 {
-    public static IList<PlayerIndexedType> GetSinglesPlayerPermutationsFromSettings(GameStartType settings)
+    public static IList<PlayerIndexedType> GetSinglesPlayerPermutationsFromSettings(GameStart settings)
     {
         if (settings?.Players.Count != 2)
         {
@@ -27,7 +27,7 @@ public static class StatsUtils
         ];
     }
 
-    public static bool DidLoseStock(PostFrameUpdateType frame, PostFrameUpdateType prevFrame)
+    public static bool DidLoseStock(PostFrameUpdate frame, PostFrameUpdate prevFrame)
     {
         if (frame is null || prevFrame is null)
         {
@@ -37,7 +37,7 @@ public static class StatsUtils
         return prevFrame.StocksRemaining - frame.StocksRemaining > 0;
     }
 
-    public static float CalcDamageTaken(PostFrameUpdateType frame, PostFrameUpdateType prevFrame)
+    public static float CalcDamageTaken(PostFrameUpdate frame, PostFrameUpdate prevFrame)
     {
         var percent = frame.Percent ?? 0;
         var prevPercent = prevFrame.Percent ?? 0;

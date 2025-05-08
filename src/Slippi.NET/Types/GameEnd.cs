@@ -1,8 +1,8 @@
 namespace Slippi.NET.Types;
 
-public record class GameEndType
+public record class GameEnd
 {
-    public GameEndType(GameEndMethod? gameEndMethod, int? lrasInitiatorIndex, List<PlacementType> placements)
+    public GameEnd(GameEndMethod? gameEndMethod, int? lrasInitiatorIndex, List<Placement> placements)
     {
         GameEndMethod = gameEndMethod;
         LrasInitiatorIndex = lrasInitiatorIndex;
@@ -11,5 +11,5 @@ public record class GameEndType
 
     public GameEndMethod? GameEndMethod { get; set; }
     public int? LrasInitiatorIndex { get; set; }
-    public List<PlacementType> Placements { get; set; } = new();
+    public List<Placement> Placements { get; set; } = new();
 }

@@ -1,3 +1,3 @@
 namespace Slippi.NET.Types;
 
-public class FramesType : Dictionary<int, FrameEntryType> { }
+public class FramesType : Dictionary<int, FrameEntry> { }

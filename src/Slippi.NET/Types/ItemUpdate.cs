@@ -1,25 +1,25 @@
 namespace Slippi.NET.Types;
 
-public record class ItemUpdateType
+public record class ItemUpdate
 {
-    public ItemUpdateType(
+    public ItemUpdate(
         int? frame, 
-        int? typeId, 
-        int? state, 
+        ushort? typeId, 
+        byte? state, 
         float? facingDirection, 
         float? velocityX, 
         float? velocityY, 
         float? positionX, 
         float? positionY, 
-        float? damageTaken, 
+        ushort? damageTaken, 
         float? expirationTimer, 
-        int? spawnId, 
-        int? missileType,
-        int? turnipFace, 
-        int? chargeShotLaunched, 
-        float? chargePower, 
-        int? owner, 
-        int? instanceId)
+        uint? spawnId, 
+        byte? missileType,
+        byte? turnipFace, 
+        byte? chargeShotLaunched, 
+        byte? chargePower, 
+        sbyte? owner, 
+        ushort? instanceId)
     {
         Frame = frame;
         TypeId = typeId;
@@ -41,20 +41,20 @@ public record class ItemUpdateType
     }
 
     public int? Frame { get; set; }
-    public int? TypeId { get; set; }
-    public int? State { get; set; }
+    public ushort? TypeId { get; set; }
+    public byte? State { get; set; }
     public float? FacingDirection { get; set; }
     public float? VelocityX { get; set; }
     public float? VelocityY { get; set; }
     public float? PositionX { get; set; }
     public float? PositionY { get; set; }
-    public float? DamageTaken { get; set; }
+    public ushort? DamageTaken { get; set; }
     public float? ExpirationTimer { get; set; }
-    public int? SpawnId { get; set; }
-    public int? MissileType { get; set; }
-    public int? TurnipFace { get; set; }
-    public int? ChargeShotLaunched { get; set; }
-    public float? ChargePower { get; set; }
-    public int? Owner { get; set; }
-    public int? InstanceId { get; set; }
+    public uint? SpawnId { get; set; }
+    public byte? MissileType { get; set; }
+    public byte? TurnipFace { get; set; }
+    public byte? ChargeShotLaunched { get; set; }
+    public byte? ChargePower { get; set; }
+    public sbyte? Owner { get; set; }
+    public ushort? InstanceId { get; set; }
 }

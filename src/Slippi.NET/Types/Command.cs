@@ -1,6 +1,6 @@
 namespace Slippi.NET.Types;
 
-public enum Command
+public enum Command : byte
 {
     SPLIT_MESSAGE = 0x10,
     MESSAGE_SIZES = 0x35,

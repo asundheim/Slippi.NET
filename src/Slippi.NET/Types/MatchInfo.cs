@@ -2,7 +2,7 @@ namespace Slippi.NET.Types;
 
 public record class MatchInfo
 {
-    public MatchInfo(string? matchId, int? gameNumber, int? tiebreakerNumber)
+    public MatchInfo(string? matchId, uint? gameNumber, uint? tiebreakerNumber)
     {
         MatchId = matchId;
         GameNumber = gameNumber;
@@ -10,6 +10,6 @@ public record class MatchInfo
     }
 
     public string? MatchId { get; set; }
-    public int? GameNumber { get; set; }
-    public int? TiebreakerNumber { get; set; }
+    public uint? GameNumber { get; set; }
+    public uint? TiebreakerNumber { get; set; }
 }

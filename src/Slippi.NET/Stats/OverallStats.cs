@@ -7,7 +7,7 @@ namespace Slippi.NET.Stats;
 public static class OverallStats
 {
     public static IList<OverallType> GenerateOverallStats(
-        GameStartType settings,
+        GameStart settings,
         IList<PlayerInput> inputs,
         IList<ConversionType> conversions,
         int playableFrameCount)

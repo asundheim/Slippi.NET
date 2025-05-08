@@ -10,7 +10,7 @@ public class StockComputer : IStatComputer<IList<StockType>>
     private List<PlayerIndexedType> _playerPermutations = new();
     private readonly List<StockType> _stocks = new();
 
-    public void Setup(GameStartType settings)
+    public void Setup(GameStart settings)
     {
         // Reset state
         _state.Clear();
@@ -23,7 +23,7 @@ public class StockComputer : IStatComputer<IList<StockType>>
         }
     }
 
-    public void ProcessFrame(FrameEntryType frame, FramesType allFrames)
+    public void ProcessFrame(FrameEntry frame, FramesType allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -43,7 +43,7 @@ public class StockComputer : IStatComputer<IList<StockType>>
         FramesType frames,
         StockState state,
         PlayerIndexedType indices,
-        FrameEntryType frame,
+        FrameEntry frame,
         List<StockType> stocks)
     {
         var playerFrame = frame.Players[indices.PlayerIndex]?.Post;

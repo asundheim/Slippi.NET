@@ -13,10 +13,10 @@ public static class WinnerCalculator
     /// <param name="settings">The game settings, including players and team information.</param>
     /// <param name="finalPostFrameUpdates">The final post-frame updates for all players.</param>
     /// <returns>A list of placements representing the winners.</returns>
-    public static IList<PlacementType> GetWinners(
-        GameEndType gameEnd,
-        (IList<PlayerType> Players, bool IsTeams) settings,
-        IList<PostFrameUpdateType> finalPostFrameUpdates)
+    public static IList<Placement> GetWinners(
+        GameEnd gameEnd,
+        (IList<Player> Players, bool IsTeams) settings,
+        IList<PostFrameUpdate> finalPostFrameUpdates)
     {
         var placements = gameEnd.Placements;
         var gameEndMethod = gameEnd.GameEndMethod;
@@ -31,9 +31,9 @@ public static class WinnerCalculator
                 var winnerIndex = players.FirstOrDefault(p => p.PlayerIndex != lrasInitiatorIndex)?.PlayerIndex;
                 if (winnerIndex.HasValue)
                 {
-                    return new List<PlacementType>
+                    return new List<Placement>
                     {
-                        new PlacementType
+                        new Placement
                         {
                             PlayerIndex = winnerIndex.Value,
                             Position = 0
@@ -57,16 +57,16 @@ public static class WinnerCalculator
             var p2 = nonFollowerUpdates[1];
             if (p1.StocksRemaining > p2.StocksRemaining)
             {
-                return new List<PlacementType>
+                return new List<Placement>
                 {
-                    new PlacementType { PlayerIndex = p1.PlayerIndex!.Value, Position = 0 }
+                    new Placement { PlayerIndex = p1.PlayerIndex!.Value, Position = 0 }
                 };
             }
             else if (p2.StocksRemaining > p1.StocksRemaining)
             {
-                return new List<PlacementType>
+                return new List<Placement>
                 {
-                    new PlacementType { PlayerIndex = p2.PlayerIndex!.Value, Position = 0 }
+                    new Placement { PlayerIndex = p2.PlayerIndex!.Value, Position = 0 }
                 };
             }
 
@@ -74,16 +74,16 @@ public static class WinnerCalculator
             var p2Health = (int)p2.Percent!.Value;
             if (p1Health < p2Health)
             {
-                return new List<PlacementType>
+                return new List<Placement>
                 {
-                    new PlacementType { PlayerIndex = p1.PlayerIndex!.Value, Position = 0 }
+                    new Placement { PlayerIndex = p1.PlayerIndex!.Value, Position = 0 }
                 };
             }
             else if (p2Health < p1Health)
             {
-                return new List<PlacementType>
+                return new List<Placement>
                 {
-                    new PlacementType { PlayerIndex = p2.PlayerIndex!.Value, Position = 0 }
+                    new Placement { PlayerIndex = p2.PlayerIndex!.Value, Position = 0 }
                 };
             }
 
@@ -107,6 +107,6 @@ public static class WinnerCalculator
             }).ToList();
         }
 
-        return new List<PlacementType> { firstPosition };
+        return new List<Placement> { firstPosition };
     }
 }

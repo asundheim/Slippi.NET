@@ -44,7 +44,7 @@ public static class HomeRunDistance
         return MathF.Max(0f, score);
     }
 
-    public static HomeRunDistanceInfo? ExtractDistanceInfoFromFrame(Language language, FrameEntryType lastFrame)
+    public static HomeRunDistanceInfo? ExtractDistanceInfoFromFrame(Language language, FrameEntry lastFrame)
     {
         var sandbagLastFrame = lastFrame.Players.Values
             .FirstOrDefault(playerFrame => playerFrame is not null && playerFrame.Post.InternalCharacterId == SANDBAG_INTERNAL_ID);

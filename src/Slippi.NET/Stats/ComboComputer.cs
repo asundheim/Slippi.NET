@@ -14,7 +14,7 @@ public class ComboComputerEvent : IEvent<ComboComputerEventArgs>
 public record class ComboComputerEventArgs
 {
     public required ComboType Combo { get; init; }
-    public required GameStartType? Settings { get; init; }
+    public required GameStart? Settings { get; init; }
 }
 
 public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEventArgs>, IStatComputer<IList<ComboType>>
@@ -22,9 +22,9 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
     private readonly Dictionary<PlayerIndexedType, ComboState> _state = [];
     private IList<PlayerIndexedType> _playerPermutations = [];
     private IList<ComboType> _combos = [];
-    private GameStartType? _settings = null;
+    private GameStart? _settings = null;
     
-    public void Setup(GameStartType settings)
+    public void Setup(GameStart settings)
     {
         _settings = settings;
         _state.Clear();
@@ -44,7 +44,7 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
         }
     }
 
-    public void ProcessFrame(FrameEntryType newFrame, FramesType allFrames)
+    public void ProcessFrame(FrameEntry newFrame, FramesType allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -71,20 +71,20 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
         FramesType frames,
         ComboState state,
         PlayerIndexedType indices,
-        FrameEntryType frame,
+        FrameEntry frame,
         IList<ComboType> combos)
     {
-        int currentFrameNumber = frame.Frame;
-        PostFrameUpdateType playerFrame = frame.Players[indices.PlayerIndex]!.Post;
-        PostFrameUpdateType opponentFrame = frame.Players[indices.OpponentIndex]!.Post;
+        int currentFrameNumber = frame.Frame!.Value;
+        PostFrameUpdate playerFrame = frame.Players![indices.PlayerIndex]!.Post;
+        PostFrameUpdate opponentFrame = frame.Players[indices.OpponentIndex]!.Post;
 
         int prevFrameNumber = currentFrameNumber - 1;
-        PostFrameUpdateType? prevPlayerFrame = null;
-        PostFrameUpdateType? prevOpponentFrame = null;
+        PostFrameUpdate? prevPlayerFrame = null;
+        PostFrameUpdate? prevOpponentFrame = null;
 
-        if (frames.TryGetValue(prevFrameNumber, out FrameEntryType? prevFrame))
+        if (frames.TryGetValue(prevFrameNumber, out FrameEntry? prevFrame))
         {
-            prevPlayerFrame = prevFrame.Players[indices.PlayerIndex]!.Post;
+            prevPlayerFrame = prevFrame.Players![indices.PlayerIndex]!.Post;
             prevOpponentFrame = prevFrame.Players[indices.OpponentIndex]!.Post;
         }
 
@@ -101,8 +101,8 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
         // an animation started. Should be more robust, for old files it should always be
         // null and null < null = false
         bool actionChangedSinceHit = playerFrame.ActionStateId != state.LastHitAnimation;
-        int? actionCounter = playerFrame.ActionStateCounter;
-        int? prevActionCounter = prevPlayerFrame is not null ? prevPlayerFrame.ActionStateCounter : 0;
+        float? actionCounter = playerFrame.ActionStateCounter;
+        float? prevActionCounter = prevPlayerFrame is not null ? prevPlayerFrame.ActionStateCounter : 0;
         bool actionFrameCounterReset = actionCounter is not null && prevActionCounter is not null && actionCounter.Value < prevActionCounter.Value;
         if (actionChangedSinceHit || actionFrameCounterReset)
         {

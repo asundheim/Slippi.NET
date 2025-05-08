@@ -1,6 +1,6 @@
 namespace Slippi.NET.Types;
 
-public enum GameMode
+public enum GameMode : byte
 {
     VS = 0x02,
     ONLINE = 0x08,

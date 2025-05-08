@@ -1,8 +1,8 @@
 namespace Slippi.NET.Types;
 
-public record class PlayerType
+public record class Player
 {
-    public PlayerType(int playerIndex, 
+    public Player(int playerIndex, 
         int port, 
         int? characterId, 
         int? type, 

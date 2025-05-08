@@ -1,3 +1,3 @@
 namespace Slippi.NET.Types;
 
-public delegate bool EventCallbackFunc(Command command, EventPayloadTypes? payload = null, byte[]? buffer = null);
+public delegate bool EventCallbackFunc(Command command, EventPayload? payload = null, byte[]? buffer = null);

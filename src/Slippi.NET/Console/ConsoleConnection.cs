@@ -13,7 +13,7 @@ namespace Slippi.NET.Console;
 
 public class ConsoleConnection : Connection
 {
-    public const string NETWORK_MESSAGE = "HELO\0";
+    public const string NETWORK_MESSAGE = "HELO";
     private const int DEFAULT_CONNECTION_TIMEOUT_MS = 20_000;
 
     private readonly ConsoleConnectionDetails _defaultConnectionDetails = new ConsoleConnectionDetails()
@@ -155,7 +155,7 @@ public class ConsoleConnection : Connection
                     // TODO: active Wii connection for the relay connection to keep itself alive
                     // (5 years ago)
 
-                    byte[] fakeKeepAlive = Encoding.UTF8.GetBytes(NETWORK_MESSAGE);
+                    byte[] fakeKeepAlive = [.. Encoding.UTF8.GetBytes(NETWORK_MESSAGE), (byte)'\0'];
                     HandleReplayData(fakeKeepAlive);
 
                     break;

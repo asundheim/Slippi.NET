@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>13</LangVersion>
     </PropertyGroup>
 
 	<ItemGroup>
@@ -19,10 +20,11 @@
 	<ItemGroup>
 	  <PackageReference Include="ENet-CSharp" Version="2.4.8" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	  <PackageReference Include="Semver" Version="3.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\UBJson\UBJson\UBJson.csproj" />
+	  <ProjectReference Include="..\..\..\UBJson\UBJson\UBJson.csproj" />
 	</ItemGroup>
 	
 </Project>

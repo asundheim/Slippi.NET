@@ -10,7 +10,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
     private readonly Dictionary<PlayerIndexedType, PlayerActionState> _state = [];
     private List<PlayerIndexedType> _playerPermutations = [];
     
-    public void Setup(GameStartType settings)
+    public void Setup(GameStart settings)
     {
         _state.Clear();
         _playerPermutations = StatsUtils.GetSinglesPlayerPermutationsFromSettings(settings).ToList();
@@ -64,7 +64,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
         }
     }
 
-    public void ProcessFrame(FrameEntryType frame, FramesType allFrames)
+    public void ProcessFrame(FrameEntry frame, FramesType allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -80,7 +80,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
         return _state.Values.Select(state => state.PlayerCounts).ToList();
     }
 
-    private static void HandleActionCompute(PlayerActionState state, PlayerIndexedType indices, FrameEntryType frame)
+    private static void HandleActionCompute(PlayerActionState state, PlayerIndexedType indices, FrameEntry frame)
     {
         var playerFrame = frame.Players[indices.PlayerIndex]!.Post;
         var opponentFrame = frame.Players[indices.OpponentIndex]!.Post;

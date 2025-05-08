@@ -1,8 +1,8 @@
 namespace Slippi.NET.Types;
 
-public record class GameInfoType
+public record class GameInfo
 {
-    public GameInfoType(
+    public GameInfo(
         int? gameBitfield1, 
         int? gameBitfield2, 
         int? gameBitfield3, 

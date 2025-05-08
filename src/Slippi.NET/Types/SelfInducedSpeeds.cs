@@ -1,8 +1,8 @@
 namespace Slippi.NET.Types;
 
-public record class SelfInducedSpeedsType
+public record class SelfInducedSpeeds
 {
-    public SelfInducedSpeedsType(float? airX, float? y, float? attackX, float? attackY, float? groundX)
+    public SelfInducedSpeeds(float? airX, float? y, float? attackX, float? attackY, float? groundX)
     {
         AirX = airX;
         Y = y;

@@ -1,15 +1,15 @@
 namespace Slippi.NET.Types;
 
-public record class GeckoCodeType
+public record class GeckoCode
 {
-    public GeckoCodeType(int? type, int? address, byte[] contents)
+    public GeckoCode(uint? type, uint? address, byte[] contents)
     {
         Type = type;
         Address = address;
         Contents = contents;
     }
 
-    public int? Type { get; set; }
-    public int? Address { get; set; }
+    public uint? Type { get; set; }
+    public uint? Address { get; set; }
     public byte[] Contents { get; set; } = Array.Empty<byte>();
 }

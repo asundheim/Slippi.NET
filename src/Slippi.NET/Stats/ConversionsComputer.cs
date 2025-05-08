@@ -15,7 +15,7 @@ public class ConversionsComputerEvent : IEvent<ConversionsComputerEventArgs>
 public class ConversionsComputerEventArgs
 {
     public required ConversionType? Combo { get; init; }
-    public required GameStartType? Settings { get; init; }
+    public required GameStart? Settings { get; init; }
 }
 
 public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, ConversionsComputerEventArgs>, IStatComputer<IList<ConversionType>>
@@ -24,14 +24,14 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
     private IList<PlayerIndexedType> _playerPermutations = [];
     private IList<ConversionType> _conversions = [];
     private LastEndFrameMetadataType _metadata;
-    private GameStartType? _settings = null;
+    private GameStart? _settings = null;
 
     public ConversionsComputer()
     {
         _metadata = new LastEndFrameMetadataType();
     }
 
-    public void Setup(GameStartType settings)
+    public void Setup(GameStart settings)
     {
         _playerPermutations = StatsUtils.GetSinglesPlayerPermutationsFromSettings(settings);
         _conversions.Clear();
@@ -51,7 +51,7 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
         }
     }
 
-    public void ProcessFrame(FrameEntryType newFrame, FramesType allFrames)
+    public void ProcessFrame(FrameEntry newFrame, FramesType allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -117,7 +117,7 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
         FramesType frames,
         PlayerConversionState state,
         PlayerIndexedType indices,
-        FrameEntryType frame,
+        FrameEntry frame,
         IList<ConversionType> conversions)
     {
         int currentFrameNumber = frame.Frame;
@@ -125,8 +125,8 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
         var opponentFrame = frame.Players[indices.OpponentIndex]!.Post;
 
         int prevFrameNumber = currentFrameNumber - 1;
-        PostFrameUpdateType? prevPlayerFrame = null;
-        PostFrameUpdateType? prevOpponentFrame = null;
+        PostFrameUpdate? prevPlayerFrame = null;
+        PostFrameUpdate? prevOpponentFrame = null;
 
         if (frames.TryGetValue(prevFrameNumber, out var prevFrame))
         {

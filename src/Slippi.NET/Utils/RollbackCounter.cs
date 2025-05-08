@@ -5,7 +5,7 @@ namespace Slippi.NET.Utils;
 
 public class RollbackCounter
 {
-    private readonly RollbackFramesType _rollbackFrames = [];
+    private readonly RollbackFramesCollection _rollbackFrames = [];
     private int _rollbackFrameCount = 0;
     private int? _rollbackPlayerIdx = null; // For keeping track of rollbacks by following a single player
     private bool _lastFrameWasRollback = false;
@@ -18,7 +18,7 @@ public class RollbackCounter
     /// <param name="currentFrame">The current frame entry.</param>
     /// <param name="playerIdx">The index of the player to track.</param>
     /// <returns>True if the last frame was a rollback, otherwise false.</returns>
-    public bool CheckIfRollbackFrame(FrameEntryType? currentFrame, int playerIdx)
+    public bool CheckIfRollbackFrame(FrameEntry? currentFrame, int playerIdx)
     {
         if (_rollbackPlayerIdx == null)
         {
@@ -36,7 +36,7 @@ public class RollbackCounter
             // Note: We detect during PreFrameUpdate, but new versions have a
             // FrameStart command that has already initialized the frame, so we must
             // check for player data too.
-            if (_rollbackFrames.TryGetValue(currentFrame.Frame, out List<FrameEntryType>? value))
+            if (_rollbackFrames.TryGetValue(currentFrame.Frame, out List<FrameEntry>? value))
             {
                 value.Add(currentFrame);
             }
@@ -63,7 +63,7 @@ public class RollbackCounter
     /// Gets the rollback frames.
     /// </summary>
     /// <returns>A dictionary of rollback frames.</returns>
-    public RollbackFramesType GetFrames()
+    public RollbackFramesCollection GetFrames()
     {
         return _rollbackFrames;
     }
