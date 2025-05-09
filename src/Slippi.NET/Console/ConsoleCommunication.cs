@@ -1,6 +1,6 @@
 ﻿using Slippi.NET.Console.Types;
 using System.Buffers.Binary;
-using static UBJson.Utilities;
+using UBJson;
 
 namespace Slippi.NET.Console;
 
@@ -43,7 +43,7 @@ public class ConsoleCommunication
             {
                 using UnmanagedMemoryStream stream = new UnmanagedMemoryStream(pUbjsonData, ubjsonData.Length);
 
-                _messages.Add(Parse<CommunicationMessage>(stream));
+                _messages.Add(UBJsonReader.Parse<CommunicationMessage>(stream));
             }
 
             buffer = buffer.Slice((int)msgSize + 4).ToArray();
@@ -81,7 +81,7 @@ public class ConsoleCommunication
             }
         };
 
-        byte[] buf = Encode(message);
+        byte[] buf = UBJsonWriter.Encode(message);
 
         Span<byte> msg = [0, 0, 0, 0, .. buf];
         BinaryPrimitives.WriteUInt32BigEndian(msg, (uint)buf.Length);

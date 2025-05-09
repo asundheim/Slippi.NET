@@ -15,13 +15,14 @@ public static class WinnerCalculator
     /// <returns>A list of placements representing the winners.</returns>
     public static IList<Placement> GetWinners(
         GameEnd gameEnd,
-        (IList<Player> Players, bool IsTeams) settings,
+        GameStart settings,
         IList<PostFrameUpdate> finalPostFrameUpdates)
     {
         var placements = gameEnd.Placements;
         var gameEndMethod = gameEnd.GameEndMethod;
         var lrasInitiatorIndex = gameEnd.LrasInitiatorIndex;
-        var (players, isTeams) = settings;
+        var players = settings.Players;
+        var isTeams = settings.IsTeams;
 
         if (gameEndMethod == GameEndMethod.NO_CONTEST || gameEndMethod == GameEndMethod.UNRESOLVED)
         {
@@ -98,7 +99,7 @@ public static class WinnerCalculator
         }
 
         var winningTeam = players.FirstOrDefault(p => p.PlayerIndex == firstPosition.PlayerIndex)?.TeamId;
-        if (isTeams && winningTeam.HasValue)
+        if (isTeams == true && winningTeam is not null)
         {
             return placements.Where(p =>
             {

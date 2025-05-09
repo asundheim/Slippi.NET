@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Slippi.NET.Types;
 
 public record class Player
@@ -25,9 +27,9 @@ public record class Player
         float? modelScale,
         string? controllerFix, 
         string? nametag, 
-        string displayName, 
-        string connectCode, 
-        string userId)
+        string? displayName, 
+        string? connectCode, 
+        string? userId)
     {
         PlayerIndex = playerIndex;
         Port = port;
@@ -59,6 +61,8 @@ public record class Player
 
     public int PlayerIndex { get; set; }
     public int Port { get; set; }
+
+    [DebuggerDisplay("{CharacterId} ({CharacterId.HasValue ? Slippi.NET.Melee.CharacterUtils.GetCharacterName(CharacterId.Value) : null})")]
     public int? CharacterId { get; set; }
     public int? Type { get; set; }
     public int? StartStocks { get; set; }
@@ -80,7 +84,7 @@ public record class Player
     public float? ModelScale { get; set; }
     public string? ControllerFix { get; set; }
     public string? Nametag { get; set; }
-    public string DisplayName { get; set; }
-    public string ConnectCode { get; set; }
-    public string UserId { get; set; }
+    public string? DisplayName { get; set; }
+    public string? ConnectCode { get; set; }
+    public string? UserId { get; set; }
 }

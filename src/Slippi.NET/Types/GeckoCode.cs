@@ -11,5 +11,5 @@ public record class GeckoCode
 
     public uint? Type { get; set; }
     public uint? Address { get; set; }
-    public byte[] Contents { get; set; } = Array.Empty<byte>();
+    public byte[] Contents { get; set; }
 }

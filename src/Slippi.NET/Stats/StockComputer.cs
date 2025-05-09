@@ -4,11 +4,11 @@ using Slippi.NET.Stats.Utils;
 
 namespace Slippi.NET.Stats;
 
-public class StockComputer : IStatComputer<IList<StockType>>
+public class StockComputer : IStatComputer<IList<Stock>>
 {
     private readonly Dictionary<PlayerIndexedType, StockState> _state = new();
     private List<PlayerIndexedType> _playerPermutations = new();
-    private readonly List<StockType> _stocks = new();
+    private readonly List<Stock> _stocks = new();
 
     public void Setup(GameStart settings)
     {
@@ -34,7 +34,7 @@ public class StockComputer : IStatComputer<IList<StockType>>
         }
     }
 
-    public IList<StockType> Fetch()
+    public IList<Stock> Fetch()
     {
         return _stocks;
     }
@@ -44,7 +44,7 @@ public class StockComputer : IStatComputer<IList<StockType>>
         StockState state,
         PlayerIndexedType indices,
         FrameEntry frame,
-        List<StockType> stocks)
+        List<Stock> stocks)
     {
         var playerFrame = frame.Players?[indices.PlayerIndex]?.Post;
         if (playerFrame is null)
@@ -67,7 +67,7 @@ public class StockComputer : IStatComputer<IList<StockType>>
                 return;
             }
 
-            state.Stock = new StockType
+            state.Stock = new Stock
             {
                 PlayerIndex = indices.PlayerIndex,
                 StartFrame = currentFrameNumber,

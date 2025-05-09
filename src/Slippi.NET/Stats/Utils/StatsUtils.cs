@@ -27,7 +27,7 @@ public static class StatsUtils
         ];
     }
 
-    public static bool DidLoseStock(PostFrameUpdate frame, PostFrameUpdate prevFrame)
+    public static bool DidLoseStock(PostFrameUpdate? frame, PostFrameUpdate? prevFrame)
     {
         if (frame is null || prevFrame is null)
         {

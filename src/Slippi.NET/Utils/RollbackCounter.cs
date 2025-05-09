@@ -1,5 +1,6 @@
 
 using Slippi.NET.Types;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Slippi.NET.Utils;
 

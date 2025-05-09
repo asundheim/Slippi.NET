@@ -4,5 +4,5 @@ namespace Slippi.NET.Stats;
 
 public record class StockState
 {
-    public StockType? Stock { get; set; }
+    public Stock? Stock { get; set; }
 }

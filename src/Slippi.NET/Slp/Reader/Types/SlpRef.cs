@@ -1,4 +1,5 @@
 ﻿using Slippi.NET.Types;
+using System.Buffers.Binary;
 
 namespace Slippi.NET.Slp.Reader.Types;
 
@@ -101,7 +102,7 @@ public abstract class SlpRef
             byte command = messageSizesBuffer[i];
 
             // Get size of command
-            messageSizes[command] = messageSizesBuffer[i + 1] << 8 | messageSizesBuffer[i + 2];
+            messageSizes[command] = BinaryPrimitives.ReadUInt16BigEndian(messageSizesBuffer.Slice(i + 1, 2));
         }
 
         return messageSizes;

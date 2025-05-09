@@ -1,9 +1,10 @@
 ﻿using Slippi.NET.Slp.Reader.Types;
 using Slippi.NET.Types;
 using static Slippi.NET.Utils.FullWidthConverter;
-using static Slippi.NET.Utils.StringUtils;
 using static Slippi.NET.Utils.ByteUtils;
 using Slippi.NET.Slp.Reader;
+using Slippi.NET.Utils;
+using UBJson;
 
 namespace Slippi.NET.Slp;
 
@@ -132,7 +133,7 @@ public class SlpFile : IDisposable
             fixed (byte* pBuffer = &buffer[0])
             {
                 using UnmanagedMemoryStream stream = new UnmanagedMemoryStream(pBuffer, buffer.Length);
-                metadata = UBJson.Utilities.Parse<Metadata>(stream);
+                metadata = UBJsonReader.Parse<Metadata>(stream);
             }
         }
         catch (Exception e)
@@ -241,8 +242,12 @@ public class SlpFile : IDisposable
     {
         const int matchIdLength = 51;
         const int matchIdStart = 0x2be;
-        Span<byte> matchIdBuf = payload.Slice(matchIdStart, matchIdLength);
-        string matchId = ReadUtf8(matchIdBuf) ?? string.Empty;
+        string? matchId = null;
+        if (payload.Length >= matchIdStart + matchIdLength)
+        {
+            Span<byte> matchIdBuf = payload.Slice(matchIdStart, matchIdLength);
+            matchId = StringUtils.Instance.ReadUtf8(matchIdBuf) ?? string.Empty;
+        }
 
         List<Player> players = new List<Player>(4);
         for (int i = 0; i < 4; i++)
@@ -302,32 +307,48 @@ public class SlpFile : IDisposable
         const int nametagLength = 0x10;
         int nametagOffset = playerIndex * nametagLength;
         int nametagStart = 0x161 + nametagOffset;
-        Span<byte> nametagBuf = payload.Slice(nametagStart, nametagLength);
-        string? nametagString = ReadShiftJIS(nametagBuf);
-        string nametag = string.IsNullOrEmpty(nametagString) ? string.Empty : ToHalfwidth(nametagString);
+        string nametag = string.Empty;
+        if (payload.Length >= nametagStart + nametagLength)
+        {
+            Span<byte> nametagBuf = payload.Slice(nametagStart, nametagLength);
+            string? nametagString = StringUtils.Instance.ReadShiftJIS(nametagBuf);
+            nametag = string.IsNullOrEmpty(nametagString) ? string.Empty : ToHalfwidth(nametagString);
+        }
 
         // Display name
         const int displayNameLength = 0x1f;
         int displayNameOffset = playerIndex * displayNameLength;
         int displayNameStart = 0x1a5 + displayNameOffset;
-        Span<byte> displayNameBuf = payload.Slice(displayNameStart, displayNameLength);
-        string? displayNameString = ReadShiftJIS(displayNameBuf);
-        string displayName = string.IsNullOrEmpty(displayNameString) ? string.Empty : ToHalfwidth(displayNameString);
+        string displayName = string.Empty;
+        if (payload.Length >= displayNameStart + displayNameLength)
+        {
+            Span<byte> displayNameBuf = payload.Slice(displayNameStart, displayNameLength);
+            string? displayNameString = StringUtils.Instance.ReadShiftJIS(displayNameBuf);
+            displayName = string.IsNullOrEmpty(displayNameString) ? string.Empty : ToHalfwidth(displayNameString);
+        }
 
         // Connect code
         const int connectCodeLength = 0xa;
         int connectCodeOffset = playerIndex * connectCodeLength;
         int connectCodeStart = 0x221 + connectCodeOffset;
-        Span<byte> connectCodeBuf = payload.Slice(connectCodeStart, connectCodeLength);
-        string? connectCodeString = ReadShiftJIS(connectCodeBuf);
-        string connectCode = string.IsNullOrEmpty(connectCodeString) ? string.Empty : ToHalfwidth(connectCodeString);
+        string connectCode = string.Empty;
+        if (payload.Length >= connectCodeStart + connectCodeLength)
+        {
+            Span<byte> connectCodeBuf = payload.Slice(connectCodeStart, connectCodeLength);
+            string? connectCodeString = StringUtils.Instance.ReadShiftJIS(connectCodeBuf);
+            connectCode = string.IsNullOrEmpty(connectCodeString) ? string.Empty : ToHalfwidth(connectCodeString);
+        }
 
         // User Id
         const int userIdLength = 0x1d;
         int userIdOffset = playerIndex * userIdLength;
         int userIdStart = 0x249 + userIdOffset;
-        Span<byte> userIdBuf = payload.Slice(userIdStart, userIdLength);
-        string userId = ReadUtf8(userIdBuf) ?? string.Empty;
+        string userId = string.Empty;
+        if (payload.Length >= userIdStart + userIdLength)
+        {
+            Span<byte> userIdBuf = payload.Slice(userIdStart, userIdLength);
+            connectCode = StringUtils.Instance.ReadUtf8(userIdBuf) ?? string.Empty;
+        }
 
         int offset = playerIndex * 0x24;
         return new Player(

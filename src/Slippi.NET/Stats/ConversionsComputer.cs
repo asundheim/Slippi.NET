@@ -14,15 +14,15 @@ public class ConversionsComputerEvent : IEvent<ConversionsComputerEventArgs>
 
 public class ConversionsComputerEventArgs
 {
-    public required ConversionType? Combo { get; init; }
+    public required Conversion? Combo { get; init; }
     public required GameStart? Settings { get; init; }
 }
 
-public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, ConversionsComputerEventArgs>, IStatComputer<IList<ConversionType>>
+public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, ConversionsComputerEventArgs>, IStatComputer<IList<Conversion>>
 {
     private readonly Dictionary<PlayerIndexedType, PlayerConversionState> _state = [];
     private IList<PlayerIndexedType> _playerPermutations = [];
-    private IList<ConversionType> _conversions = [];
+    private IList<Conversion> _conversions = [];
     private LastEndFrameMetadataType _metadata;
     private GameStart? _settings = null;
 
@@ -73,7 +73,7 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
         }
     }
 
-    public IList<ConversionType> Fetch()
+    public IList<Conversion> Fetch()
     {
         PopulateConversionTypes();
 
@@ -86,7 +86,7 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
         var conversionsToHandle = _conversions.Where(c => c.OpeningType != "unknown").ToList();
 
         // Group new conversions by startTime and sort
-        var groupedConversions = _conversions.GroupBy(c => c.StartFrame);
+        var groupedConversions = conversionsToHandle.GroupBy(c => c.StartFrame);
         var sortedConversion = groupedConversions.OrderBy(c => c.FirstOrDefault()?.StartFrame ?? 0);
 
         // Set the opening types on the conversions we need to handle
@@ -118,7 +118,7 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
         PlayerConversionState state,
         PlayerIndexedType indices,
         FrameEntry frame,
-        IList<ConversionType> conversions)
+        IList<Conversion> conversions)
     {
         int currentFrameNumber = frame.Frame!.Value;
         var playerFrame = frame.Players![indices.PlayerIndex]!.Post;
@@ -162,7 +162,7 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
         {
             if (state.Conversion is null)
             {
-                state.Conversion = new ConversionType
+                state.Conversion = new Conversion
                 {
                     PlayerIndex = indices.OpponentIndex,
                     LastHitBy = indices.PlayerIndex,

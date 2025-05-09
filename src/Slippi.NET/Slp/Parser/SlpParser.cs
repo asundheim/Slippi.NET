@@ -92,6 +92,28 @@ public class SlpParser
         return _latestFrameIndex < (int)Frames.FIRST_PLAYABLE ? 0 : _latestFrameIndex.Value - (int)Frames.FIRST_PLAYABLE;
     }
 
+    public FrameEntry? GetLatestFrame()
+    {
+        // TODO: Modify this to check if we actually have all the latest frame data and return that
+        // TODO: If we do. For now I'm just going to take a shortcut
+        // 6 years ago
+
+        var allFrames = GetFrames();
+        int frameIndex = _latestFrameIndex is not null ? _latestFrameIndex.Value : (int)Frames.FIRST;
+        int indexToUse = _gameEnd is not null ? frameIndex : frameIndex - 1;
+        if (allFrames is null)
+        {
+            return null;
+        }
+
+        if (allFrames.TryGetValue(indexToUse, out FrameEntry? frame))
+        {
+            return frame;
+        }
+
+        return null;
+    }
+
     public GameStart? GetSettings()
     {
         return _settingsComplete ? _settings : null;
@@ -234,14 +256,13 @@ public class SlpParser
 
         if (location == "pre" && !(frameUpdate.IsFollower ?? false))
         {
-            if (_frames.TryGetValue(currentFrameNumber, out FrameEntry? currentFrameEntry))
+            _frames.TryGetValue(currentFrameNumber, out FrameEntry? currentFrameEntry);
+
+            bool wasRolledBack = _rollbackCounter.CheckIfRollbackFrame(currentFrameEntry, frameUpdate.PlayerIndex!.Value);
+            if (wasRolledBack)
             {
-                bool wasRolledBack = _rollbackCounter.CheckIfRollbackFrame(currentFrameEntry, frameUpdate.PlayerIndex!.Value);
-                if (wasRolledBack)
-                {
-                    // frame is about to be overwritten
-                    OnRollback?.Invoke(this, currentFrameEntry);
-                }
+                // frame is about to be overwritten
+                OnRollback?.Invoke(this, currentFrameEntry!);
             }
         }
 
@@ -352,7 +373,11 @@ public class SlpParser
                     };
                 }
             }
+
+            _frames[currentFrameNumber] = newFrame;
         }
+
+        _frames[currentFrameNumber].Frame = currentFrameNumber;
 
         // If file is from before frame bookending, add frame to stats computer here. Does a little
         // more processing than necessary, but it works

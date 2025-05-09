@@ -9,7 +9,7 @@ public static class OverallStats
     public static IList<OverallType> GenerateOverallStats(
         GameStart settings,
         IList<PlayerInput> inputs,
-        IList<ConversionType> conversions,
+        IList<Conversion> conversions,
         int playableFrameCount)
     {
         var inputsByPlayer = inputs.ToDictionary(i => i.PlayerIndex);
@@ -141,12 +141,12 @@ public static class OverallStats
     }
 
     private static RatioType GetOpeningRatio(
-        Dictionary<int, Dictionary<string, List<ConversionType>>> conversionsByPlayerOpening,
+        Dictionary<int, Dictionary<string, List<Conversion>>> conversionsByPlayerOpening,
         int playerIndex,
         IList<int> opponentIndices,
         string type)
     {
-        IList<ConversionType> openings;
+        IList<Conversion> openings;
         if (conversionsByPlayerOpening.TryGetValue(playerIndex, out var conversionsByType))
         {
             if (conversionsByType.TryGetValue(type, out var openingByType))
@@ -176,17 +176,17 @@ public static class OverallStats
 
                 return [];
             })
-            .Aggregate(new List<ConversionType>(), (a, b) => [.. a, .. b]);
+            .Aggregate(new List<Conversion>(), (a, b) => [.. a, .. b]);
 
         return GetRatio(openings.Count, openings.Count + opponentOpenings.Count);
     }
 
     private static RatioType GetBeneficialTradeRatio(
-        Dictionary<int, Dictionary<string, List<ConversionType>>> conversionsByPlayerOpening,
+        Dictionary<int, Dictionary<string, List<Conversion>>> conversionsByPlayerOpening,
         int playerIndex,
         IList<int> opponentIndices)
     {
-        IList<ConversionType> playerTrades;
+        IList<Conversion> playerTrades;
         if (conversionsByPlayerOpening.TryGetValue(playerIndex, out var conversionsByType))
         {
             if (conversionsByType.TryGetValue("trade", out var trades))
@@ -216,9 +216,9 @@ public static class OverallStats
 
                 return [];
             })
-            .Aggregate(new List<ConversionType>(), (a, b) => [..a, ..b]);
+            .Aggregate(new List<Conversion>(), (a, b) => [..a, ..b]);
 
-        List<ConversionType> benefitsPlayer = [];
+        List<Conversion> benefitsPlayer = [];
 
         // Figure out which punishes benefited this player
         var zippedTrades = playerTrades.Zip(opponentTrades);

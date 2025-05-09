@@ -2,5 +2,5 @@ namespace Slippi.NET.Stats;
 
 public record class StatOptions
 {
-    public required bool ProcessOnTheFly { get; init; }
+    public bool ProcessOnTheFly { get; set; } = false;
 }

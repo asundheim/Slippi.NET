@@ -9,18 +9,10 @@
     </PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\..\slippi-js\src\**\*.ts" />
-		<None Include="..\..\slippi-js\src\**\*.json" />
-		<None Remove="..\..\slippi-js\src\melee\*" />
-		<None Remove="..\..\slippi-js\src\stats\*" />
-		<None Remove="..\..\slippi-js\src\console\*" />
-        <None Remove="..\..\slippi-js\**\node_modules\*" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <PackageReference Include="ENet-CSharp" Version="2.4.8" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	  <PackageReference Include="Semver" Version="3.0.0" />
+	  <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>

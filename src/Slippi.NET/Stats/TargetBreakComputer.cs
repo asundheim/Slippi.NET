@@ -60,13 +60,21 @@ public record class TargetBreakComputer : IStatComputer<IList<TargetBreakType>>
         }
 
         // Linq have mercy
-        var currentTargets = frames[currentFrameNumber]?.Items?
+        List<ItemUpdate> currentTargets = [];
+        if (frames.TryGetValue(currentFrameNumber, out var currentFrame))
+        {
+            currentTargets = currentFrame?.Items?
             .Where(item => item.TypeId == TARGET_ITEM_TYPE_ID)
             .ToList() ?? [];
+        }
 
-        var previousTargets = frames[prevFrameNumber]?.Items?
+        List<ItemUpdate> previousTargets = [];
+        if (frames.TryGetValue(prevFrameNumber, out var prevFrame))
+        {
+            previousTargets = prevFrame?.Items?
             .Where(item => item.TypeId == TARGET_ITEM_TYPE_ID)
             .ToList() ?? [];
+        }
 
         var currentTargetIds = currentTargets
             .Select(item => item.SpawnId)

@@ -5,7 +5,7 @@ using static Slippi.NET.Stats.Utils.ActionUtils;
 
 namespace Slippi.NET.Stats;
 
-public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
+public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
 {
     private readonly Dictionary<PlayerIndexedType, PlayerActionState> _state = [];
     private List<PlayerIndexedType> _playerPermutations = [];
@@ -17,7 +17,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
 
         foreach (var indices in _playerPermutations)
         {
-            var playerCounts = new ActionCountsType
+            var playerCounts = new ActionCounts
             {
                 PlayerIndex = indices.PlayerIndex,
                 WavedashCount = 0,
@@ -27,8 +27,8 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
                 SpotDodgeCount = 0,
                 LedgegrabCount = 0,
                 RollCount = 0,
-                LCancelCount = new LCancelCountType { Success = 0, Fail = 0 },
-                AttackCount = new AttackCountType
+                LCancelCount = new LCancelCount { Success = 0, Fail = 0 },
+                AttackCount = new AttackCount
                 {
                     Jab1 = 0,
                     Jab2 = 0,
@@ -47,10 +47,10 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
                     Uair = 0,
                     Dair = 0
                 },
-                GrabCount = new GrabCountType { Success = 0, Fail = 0 },
-                ThrowCount = new ThrowCountType { Up = 0, Forward = 0, Back = 0, Down = 0 },
-                GroundTechCount = new GroundTechCountType { Away = 0, In = 0, Neutral = 0, Fail = 0 },
-                WallTechCount = new WallTechCountType { Success = 0, Fail = 0 }
+                GrabCount = new GrabCount { Success = 0, Fail = 0 },
+                ThrowCount = new ThrowCount { Up = 0, Forward = 0, Back = 0, Down = 0 },
+                GroundTechCount = new GroundTechCount { Away = 0, In = 0, Neutral = 0, Fail = 0 },
+                WallTechCount = new WallTechCount { Success = 0, Fail = 0 }
             };
 
             var playerState = new PlayerActionState
@@ -75,7 +75,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
         }
     }
 
-    public IList<ActionCountsType> Fetch()
+    public IList<ActionCounts> Fetch()
     {
         return _state.Values.Select(state => state.PlayerCounts).ToList();
     }
@@ -98,7 +98,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
         // Manage animation state
         int currentAnimation = playerFrame!.ActionStateId!.Value;
         state.Animations.Add(currentAnimation);
-        var currentFrameCounter = playerFrame.ActionStateCounter!.Value;
+        var currentFrameCounter = playerFrame.ActionStateCounter ?? 0; // not present in 0.1.0
         state.ActionFrameCounters.Add(currentFrameCounter);
 
         // Grab last 3 frames
@@ -196,8 +196,13 @@ public record class ActionsComputer : IStatComputer<IList<ActionCountsType>>
         HandleActionWavedash(state.PlayerCounts, state.Animations);
     }
 
-    public static void HandleActionWavedash(ActionCountsType counts, List<int> animations)
+    public static void HandleActionWavedash(ActionCounts counts, List<int> animations)
     {
+        if (animations.Count < 2)
+        {
+            return;
+        }
+
         var currentAnimation = animations[^1];
         var prevAnimation = animations[^2];
 
