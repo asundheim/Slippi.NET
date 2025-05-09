@@ -16,7 +16,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\UBJson\UBJson\UBJson.csproj" />
+	  <ProjectReference Include="..\UBJson\UBJson.csproj" />
 	</ItemGroup>
 	
 </Project>

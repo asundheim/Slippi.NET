@@ -5,7 +5,6 @@ using Slippi.NET.Stats;
 using Slippi.NET.Stats.Types;
 using Slippi.NET.Types;
 using Slippi.NET.Utils;
-using Xunit;
 
 public class HomeRunTests
 {

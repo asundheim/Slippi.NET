@@ -1,7 +1,5 @@
-using Slippi.NET;
 using Slippi.NET.Stats;
 using Slippi.NET.Stats.Types;
-using Xunit;
 
 namespace Slippi.NET.Tests;
 

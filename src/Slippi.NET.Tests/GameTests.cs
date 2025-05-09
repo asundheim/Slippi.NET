@@ -136,10 +136,10 @@ public class GameTests
 
         // Assert
         Assert.NotNull(players);
-        Assert.Equal("V", players[0].Names.Netplay);
-        Assert.Equal("VA#0", players[0].Names.Code);
-        Assert.Equal("Fizzi", players[1].Names.Netplay);
-        Assert.Equal("FIZZI#36", players[1].Names.Code);
+        Assert.Equal("V", players[0].Names!.Netplay);
+        Assert.Equal("VA#0", players[0].Names!.Code);
+        Assert.Equal("Fizzi", players[1].Names!.Netplay);
+        Assert.Equal("FIZZI#36", players[1].Names!.Code);
     }
 
     [Fact]

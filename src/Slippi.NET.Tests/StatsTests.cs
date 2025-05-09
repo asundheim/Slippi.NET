@@ -1,7 +1,6 @@
 using Slippi.NET.Stats;
 using Slippi.NET.Stats.Types;
 using Slippi.NET.Stats.Utils;
-using System.Security.Cryptography;
 
 namespace Slippi.NET.Tests;
 
@@ -139,6 +138,8 @@ public class StatsTests
     {
         var game = new SlippiGame("slp/pummel.slp", _statOptions);
         var stats = game.GetStats();
+        Assert.NotNull(stats);
+
         var marth = stats.Overall[0];
         var sheik = stats.Overall[1];
 
@@ -151,6 +152,8 @@ public class StatsTests
     {
         var game = new SlippiGame("slp/consistencyTest/Puff-MagnifyingGlass-10.slp", _statOptions);
         var stats = game.GetStats();
+        Assert.NotNull(stats);
+
         var puff = stats.Overall[0];
         var yl = stats.Overall[1];
         float totalDamagePuffDealt = 0f;
@@ -174,6 +177,8 @@ public class StatsTests
     {
         var game = new SlippiGame("slp/consistencyTest/PichuVSelf-All-22.slp", _statOptions);
         var stats = game.GetStats();
+        Assert.NotNull(stats);
+
         var pichu = stats.Overall[0];
         var ics = stats.Overall[1];
 

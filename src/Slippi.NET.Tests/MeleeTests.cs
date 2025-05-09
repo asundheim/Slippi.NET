@@ -1,11 +1,7 @@
 namespace Slippi.NET.Tests;
 
 using Slippi.NET.Melee;
-using Slippi.NET.Melee.Data;
 using Slippi.NET.Melee.Types;
-using System.Security.Cryptography.X509Certificates;
-using System.Xml.Linq;
-using Xunit;
 
 public class MeleeTests
 {

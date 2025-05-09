@@ -2,7 +2,6 @@ namespace Slippi.NET.Tests;
 
 using Slippi.NET;
 using Slippi.NET.Stats;
-using Xunit;
 
 public class ItemTests
 {

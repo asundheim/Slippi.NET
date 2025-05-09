@@ -13,6 +13,8 @@ public class ConversionTests
         // Arrange
         var game = new SlippiGame("slp/consistencyTest/PuffVFalcon-Sing.slp", new StatOptions());
         var stats = game.GetStats();
+        Assert.NotNull(stats);
+
         var puff = stats.Overall[0];
         var totalDamagePuffDealt = stats.Conversions
             .Where(conversion => conversion.LastHitBy == puff.PlayerIndex)
@@ -30,6 +32,8 @@ public class ConversionTests
         // Arrange
         var game = new SlippiGame("slp/consistencyTest/BowsVDK-SB-63.slp", new StatOptions());
         var stats = game.GetStats();
+        Assert.NotNull(stats);
+
         var bowser = stats.Overall[0];
         var totalDamageBowserDealt = stats.Conversions
             .Where(conversion => conversion.LastHitBy == bowser.PlayerIndex)
@@ -48,6 +52,8 @@ public class ConversionTests
         // Arrange
         var game = new SlippiGame("slp/consistencyTest/FalcVBows-5UB-67.slp", new StatOptions());
         var stats = game.GetStats();
+        Assert.NotNull(stats);
+
         var falcon = stats.Overall[0];
         var totalDamageFalconDealt = stats.Conversions
             .Where(conversion => conversion.LastHitBy == falcon.PlayerIndex)
@@ -65,6 +71,8 @@ public class ConversionTests
         // Arrange
         var game = new SlippiGame("slp/consistencyTest/GanonVDK-5UB-73.slp", new StatOptions());
         var stats = game.GetStats();
+        Assert.NotNull(stats);
+
         var ganon = stats.Overall[0];
         var totalDamageGanonDealt = stats.Conversions
             .Where(conversion => conversion.LastHitBy == ganon.PlayerIndex)
@@ -82,6 +90,8 @@ public class ConversionTests
         // Arrange
         var game = new SlippiGame("slp/consistencyTest/KirbyVDK-Neutral-17.slp", new StatOptions());
         var stats = game.GetStats();
+        Assert.NotNull(stats);
+
         var kirby = stats.Overall[0];
         var totalDamageKirbyDealt = stats.Conversions
             .Where(conversion => conversion.LastHitBy == kirby.PlayerIndex)
@@ -99,6 +109,8 @@ public class ConversionTests
         // Arrange
         var game = new SlippiGame("slp/consistencyTest/YoshiVDK-Egg-13.slp", new StatOptions());
         var stats = game.GetStats();
+        Assert.NotNull(stats);
+
         var yoshi = stats.Overall[0];
         var totalDamageYoshiDealt = stats.Conversions
             .Where(conversion => conversion.LastHitBy == yoshi.PlayerIndex)
@@ -116,6 +128,8 @@ public class ConversionTests
         // Arrange
         var game = new SlippiGame("slp/consistencyTest/MewTwoVDK-SB-42.slp", new StatOptions());
         var stats = game.GetStats();
+        Assert.NotNull(stats);
+
         var mewTwo = stats.Overall[0];
         var totalDamageMewTwoDealt = stats.Conversions
             .Where(conversion => conversion.LastHitBy == mewTwo.PlayerIndex)
@@ -133,6 +147,8 @@ public class ConversionTests
         // Arrange
         var game = new SlippiGame("slp/consistencyTest/KirbyVMario-nB.slp", new StatOptions());
         var stats = game.GetStats();
+        Assert.NotNull(stats);
+
         var kirby = stats.Overall[0];
         var mario = stats.Overall[1];
 
@@ -147,6 +163,8 @@ public class ConversionTests
         // Arrange
         var game = new SlippiGame("slp/consistencyTest/DKVBows-nB.slp", new StatOptions());
         var stats = game.GetStats();
+        Assert.NotNull(stats);
+
         var dk = stats.Overall[0];
         var bowser = stats.Overall[1];
 
