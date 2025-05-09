@@ -21,10 +21,6 @@
     </ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\..\..\slippi-js\test\*.ts" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="./slp/**/*.*">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
