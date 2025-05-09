@@ -21,7 +21,7 @@
     </ItemGroup>
 
 	<ItemGroup>
-		<None Remove="..\..\..\slippi-js\test\*.ts" />
+		<None Include="..\..\..\slippi-js\test\*.ts" />
 	</ItemGroup>
 
 	<ItemGroup>

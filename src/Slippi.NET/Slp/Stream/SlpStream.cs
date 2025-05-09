@@ -71,7 +71,8 @@ public class SlpStream
             // Increment by one for the command byte
             index += 1;
 
-            Span<byte> payloadPtr = data.Slice(index);
+            
+            Span<byte> payloadPtr = data.Slice(index, payloadSize != 0 ? payloadSize : data.Length - index);
             SlpDataReader xPayload = new SlpDataReader(payloadPtr);
             int payloadLen = 0;
 
@@ -96,7 +97,7 @@ public class SlpStream
 
     private byte[] WriteCommand(Command command, Span<byte> entirePayload, int payloadSize)
     {
-        Span<byte> payloadBuf = entirePayload.Slice(payloadSize);
+        Span<byte> payloadBuf = entirePayload;
         byte[] bufToWrite = [(byte)command, .. payloadBuf];
 
         // Forward the raw buffer onwards
