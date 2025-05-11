@@ -1,16 +1,8 @@
-﻿using Slippi.NET.Common;
-using Slippi.NET.Stats.Types;
+﻿using Slippi.NET.Stats.Types;
 using Slippi.NET.Stats.Utils;
 using Slippi.NET.Types;
 
 namespace Slippi.NET.Stats;
-
-public class ConversionsComputerEvent : IEvent<ConversionsComputerEventArgs>
-{
-    public string Event => "CONVERSION";
-
-    public required ConversionsComputerEventArgs Args { get; init; }
-}
 
 public class ConversionsComputerEventArgs
 {
@@ -18,7 +10,7 @@ public class ConversionsComputerEventArgs
     public required GameStart? Settings { get; init; }
 }
 
-public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, ConversionsComputerEventArgs>, IStatComputer<IList<Conversion>>
+public class ConversionsComputer : IStatComputer<IList<Conversion>>
 {
     private readonly Dictionary<PlayerIndices, PlayerConversionState> _state = [];
     private IList<PlayerIndices> _playerPermutations = [];
@@ -30,6 +22,8 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
     {
         _metadata = new LastEndFrameMetadata();
     }
+
+    public event EventHandler<ConversionsComputerEventArgs>? OnConversion;
 
     public void Setup(GameStart settings)
     {
@@ -60,13 +54,10 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
                 bool terminated = HandleConversionCompute(allFrames, state, indices, newFrame, _conversions);
                 if (terminated)
                 {
-                    Emit(new ConversionsComputerEvent()
+                    OnConversion?.Invoke(this, new ConversionsComputerEventArgs()
                     {
-                        Args = new ConversionsComputerEventArgs()
-                        {
-                            Combo = _conversions.Count > 0 ? _conversions[^1] : null,
-                            Settings = _settings
-                        }
+                        Combo = _conversions.Count > 0 ? _conversions[^1] : null,
+                        Settings = _settings
                     });
                 }
             }

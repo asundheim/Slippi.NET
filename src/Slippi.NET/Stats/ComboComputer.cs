@@ -1,15 +1,8 @@
-﻿using Slippi.NET.Common;
-using Slippi.NET.Stats.Types;
+﻿using Slippi.NET.Stats.Types;
 using Slippi.NET.Stats.Utils;
 using Slippi.NET.Types;
 
 namespace Slippi.NET.Stats;
-
-public class ComboComputerEvent : IEvent<ComboComputerEventArgs>
-{
-    public required string Event { get; init; }
-    public required ComboComputerEventArgs Args { get; init; }
-}
 
 public record class ComboComputerEventArgs
 {
@@ -17,7 +10,7 @@ public record class ComboComputerEventArgs
     public required GameStart? Settings { get; init; }
 }
 
-public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEventArgs>, IStatComputer<IList<ComboInfo>>
+public class ComboComputer : IStatComputer<IList<ComboInfo>>
 {
     private readonly Dictionary<PlayerIndices, ComboState> _state = [];
     private IList<PlayerIndices> _playerPermutations = [];
@@ -44,6 +37,8 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
         }
     }
 
+    public event EventHandler<ComboComputerEventArgs>? OnCombo;
+
     public void ProcessFrame(FrameEntry newFrame, FramesCollection allFrames)
     {
         foreach (var indices in _playerPermutations)
@@ -54,7 +49,7 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
 
                 if (state.Event is not null)
                 {
-                    Emit(new ComboComputerEvent() { Event = state.Event, Args = new ComboComputerEventArgs() { Combo = _combos[^1], Settings = _settings } });
+                    OnCombo?.Invoke(this, new ComboComputerEventArgs() { Combo = _combos[^1], Settings = _settings });
 
                     state.Event = null;
                 }

@@ -37,7 +37,7 @@ public class ConsoleCommunication
             }
 
             // Here we have received all the data, so let's decode it
-            ReadOnlySpan<byte> ubjsonData = buffer.Slice(4, buffer.Length - ((int)msgSize + 4));
+            ReadOnlySpan<byte> ubjsonData = buffer.Slice(4, (int)msgSize + 4);
 
             fixed (byte* pUbjsonData = &ubjsonData[0])
             {
@@ -65,10 +65,10 @@ public class ConsoleCommunication
         return toReturn;
     }
 
-    public static byte[] GenHandshakeOut(byte[] cursor, int clientToken, bool isRealtime = false)
+    public static byte[] GenHandshakeOut(byte[] cursor, uint clientToken, bool isRealtime = false)
     {
         Span<byte> clientTokenBuf = [0, 0, 0, 0];
-        BinaryPrimitives.WriteUInt32BigEndian(clientTokenBuf, (uint)clientToken);
+        BinaryPrimitives.WriteUInt32BigEndian(clientTokenBuf, clientToken);
 
         var message = new
         {

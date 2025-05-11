@@ -2,7 +2,6 @@
 using System.Buffers.Binary;
 using System.Net.Sockets;
 using System.Text;
-using static Slippi.NET.Console.Types.ConnectionEventTypes;
 
 namespace Slippi.NET.Console;
 
@@ -74,7 +73,7 @@ public class ConsoleConnection : Connection
             ConsoleCommunication consoleComms = new ConsoleCommunication();
             _tcpClient = new TcpClient(hostname: ip, port: port) { ReceiveTimeout = timeout };
 
-            Emit(new ConnectionEvent() { Event = CONNECT });
+            EmitOnConnectEvent();
             //_shouldReconnect = true;
 
             string commState = ConsoleCommunicationState.INITIAL;
@@ -118,12 +117,12 @@ public class ConsoleConnection : Connection
 
                 _tcpClient.Close();
                 SetStatus(ConnectionStatus.Disconnected);
-                Emit(new ConnectionEvent() { Event = ERROR, Args = e });
+                EmitOnErrorEvent(e);
             }
         });
     }
 
-    public override void Disconnect()
+    public override void HandleDisconnect()
     {
         SetStatus(ConnectionStatus.Disconnected);
 
@@ -136,7 +135,7 @@ public class ConsoleConnection : Connection
 
     private void ProcessMessage(CommunicationMessage message)
     {
-        Emit(new ConnectionEvent() { Event = MESSAGE, Args = message });
+        EmitOnMessageEvent(message);
 
         switch (message.Type)
         {
@@ -191,7 +190,7 @@ public class ConsoleConnection : Connection
 
                     _options.GameDataCursor = message.Payload.Pos!;
 
-                    Emit(new ConnectionEvent() { Event = HANDSHAKE, Args = _options });
+                    EmitOnHandshakeEvent(_options);
 
                     break;
                 }
@@ -209,13 +208,13 @@ public class ConsoleConnection : Connection
         if (_connectionStatus != status)
         {
             _connectionStatus = status;
-            Emit(new ConnectionEvent() { Event = STATUS_CHANGE, Args = _connectionStatus });
+            EmitOnStatusChangeEvent(_connectionStatus);
         }
     }
 
     private void HandleReplayData(byte[] data)
     {
-        Emit(new ConnectionEvent() { Event = DATA, Args = data });
+        EmitOnDataEvent(data);
     }
 
     private string GetInitialCommState(byte[] data, int length)

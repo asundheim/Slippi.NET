@@ -83,7 +83,7 @@ public class DolphinConnection : Connection
             _peer = _client.Connect(address, channelLimit: 3, data: 1337);
             _peer.Value.Ping();
 
-            Emit(new ConnectionEvent() { Event = ConnectionEventTypes.CONNECT });
+            EmitOnConnectEvent();
             SetStatus(ConnectionStatus.Connected);
 
             ENetLoop(_cts.Token);
@@ -119,12 +119,12 @@ public class DolphinConnection : Connection
                             break;
 
                         case EventType.Connect:
-                            OnConnect();
+                            HandleConnect();
 
                             break;
 
                         case EventType.Disconnect:
-                            Disconnect();
+                            HandleDisconnect();
                             disconnect = true;
 
                             break;
@@ -132,7 +132,7 @@ public class DolphinConnection : Connection
                         case EventType.Receive:
                             System.Console.WriteLine("Packet received from server - Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
 
-                            OnMessage(netEvent.Packet);
+                            HandleMessage(netEvent.Packet);
 
                             netEvent.Packet.Dispose();
 
@@ -145,7 +145,7 @@ public class DolphinConnection : Connection
         }
     }
 
-    private void OnConnect()
+    private void HandleConnect()
     {
         if (_peer is null)
         {
@@ -169,7 +169,7 @@ public class DolphinConnection : Connection
         _peer.Value.Send(0, ref packet);
     }
 
-    private void OnMessage(Packet packet)
+    private void HandleMessage(Packet packet)
     {
         Span<byte> data = stackalloc byte[packet.Length];
         string jsonString = Encoding.ASCII.GetString(data);
@@ -185,7 +185,7 @@ public class DolphinConnection : Connection
 
         if (message.DolphinClosed == true)
         {
-            Disconnect();
+            HandleDisconnect();
             return;
         }
 
@@ -197,14 +197,14 @@ public class DolphinConnection : Connection
                 _nickname = message.Nickname ?? "unknown";
                 _version = message.Version ?? string.Empty;
 
-                Emit(new ConnectionEvent() { Event = ConnectionEventTypes.HANDSHAKE, Args = GetDetails() });
+                EmitOnHandshakeEvent(GetDetails());
 
                 break;
 
             case DolphinMessageTypes.GAME_EVENT:
                 if (message.Payload is null)
                 {
-                    Disconnect();
+                    HandleDisconnect();
                     return;
                 }
 
@@ -228,7 +228,7 @@ public class DolphinConnection : Connection
         }
     }
 
-    public override void Disconnect()
+    public override void HandleDisconnect()
     {
         if (_peer is not null)
         {
@@ -251,7 +251,7 @@ public class DolphinConnection : Connection
 
     private void HandleReplayData(byte[] data)
     {
-        Emit(new ConnectionEvent() { Event = ConnectionEventTypes.DATA, Args = data });
+        EmitOnDataEvent(data);
     }
 
     private void SetStatus(ConnectionStatus status)
@@ -260,7 +260,7 @@ public class DolphinConnection : Connection
         if (_connectionStatus != status)
         {
             _connectionStatus = status;
-            Emit(new ConnectionEvent() { Event = ConnectionEventTypes.STATUS_CHANGE, Args = _connectionStatus });
+            EmitOnStatusChangeEvent(_connectionStatus);
         }
     }
 
@@ -271,7 +271,7 @@ public class DolphinConnection : Connection
             Exception e = new Exception($"Unexpected game data cursor. Expected: {_gameCursor} but got: {message.GameCursor}.");
             System.Console.WriteLine(e.Message);
 
-            Emit(new ConnectionEvent() { Event = ConnectionEventTypes.ERROR, Args = e });
+            EmitOnErrorEvent(e);
         }
 
         _gameCursor = message.NextCursor!.Value;

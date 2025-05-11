@@ -2,5 +2,8 @@
 
 public record class ConsoleConnectionDetails : ConnectionDetails
 {
+    /// <summary>
+    /// TODO this is currently not implemented.
+    /// </summary>
     public bool AutoReconnect { get; set; } = true;
 }
