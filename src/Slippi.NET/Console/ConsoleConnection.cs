@@ -1,12 +1,7 @@
 ﻿using Slippi.NET.Console.Types;
-using System;
 using System.Buffers.Binary;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 using static Slippi.NET.Console.Types.ConnectionEventTypes;
 
 namespace Slippi.NET.Console;
@@ -31,7 +26,8 @@ public class ConsoleConnection : Connection
     private ConnectionStatus _connectionStatus = ConnectionStatus.Disconnected;
     private TcpClient? _tcpClient = null;
     private ConsoleConnectionDetails _options;
-    private bool _shouldReconnect = false;
+    // TODO implement reconnect
+    // private bool _shouldReconnect = false;
 
     public ConsoleConnection(string? consoleNick = null) : base()
     {
@@ -79,7 +75,7 @@ public class ConsoleConnection : Connection
             _tcpClient = new TcpClient(hostname: ip, port: port) { ReceiveTimeout = timeout };
 
             Emit(new ConnectionEvent() { Event = CONNECT });
-            _shouldReconnect = true;
+            //_shouldReconnect = true;
 
             string commState = ConsoleCommunicationState.INITIAL;
 
@@ -110,7 +106,7 @@ public class ConsoleConnection : Connection
 
                     consoleComms.Receive(buffer.AsSpan().Slice(0, bufferLength).ToArray());
                     var messages = consoleComms.GetMessages();
-                    foreach (var message in messages )
+                    foreach (var message in messages)
                     {
                         ProcessMessage(message);
                     }
@@ -131,10 +127,7 @@ public class ConsoleConnection : Connection
     {
         SetStatus(ConnectionStatus.Disconnected);
 
-        if (_tcpClient is not null)
-        {
-            _tcpClient.Close();
-        }
+        _tcpClient?.Close();
     }
 
     #endregion

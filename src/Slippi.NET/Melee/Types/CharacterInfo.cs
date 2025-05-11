@@ -11,7 +11,7 @@ namespace Slippi.NET.Melee.Types;
 public record class CharacterInfo
 {
     [SetsRequiredMembers]
-    public CharacterInfo(int id, string name, string? shortName, List<string> colors)
+    public CharacterInfo(Character id, string name, string? shortName, List<string> colors)
     {
         Id = id;
         Name = name;
@@ -21,7 +21,7 @@ public record class CharacterInfo
 
     public CharacterInfo() { }
 
-    public required int Id { get; init; }
+    public required Character Id { get; init; }
     public required string Name { get; init; }
     public required string? ShortName { get; init; }
     public required List<string> Colors { get; init; }

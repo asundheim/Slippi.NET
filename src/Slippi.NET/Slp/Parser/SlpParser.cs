@@ -10,7 +10,7 @@ public class SlpParser
     private const int ITEM_SETTINGS_BIT_COUNT = 40;
     public const int MAX_ROLLBACK_FRAMES = 7;
 
-    private FramesType _frames = [];
+    private FramesCollection _frames = [];
     private RollbackCounter _rollbackCounter = new RollbackCounter();
     private GameStart? _settings = null;
     private GameEnd? _gameEnd = null;
@@ -64,7 +64,7 @@ public class SlpParser
                 break;
             default:
                 break;
-        };
+        }
     }
 
     public void Reset()
@@ -119,9 +119,9 @@ public class SlpParser
         return _settingsComplete ? _settings : null;
     }
 
-    public List<EnabledItemType>? GetItems()
+    public List<EnabledItem>? GetItems()
     {
-        if (_settings?.ItemSpawnBehavior == ItemSpawnType.OFF)
+        if (_settings?.ItemSpawnBehavior == ItemSpawnLevel.OFF)
         {
             return null;
         }
@@ -132,12 +132,12 @@ public class SlpParser
             return null;
         }
 
-        List<EnabledItemType> enabledItems = [];
+        List<EnabledItem> enabledItems = [];
         for (int i = 0; i < ITEM_SETTINGS_BIT_COUNT; i++)
         {
             if ((itemBitField.Value << i & 1) != 0)
             {
-                enabledItems.Add((EnabledItemType)(2 << i));
+                enabledItems.Add((EnabledItem)(2 << i));
             }
         }
 
@@ -146,7 +146,7 @@ public class SlpParser
 
     public GameEnd? GetGameEnd() => _gameEnd;
 
-    public FramesType GetFrames() => _frames;
+    public FramesCollection GetFrames() => _frames;
 
     public RollbackFrames GetRollbackFrames()
     {
@@ -187,7 +187,7 @@ public class SlpParser
 
         // Check to see if the file was created after the sheik fix so we know
         // we don't have to process the first frame of the game for the full settings
-        if (payload.GameStart.SlpVersion is not null && 
+        if (payload.GameStart.SlpVersion is not null &&
             SemVersion.Parse(payload.GameStart.SlpVersion).CompareSortOrderTo(SemVersion.Parse("1.6.0")) >= 0)
         {
             CompleteSettings();
@@ -382,7 +382,7 @@ public class SlpParser
         // If file is from before frame bookending, add frame to stats computer here. Does a little
         // more processing than necessary, but it works
         GameStart? settings = GetSettings();
-        if (settings is not null && 
+        if (settings is not null &&
             (settings.SlpVersion is null || SemVersion.Parse(settings.SlpVersion).CompareSortOrderTo(SemVersion.Parse("2.2.0")) <= 0))
         {
             OnFrame?.Invoke(this, _frames[currentFrameNumber]);
@@ -416,7 +416,7 @@ public class SlpParser
     {
         int latestFinalizedFrame = payload.FrameBookend.LatestFinalizedFrame!.Value;
         int currentFrameNumber = payload.FrameBookend.Frame!.Value;
-        
+
         if (!_frames.TryGetValue(currentFrameNumber, out FrameEntry? frame))
         {
             _frames[currentFrameNumber] = new FrameEntry();

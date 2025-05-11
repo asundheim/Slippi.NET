@@ -5,17 +5,17 @@ using Slippi.NET.Melee.Types;
 
 public class MeleeTests
 {
-    private static CharacterInfo _foxCharacter = new CharacterInfo()
+    private static readonly CharacterInfo _foxCharacter = new CharacterInfo()
     {
-        Id = 2,
+        Id = (Character)2,
         Name = "Fox",
         ShortName = "Fox",
         Colors = ["Default", "Red", "Blue", "Green"],
     };
 
-    private static CharacterInfo _unknownCharacter = new CharacterInfo()
+    private static readonly CharacterInfo _unknownCharacter = new CharacterInfo()
     {
-        Id = -1,
+        Id = (Character)(-1),
         Name = "Unknown Character",
         ShortName = "Unknown",
         Colors = ["Default"],
@@ -31,17 +31,17 @@ public class MeleeTests
     public void ShouldReturnExpectedDeathDirections()
     {
         // Act & Assert
-        Assert.Equal("down", AnimationUtils.GetDeathDirection(0));
-        Assert.Equal("left", AnimationUtils.GetDeathDirection(1));
-        Assert.Equal("right", AnimationUtils.GetDeathDirection(2));
-        Assert.Equal("up", AnimationUtils.GetDeathDirection(3));
+        Assert.Equal(DeathDirection.DOWN, AnimationUtils.GetDeathDirection(0));
+        Assert.Equal(DeathDirection.LEFT, AnimationUtils.GetDeathDirection(1));
+        Assert.Equal(DeathDirection.RIGHT, AnimationUtils.GetDeathDirection(2));
+        Assert.Equal(DeathDirection.UP, AnimationUtils.GetDeathDirection(3));
         Assert.Null(AnimationUtils.GetDeathDirection(1234));
     }
 
     [Fact]
     public void ShouldReturnExpectedCharacterInfo()
     {
-        var foxCharacter = CharacterUtils.GetCharacterInfo(2);
+        var foxCharacter = CharacterUtils.GetCharacterInfo(Character.FOX);
         Assert.Equal(_foxCharacter.ShortName, foxCharacter.ShortName);
         Assert.Equal(_foxCharacter.Name, foxCharacter.Name);
         Assert.Equal(_foxCharacter.Id, foxCharacter.Id);
@@ -55,7 +55,7 @@ public class MeleeTests
     [Fact]
     public void ShouldHandleUnknownCharacters()
     {
-        var character = CharacterUtils.GetCharacterInfo(69);
+        var character = CharacterUtils.GetCharacterInfo((Character)69);
         Assert.Equal(_unknownCharacter.ShortName, character.ShortName);
         Assert.Equal(_unknownCharacter.Name, character.Name);
         Assert.Equal(_unknownCharacter.Id, character.Id);
@@ -78,25 +78,25 @@ public class MeleeTests
     [Fact]
     public void ShouldReturnCorrectCharacterShortName()
     {
-        Assert.Equal(_foxCharacter.ShortName, CharacterUtils.GetCharacterShortName(2));
+        Assert.Equal(_foxCharacter.ShortName, CharacterUtils.GetCharacterShortName(Character.FOX));
     }
 
     [Fact]
     public void ShouldReturnCorrectCharacterName()
     {
-        Assert.Equal(_foxCharacter.Name, CharacterUtils.GetCharacterName(2));
+        Assert.Equal(_foxCharacter.Name, CharacterUtils.GetCharacterName(Character.FOX));
     }
 
     [Fact]
     public void ShouldReturnCorrectCharacterColor()
     {
-        Assert.Equal(_foxCharacter.Colors[0], CharacterUtils.GetCharacterColorName(2, 0));
+        Assert.Equal(_foxCharacter.Colors[0], CharacterUtils.GetCharacterColorName(Character.FOX, 0));
     }
 
     [Fact]
     public void ShouldReturnDefaultColorIfColorDoesNotExist()
     {
-        Assert.Equal(_foxCharacter.Colors[0], CharacterUtils.GetCharacterColorName(2, 10));
+        Assert.Equal(_foxCharacter.Colors[0], CharacterUtils.GetCharacterColorName(Character.FOX, 10));
     }
 
     [Fact]

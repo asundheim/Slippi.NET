@@ -3,11 +3,11 @@ using Slippi.NET.Stats.Types;
 
 namespace Slippi.NET.Stats;
 
-public record class TargetBreakComputer : IStatComputer<IList<TargetBreakType>>
+public record class TargetBreakComputer : IStatComputer<IList<TargetBreakInfo>>
 {
     private const int TARGET_ITEM_TYPE_ID = 209;
 
-    private List<TargetBreakType> TargetBreaks { get; set; } = new();
+    private List<TargetBreakInfo> TargetBreaks { get; set; } = new();
     private bool IsTargetTestGame { get; set; } = false;
 
     public void Setup(GameStart settings)
@@ -17,7 +17,7 @@ public record class TargetBreakComputer : IStatComputer<IList<TargetBreakType>>
         IsTargetTestGame = settings.GameMode == GameMode.TARGET_TEST;
     }
 
-    public void ProcessFrame(FrameEntry frame, FramesType allFrames)
+    public void ProcessFrame(FrameEntry frame, FramesCollection allFrames)
     {
         if (!IsTargetTestGame)
         {
@@ -27,15 +27,15 @@ public record class TargetBreakComputer : IStatComputer<IList<TargetBreakType>>
         HandleTargetBreak(allFrames, frame, TargetBreaks);
     }
 
-    public IList<TargetBreakType> Fetch()
+    public IList<TargetBreakInfo> Fetch()
     {
         return TargetBreaks;
     }
 
     private static void HandleTargetBreak(
-        FramesType frames,
+        FramesCollection frames,
         FrameEntry frame,
-        List<TargetBreakType> targetBreaks)
+        List<TargetBreakInfo> targetBreaks)
     {
         var currentFrameNumber = frame.Frame!.Value;
         var prevFrameNumber = currentFrameNumber - 1;
@@ -49,7 +49,7 @@ public record class TargetBreakComputer : IStatComputer<IList<TargetBreakType>>
 
             foreach (var target in targets)
             {
-                targetBreaks.Add(new TargetBreakType
+                targetBreaks.Add(new TargetBreakInfo
                 {
                     SpawnId = target.SpawnId ?? 0,
                     FrameDestroyed = null,

@@ -8,6 +8,11 @@
 		<LangVersion>13</LangVersion>
     </PropertyGroup>
 
+	<PropertyGroup>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
 	<ItemGroup>
 	  <PackageReference Include="ENet-CSharp" Version="2.4.8" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -17,6 +22,10 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\UBJson\UBJson.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 	
 </Project>

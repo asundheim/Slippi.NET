@@ -13,12 +13,12 @@ internal class StringUtils
 
     public static Encoding Shift_JIS { get; } = Encoding.GetEncoding("Shift-JIS");
 
-    public string? ReadShiftJIS(Span<byte> buffer)
+    public string? ReadShiftJIS(ReadOnlySpan<byte> buffer)
     {
         return Shift_JIS.GetString(buffer.Slice(0, buffer.IndexOf((byte)0)));
     }
 
-    public string? ReadUtf8(Span<byte> buffer)
+    public string? ReadUtf8(ReadOnlySpan<byte> buffer)
     {
         return Encoding.UTF8.GetString(buffer.Slice(0, buffer.IndexOf((byte)0)));
     }

@@ -1,5 +1,13 @@
 namespace Slippi.NET.Types;
 
+/// <summary>
+/// Generic event payload. Depending on the accompanying
+/// <see cref="Command"/>, callers should cast to 
+/// <see cref="GameStartPayload"/>, <see cref="FrameStartPayload"/>,
+/// <see cref="PreFrameUpdatePayload"/>, <see cref="PostFrameUpdatePayload"/>,
+/// <see cref="ItemUpdatePayload"/>, <see cref="GameEndPayload"/>,
+/// <see cref="FrameBookendPayload"/>, or <see cref="GeckoListPayload"/> to access the underlying data objects.
+/// </summary>
 public abstract class EventPayload { }
 
 public class GameStartPayload : EventPayload
@@ -54,12 +62,12 @@ public class ItemUpdatePayload : EventPayload
 
 public class FrameBookendPayload : EventPayload
 {
-    public FrameBookendPayload(FrameBookendType frameBookend)
+    public FrameBookendPayload(FrameBookend frameBookend)
     {
         FrameBookend = frameBookend;
     }
 
-    public FrameBookendType FrameBookend { get; set; }
+    public FrameBookend FrameBookend { get; set; }
 }
 
 public class GameEndPayload : EventPayload

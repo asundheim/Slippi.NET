@@ -1,7 +1,6 @@
-using Slippi.NET.Slp.Reader;
-using Slippi.NET.Types;
-using Slippi.NET.Stats;
 using Slippi.NET.Slp.Reader.File;
+using Slippi.NET.Stats;
+using Slippi.NET.Types;
 
 namespace Slippi.NET.Tests;
 
@@ -67,12 +66,12 @@ public class SlpReaderTests
 
     private static GameEnd? GetManualGameEnd(string filePath)
     {
-        var input = new SlpFileReadInput()
+        var input = new SlpFileReader()
         {
             FilePath = filePath
         };
 
-        using var slpFile = SlpReader.OpenSlpFile(input);
+        using var slpFile = input.OpenSlpFile();
         var gameEnd = slpFile.GetGameEnd();
         return gameEnd;
     }

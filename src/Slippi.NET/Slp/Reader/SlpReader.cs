@@ -1,12 +1,21 @@
-﻿using Slippi.NET.Slp.Reader.Types;
+﻿namespace Slippi.NET.Slp.Reader;
 
-namespace Slippi.NET.Slp.Reader;
-
-public static class SlpReader
+/// <summary>
+/// Abstract reader view over an <see cref="SlpFile"/> that obtains
+/// an <see cref="SlpRef"/> and creates a new <see cref="SlpFile"/>.
+/// </summary>
+public abstract class SlpReader
 {
-    public static SlpFile OpenSlpFile(SlpReadInput input)
+    /// <summary>
+    /// The type of backing source for this reader.
+    /// </summary>
+    public abstract string Source { get; }
+
+    protected abstract SlpRef GetRef();
+
+    public SlpFile OpenSlpFile()
     {
-        SlpRef slpRef = input.GetRef();
+        SlpRef slpRef = GetRef();
 
         int rawDataPosition = slpRef.GetRawDataPosition();
         int rawDataLength = slpRef.GetRawDataLength(rawDataPosition);
@@ -14,6 +23,7 @@ public static class SlpReader
         int metadataLength = slpRef.GetMetadataLength(metadataPosition);
         var messaqeSizes = slpRef.GetMessageSizes(rawDataPosition);
 
+        // transferring disposal ownership of SlpRef to the SlpFile
         return new SlpFile()
         {
             SlpRef = slpRef,

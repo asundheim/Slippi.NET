@@ -4,19 +4,18 @@ using Slippi.NET.Slp.Parser.Types;
 using Slippi.NET.Slp.Reader;
 using Slippi.NET.Slp.Reader.Buffer;
 using Slippi.NET.Slp.Reader.File;
-using Slippi.NET.Slp.Reader.Types;
 using Slippi.NET.Stats;
 using Slippi.NET.Stats.Types;
 using Slippi.NET.Types;
-using Slippi.NET.Utils;   
+using Slippi.NET.Utils;
 
 namespace Slippi.NET;
 
 public class SlippiGame : IDisposable
 {
-    private readonly SlpReadInput _input;
+    private readonly SlpReader _input;
     private Metadata? _metadata = null;
-    private StatsType? _finalStats = null;
+    private StatsInfo? _finalStats = null;
     private readonly SlpParser _parser;
     private int? _readPosition = null;
 
@@ -29,9 +28,10 @@ public class SlippiGame : IDisposable
 
     protected readonly StatsComputer _statsComputer;
 
-    public SlippiGame(string filePath, StatOptions options)
+    public SlippiGame(string filePath) : this(filePath, null) { }
+    public SlippiGame(string filePath, StatOptions? options = null)
     {
-        _input = new SlpFileReadInput()
+        _input = new SlpFileReader()
         {
             FilePath = filePath,
         };
@@ -53,9 +53,10 @@ public class SlippiGame : IDisposable
         _parser.OnFinalizedFrame += OnParserFinalizedFrame;
     }
 
-    public SlippiGame(byte[] fileBytes, StatOptions options)
+    public SlippiGame(byte[] fileBytes) : this (fileBytes, null) { }
+    public SlippiGame(byte[] fileBytes, StatOptions? options = null)
     {
-        _input = new SlpBufferReadInput()
+        _input = new SlpBufferReader()
         {
             Buffer = fileBytes
         };
@@ -83,7 +84,7 @@ public class SlippiGame : IDisposable
         return _parser.GetSettings();
     }
 
-    public IList<EnabledItemType>? GetItems()
+    public IList<EnabledItem>? GetItems()
     {
         Process();
         return _parser.GetItems();
@@ -100,7 +101,7 @@ public class SlippiGame : IDisposable
         if (skipProcessing)
         {
             // Read game end block directly
-            using SlpFile slpFile = SlpReader.OpenSlpFile(_input);
+            using SlpFile slpFile = _input.OpenSlpFile();
             GameEnd? gameEnd = slpFile.GetGameEnd();
 
             return gameEnd;
@@ -110,7 +111,7 @@ public class SlippiGame : IDisposable
         return _parser.GetGameEnd();
     }
 
-    public FramesType GetFrames()
+    public FramesCollection GetFrames()
     {
         Process();
         return _parser.GetFrames();
@@ -128,7 +129,7 @@ public class SlippiGame : IDisposable
         return _parser.GetGeckoList();
     }
 
-    public StatsType? GetStats()
+    public StatsInfo? GetStats()
     {
         if (_finalStats is not null)
         {
@@ -149,12 +150,12 @@ public class SlippiGame : IDisposable
         IList<Stock> stocks = _stockComputer.Fetch();
         IList<Conversion> conversions = _conversionsComputer.Fetch();
         int playableFrameCount = _parser.GetPlayableFrameCount();
-        IList<OverallType> overall = OverallStats.GenerateOverallStats(settings, inputs, conversions, playableFrameCount);
+        IList<Stats.Types.OverallStats> overall = Stats.OverallStats.GenerateOverallStats(settings, inputs, conversions, playableFrameCount);
 
         GameEnd? gameEnd = _parser.GetGameEnd();
         bool gameComplete = gameEnd is not null;
 
-        StatsType stats = new StatsType()
+        StatsInfo stats = new StatsInfo()
         {
             LastFrame = _parser.GetLatestFrameNumber(),
             PlayableFrameCount = playableFrameCount,
@@ -236,7 +237,7 @@ public class SlippiGame : IDisposable
             return _metadata;
         }
 
-        using SlpFile slpFile = SlpReader.OpenSlpFile(_input);
+        using SlpFile slpFile = _input.OpenSlpFile();
         _metadata = slpFile.GetMetadata();
 
         return _metadata;
@@ -244,7 +245,7 @@ public class SlippiGame : IDisposable
 
     public string? GetFilePath()
     {
-        if (_input is SlpFileReadInput fileInput)
+        if (_input is SlpFileReader fileInput)
         {
             return fileInput.FilePath;
         }
@@ -255,7 +256,7 @@ public class SlippiGame : IDisposable
     public IList<Placement> GetWinners()
     {
         // Read game end block directly
-        using SlpFile slpFile = SlpReader.OpenSlpFile(_input);
+        using SlpFile slpFile = _input.OpenSlpFile();
         GameEnd? gameEnd = slpFile.GetGameEnd();
         Process((_, _, _) => _parser.GetSettings() is not null, slpFile);
 
@@ -287,7 +288,7 @@ public class SlippiGame : IDisposable
             return;
         }
 
-        SlpFile slpFile = file ?? SlpReader.OpenSlpFile(_input);
+        SlpFile slpFile = file ?? _input.OpenSlpFile();
         // Generate settings from iterating through file
         _readPosition = slpFile.IterateEvents((command, payload, buffer) =>
         {

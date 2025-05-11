@@ -1,6 +1,5 @@
 using Slippi.NET.Melee.Data;
 using Slippi.NET.Melee.Types;
-using System.Collections.Generic;
 
 namespace Slippi.NET.Melee;
 

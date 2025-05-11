@@ -7,8 +7,8 @@ namespace Slippi.NET.Stats;
 
 public record class InputComputer : IStatComputer<IList<PlayerInput>>
 {
-    private readonly Dictionary<PlayerIndexedType, PlayerInput> _state = new();
-    private List<PlayerIndexedType> _playerPermutations = new();
+    private readonly Dictionary<PlayerIndices, PlayerInput> _state = new();
+    private List<PlayerIndices> _playerPermutations = new();
 
     public void Setup(GameStart settings)
     {
@@ -33,7 +33,7 @@ public record class InputComputer : IStatComputer<IList<PlayerInput>>
         }
     }
 
-    public void ProcessFrame(FrameEntry frame, FramesType allFrames)
+    public void ProcessFrame(FrameEntry frame, FramesCollection allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -50,9 +50,9 @@ public record class InputComputer : IStatComputer<IList<PlayerInput>>
     }
 
     private static void HandleInputCompute(
-        FramesType frames,
+        FramesCollection frames,
         PlayerInput state,
-        PlayerIndexedType indices,
+        PlayerIndices indices,
         FrameEntry frame)
     {
         var playerFrame = frame.Players![indices.PlayerIndex]?.Pre;

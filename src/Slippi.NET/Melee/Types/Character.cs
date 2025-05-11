@@ -1,6 +1,6 @@
 namespace Slippi.NET.Melee.Types;
 
-public enum Character
+public enum Character : int
 {
     CAPTAIN_FALCON = 0,
     DONKEY_KONG = 1,

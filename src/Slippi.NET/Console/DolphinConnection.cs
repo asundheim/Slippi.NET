@@ -1,12 +1,7 @@
 ﻿using ENet;
 using Newtonsoft.Json;
 using Slippi.NET.Console.Types;
-using System;
-using System.Buffers.Text;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Slippi.NET.Console;
 public class DolphinConnection : Connection
@@ -26,7 +21,6 @@ public class DolphinConnection : Connection
 
     private JsonSerializerSettings _serializerSettings = new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore };
 
-
     public DolphinConnection() : base()
     {
         if (_enetRef == 0)
@@ -44,6 +38,7 @@ public class DolphinConnection : Connection
     {
         return _connectionStatus;
     }
+
     public override ConnectionSettings GetSettings()
     {
         return new ConnectionSettings()
@@ -52,6 +47,7 @@ public class DolphinConnection : Connection
             Port = _port,
         };
     }
+
     public override ConnectionDetails GetDetails()
     {
         return new ConnectionDetails()
@@ -160,7 +156,7 @@ public class DolphinConnection : Connection
         _gameCursor = 0;
         DolphinMessage message = new DolphinMessage()
         {
-            Type = DolphinMessageType.CONNECT_REQUEST,
+            Type = DolphinMessageTypes.CONNECT_REQUEST,
             GameCursor = _gameCursor,
         };
 
@@ -169,7 +165,6 @@ public class DolphinConnection : Connection
 
         Packet packet = new Packet();
         packet.Create(messageBytes, messageBytes.Length, PacketFlags.Reliable);
-
 
         _peer.Value.Send(0, ref packet);
     }
@@ -194,9 +189,9 @@ public class DolphinConnection : Connection
             return;
         }
 
-        switch (message.Type) 
+        switch (message.Type)
         {
-            case DolphinMessageType.CONNECT_REPLY:
+            case DolphinMessageTypes.CONNECT_REPLY:
                 _connectionStatus = ConnectionStatus.Connected;
                 _gameCursor = message.GameCursor!.Value;
                 _nickname = message.Nickname ?? "unknown";
@@ -206,7 +201,7 @@ public class DolphinConnection : Connection
 
                 break;
 
-            case DolphinMessageType.GAME_EVENT:
+            case DolphinMessageTypes.GAME_EVENT:
                 if (message.Payload is null)
                 {
                     Disconnect();
@@ -220,8 +215,8 @@ public class DolphinConnection : Connection
 
                 break;
 
-            case DolphinMessageType.START_GAME:
-            case DolphinMessageType.END_GAME:
+            case DolphinMessageTypes.START_GAME:
+            case DolphinMessageTypes.END_GAME:
                 UpdateCursor(message);
 
                 break;
@@ -296,8 +291,6 @@ public class DolphinConnection : Connection
 
         _cts.Cancel();
         _cts.Dispose();
-
-
     }
 
     #endregion

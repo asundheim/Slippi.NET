@@ -6,7 +6,7 @@ namespace Slippi.NET.Stats;
 
 public static class OverallStats
 {
-    public static IList<OverallType> GenerateOverallStats(
+    public static IList<Types.OverallStats> GenerateOverallStats(
         GameStart settings,
         IList<PlayerInput> inputs,
         IList<Conversion> conversions,
@@ -37,7 +37,7 @@ public static class OverallStats
                 };
             }
 
-            InputCountsType inputCounts = new InputCountsType()
+            InputCountStats inputCounts = new InputCountStats()
             {
                 Buttons = playerInputs.ButtonInputCount,
                 Triggers = playerInputs.TriggerInputCount,
@@ -91,7 +91,7 @@ public static class OverallStats
                 }
             }
 
-            return new OverallType()
+            return new Types.OverallStats()
             {
                 PlayerIndex = playerIndex,
                 InputCounts = inputCounts,
@@ -110,9 +110,9 @@ public static class OverallStats
         }).ToList();
     }
 
-    private static RatioType GetRatio(int count, int total)
+    private static RatioInfo GetRatio(int count, int total)
     {
-        return new RatioType()
+        return new RatioInfo()
         {
             Count = count,
             Total = total,
@@ -120,9 +120,9 @@ public static class OverallStats
         };
     }
 
-    private static RatioType GetRatio(float count, int total)
+    private static RatioInfo GetRatio(float count, int total)
     {
-        return new RatioType()
+        return new RatioInfo()
         {
             Count = (int)count,
             Total = total,
@@ -130,9 +130,9 @@ public static class OverallStats
         };
     }
 
-    private static RatioType GetRatio(float count, float total)
+    private static RatioInfo GetRatio(float count, float total)
     {
-        return new RatioType()
+        return new RatioInfo()
         {
             Count = (int)count,
             Total = (int)total,
@@ -140,7 +140,7 @@ public static class OverallStats
         };
     }
 
-    private static RatioType GetOpeningRatio(
+    private static RatioInfo GetOpeningRatio(
         Dictionary<int, Dictionary<string, List<Conversion>>> conversionsByPlayerOpening,
         int playerIndex,
         IList<int> opponentIndices,
@@ -181,7 +181,7 @@ public static class OverallStats
         return GetRatio(openings.Count, openings.Count + opponentOpenings.Count);
     }
 
-    private static RatioType GetBeneficialTradeRatio(
+    private static RatioInfo GetBeneficialTradeRatio(
         Dictionary<int, Dictionary<string, List<Conversion>>> conversionsByPlayerOpening,
         int playerIndex,
         IList<int> opponentIndices)

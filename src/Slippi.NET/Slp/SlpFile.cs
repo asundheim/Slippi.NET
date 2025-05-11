@@ -1,13 +1,19 @@
-﻿using Slippi.NET.Slp.Reader.Types;
+﻿using Slippi.NET.Slp.Reader;
 using Slippi.NET.Types;
-using static Slippi.NET.Utils.FullWidthConverter;
-using static Slippi.NET.Utils.ByteUtils;
-using Slippi.NET.Slp.Reader;
 using Slippi.NET.Utils;
 using UBJson;
+using static Slippi.NET.Utils.ByteUtils;
+using static Slippi.NET.Utils.FullWidthConverter;
 
 namespace Slippi.NET.Slp;
 
+/// <summary>
+/// A raw view over an .slp file, this allows callers to quickly retrieve <see cref="Metadata"/>,
+/// <see cref="GameEnd"/>, and other metadata without parsing the entire file. <br/> <br/>
+/// 
+/// Additionally, the <see cref="IterateEvents(EventCallbackFunc, int?)"/> function can be used to parse
+/// the game frames and invoke a callback on each event.
+/// </summary>
 public class SlpFile : IDisposable
 {
     public required SlpRef SlpRef { get; init; }
@@ -58,7 +64,7 @@ public class SlpFile : IDisposable
             {
                 // Here we have a split message, we will collect data from them until the last
                 // message of the list is received
-                SlpDataReader reader = new SlpDataReader(buffer);
+                BufferReader reader = new BufferReader(buffer);
                 ushort size = reader.ReadUInt16(0x201) ?? 512;
                 bool isLastMessage = reader.ReadBool(0x204) ?? false;
                 byte internalCommand = reader.ReadUInt8(0x203) ?? 0;
@@ -73,7 +79,7 @@ public class SlpFile : IDisposable
 
                 // Collect new data into splitMessageBuffer
                 Span<byte> appendBuf = buffer.Slice(1, size);
-                Span<byte> mergedBuf = [..splitMessageBuffer, ..appendBuf];
+                Span<byte> mergedBuf = [.. splitMessageBuffer, .. appendBuf];
                 splitMessageBuffer = mergedBuf;
 
                 if (isLastMessage)
@@ -98,9 +104,9 @@ public class SlpFile : IDisposable
         return readPosition;
     }
 
-    public static EventPayload? ParseMessage(Command command, Span<byte> payload)
+    public static EventPayload? ParseMessage(Command command, in ReadOnlySpan<byte> payload)
     {
-        SlpDataReader x = new SlpDataReader(payload);
+        BufferReader x = new BufferReader(payload);
 
         return command switch
         {
@@ -145,6 +151,9 @@ public class SlpFile : IDisposable
         return metadata;
     }
 
+    /// <summary>
+    /// Gets the <see cref="GameEnd"/> event.
+    /// </summary>
     public GameEnd? GetGameEnd()
     {
         if (!MessageSizes.TryGetValue((byte)Command.GAME_END, out int gameEndPayloadSize) || gameEndPayloadSize <= 0)
@@ -168,6 +177,9 @@ public class SlpFile : IDisposable
         return (gameEndMessage as GameEndPayload)?.GameEnd;
     }
 
+    /// <summary>
+    /// Gets the <see cref="PostFrameUpdate"/> of the final frame of the game for all players.
+    /// </summary>
     public List<PostFrameUpdate> ExtractFinalPostFrameUpdates()
     {
         // The following should exist on all replay versions
@@ -238,14 +250,14 @@ public class SlpFile : IDisposable
         return postFrameUpdates;
     }
 
-    private static EventPayload? ParseGameStart(SlpDataReader x, Span<byte> payload)
+    private static EventPayload? ParseGameStart(in BufferReader x, in ReadOnlySpan<byte> payload)
     {
         const int matchIdLength = 51;
         const int matchIdStart = 0x2be;
         string? matchId = null;
         if (payload.Length >= matchIdStart + matchIdLength)
         {
-            Span<byte> matchIdBuf = payload.Slice(matchIdStart, matchIdLength);
+            ReadOnlySpan<byte> matchIdBuf = payload.Slice(matchIdStart, matchIdLength);
             matchId = StringUtils.Instance.ReadUtf8(matchIdBuf) ?? string.Empty;
         }
 
@@ -264,7 +276,7 @@ public class SlpFile : IDisposable
                 isTeams: x.ReadBool(0xd),
                 stageId: x.ReadUInt16(0x13),
                 startingTimerSeconds: x.ReadUInt32(0x15),
-                itemSpawnBehavior: x.ReadUInt8(0x10).EnumCast<ItemSpawnType>(),
+                itemSpawnBehavior: x.ReadUInt8(0x10).EnumCast<ItemSpawnLevel>(),
                 enabledItems: GetEnabledItems(x),
                 players,
                 scene: x.ReadUInt8(0x1a3),
@@ -283,7 +295,7 @@ public class SlpFile : IDisposable
         );
     }
 
-    private static Player ParsePlayerObject(SlpDataReader x, Span<byte> payload, int playerIndex)
+    private static Player ParsePlayerObject(in BufferReader x, in ReadOnlySpan<byte> payload, int playerIndex)
     {
         // Controller Fix stuff
         int cfOffset = playerIndex * 0x8;
@@ -310,7 +322,7 @@ public class SlpFile : IDisposable
         string nametag = string.Empty;
         if (payload.Length >= nametagStart + nametagLength)
         {
-            Span<byte> nametagBuf = payload.Slice(nametagStart, nametagLength);
+            ReadOnlySpan<byte> nametagBuf = payload.Slice(nametagStart, nametagLength);
             string? nametagString = StringUtils.Instance.ReadShiftJIS(nametagBuf);
             nametag = string.IsNullOrEmpty(nametagString) ? string.Empty : ToHalfwidth(nametagString);
         }
@@ -322,7 +334,7 @@ public class SlpFile : IDisposable
         string displayName = string.Empty;
         if (payload.Length >= displayNameStart + displayNameLength)
         {
-            Span<byte> displayNameBuf = payload.Slice(displayNameStart, displayNameLength);
+            ReadOnlySpan<byte> displayNameBuf = payload.Slice(displayNameStart, displayNameLength);
             string? displayNameString = StringUtils.Instance.ReadShiftJIS(displayNameBuf);
             displayName = string.IsNullOrEmpty(displayNameString) ? string.Empty : ToHalfwidth(displayNameString);
         }
@@ -334,7 +346,7 @@ public class SlpFile : IDisposable
         string connectCode = string.Empty;
         if (payload.Length >= connectCodeStart + connectCodeLength)
         {
-            Span<byte> connectCodeBuf = payload.Slice(connectCodeStart, connectCodeLength);
+            ReadOnlySpan<byte> connectCodeBuf = payload.Slice(connectCodeStart, connectCodeLength);
             string? connectCodeString = StringUtils.Instance.ReadShiftJIS(connectCodeBuf);
             connectCode = string.IsNullOrEmpty(connectCodeString) ? string.Empty : ToHalfwidth(connectCodeString);
         }
@@ -346,7 +358,7 @@ public class SlpFile : IDisposable
         string userId = string.Empty;
         if (payload.Length >= userIdStart + userIdLength)
         {
-            Span<byte> userIdBuf = payload.Slice(userIdStart, userIdLength);
+            ReadOnlySpan<byte> userIdBuf = payload.Slice(userIdStart, userIdLength);
             connectCode = StringUtils.Instance.ReadUtf8(userIdBuf) ?? string.Empty;
         }
 
@@ -381,7 +393,7 @@ public class SlpFile : IDisposable
         );
     }
 
-    private static GameInfo ParseGameInfoObject(SlpDataReader x)
+    private static GameInfo ParseGameInfoObject(in BufferReader x)
     {
         const int offset = 0x5;
 
@@ -401,7 +413,7 @@ public class SlpFile : IDisposable
         );
     }
 
-    private static ulong GetEnabledItems(SlpDataReader x)
+    private static ulong GetEnabledItems(in BufferReader x)
     {
         ulong[] offsets = [0x1, 0x100, 0x10000, 0x1000000, 0x100000000];
         ulong enabledItems = 0;
@@ -414,7 +426,7 @@ public class SlpFile : IDisposable
         return enabledItems;
     }
 
-    private static EventPayload? ParseFrameStart(SlpDataReader x)
+    private static EventPayload? ParseFrameStart(in BufferReader x)
     {
         return new FrameStartPayload(
             new FrameStart(
@@ -425,7 +437,7 @@ public class SlpFile : IDisposable
         );
     }
 
-    private static EventPayload? ParsePreFrameUpdate(SlpDataReader x)
+    private static EventPayload? ParsePreFrameUpdate(in BufferReader x)
     {
         return new PreFrameUpdatePayload(
             new PreFrameUpdate(
@@ -452,7 +464,7 @@ public class SlpFile : IDisposable
         );
     }
 
-    private static EventPayload? ParsePostFrameUpdate(SlpDataReader x)
+    private static EventPayload? ParsePostFrameUpdate(in BufferReader x)
     {
         SelfInducedSpeeds selfInducedSpeeds = new SelfInducedSpeeds(
             airX: x.ReadFloat(0x35),
@@ -491,10 +503,10 @@ public class SlpFile : IDisposable
                 instanceHitBy: x.ReadUInt16(0x51),
                 instanceId: x.ReadUInt16(0x53)
             )
-        ); 
+        );
     }
 
-    private static EventPayload? ParseItemUpdate(SlpDataReader x)
+    private static EventPayload? ParseItemUpdate(in BufferReader x)
     {
         return new ItemUpdatePayload(
             new ItemUpdate(
@@ -519,12 +531,12 @@ public class SlpFile : IDisposable
         );
     }
 
-    private static EventPayload? ParseFrameBookend(SlpDataReader x)
+    private static EventPayload? ParseFrameBookend(in BufferReader x)
     {
-        return new FrameBookendPayload(new FrameBookendType(frame: x.ReadInt32(0x1), latestFinalizedFrame: x.ReadInt32(0x5)));
+        return new FrameBookendPayload(new FrameBookend(frame: x.ReadInt32(0x1), latestFinalizedFrame: x.ReadInt32(0x5)));
     }
 
-    private static EventPayload? ParseGameEnd(SlpDataReader x)
+    private static EventPayload? ParseGameEnd(in BufferReader x)
     {
         List<Placement> placements = new List<Placement>(4);
         for (int i = 0; i < 4; i++)
@@ -545,7 +557,7 @@ public class SlpFile : IDisposable
         );
     }
 
-    private static EventPayload ParseGeckoList(SlpDataReader x, Span<byte> payload)
+    private static EventPayload ParseGeckoList(in BufferReader x, in ReadOnlySpan<byte> payload)
     {
         List<GeckoCode> codes = [];
         int pos = 1;
@@ -586,9 +598,6 @@ public class SlpFile : IDisposable
 
     public void Dispose()
     {
-        if (SlpRef is IDisposable disposableRef)
-        {
-            disposableRef.Dispose();
-        }
+        SlpRef.Dispose();
     }
 }

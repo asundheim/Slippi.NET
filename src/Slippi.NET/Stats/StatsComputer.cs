@@ -6,7 +6,7 @@ public class StatsComputer
 {
     private readonly StatOptions _options;
     private int? _lastProcessedFrame = null;
-    private FramesType _frames = new FramesType();
+    private FramesCollection _frames = new FramesCollection();
     private List<int> _players = new List<int>();
     private readonly List<IStatComputer<object>> _allComputers = new List<IStatComputer<object>>();
 
@@ -17,7 +17,7 @@ public class StatsComputer
 
     public void Setup(GameStart settings)
     {
-        _frames = new FramesType();
+        _frames = new FramesCollection();
         _players = settings.Players.ConvertAll(v => v.PlayerIndex);
 
         foreach (var comp in _allComputers)

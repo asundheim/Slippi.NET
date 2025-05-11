@@ -5,7 +5,7 @@ namespace Slippi.NET.Stats.Utils;
 
 public static class StatsUtils
 {
-    public static IList<PlayerIndexedType> GetSinglesPlayerPermutationsFromSettings(GameStart settings)
+    public static IList<PlayerIndices> GetSinglesPlayerPermutationsFromSettings(GameStart settings)
     {
         if (settings?.Players.Count != 2)
         {
@@ -14,12 +14,12 @@ public static class StatsUtils
 
         return 
         [
-            new PlayerIndexedType
+            new PlayerIndices
             {
                 PlayerIndex = settings.Players[0].PlayerIndex,
                 OpponentIndex = settings.Players[1].PlayerIndex
             },
-            new PlayerIndexedType
+            new PlayerIndices
             {
                 PlayerIndex = settings.Players[1].PlayerIndex,
                 OpponentIndex = settings.Players[0].PlayerIndex

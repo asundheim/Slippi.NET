@@ -10,7 +10,7 @@ public record class GameStart
         bool? isTeams, 
         int? stageId, 
         uint? startingTimerSeconds, 
-        ItemSpawnType? itemSpawnBehavior, 
+        ItemSpawnLevel? itemSpawnBehavior, 
         ulong? enabledItems, 
         List<Player> players, 
         byte? scene, 
@@ -49,7 +49,7 @@ public record class GameStart
     public bool? IsTeams { get; set; }
     public int? StageId { get; set; }
     public uint? StartingTimerSeconds { get; set; }
-    public ItemSpawnType? ItemSpawnBehavior { get; set; }
+    public ItemSpawnLevel? ItemSpawnBehavior { get; set; }
     public ulong? EnabledItems { get; set; }
     public List<Player> Players { get; set; }
     public byte? Scene { get; set; }

@@ -9,7 +9,7 @@ public abstract record class StadiumStats
 
 public record class TargetTestStats : StadiumStats
 {
-    public required IList<TargetBreakType> TargetBreaks { get; init; }
+    public required IList<TargetBreakInfo> TargetBreaks { get; init; }
 
     public override string Type => "target-test";
 }

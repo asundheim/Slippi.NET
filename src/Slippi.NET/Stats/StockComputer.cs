@@ -6,8 +6,8 @@ namespace Slippi.NET.Stats;
 
 public class StockComputer : IStatComputer<IList<Stock>>
 {
-    private readonly Dictionary<PlayerIndexedType, StockState> _state = new();
-    private List<PlayerIndexedType> _playerPermutations = new();
+    private readonly Dictionary<PlayerIndices, StockState> _state = new();
+    private List<PlayerIndices> _playerPermutations = new();
     private readonly List<Stock> _stocks = new();
 
     public void Setup(GameStart settings)
@@ -23,7 +23,7 @@ public class StockComputer : IStatComputer<IList<Stock>>
         }
     }
 
-    public void ProcessFrame(FrameEntry frame, FramesType allFrames)
+    public void ProcessFrame(FrameEntry frame, FramesCollection allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -40,9 +40,9 @@ public class StockComputer : IStatComputer<IList<Stock>>
     }
 
     private static void HandleStockCompute(
-        FramesType frames,
+        FramesCollection frames,
         StockState state,
-        PlayerIndexedType indices,
+        PlayerIndices indices,
         FrameEntry frame,
         List<Stock> stocks)
     {

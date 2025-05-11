@@ -20,15 +20,15 @@ public class ConversionsComputerEventArgs
 
 public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, ConversionsComputerEventArgs>, IStatComputer<IList<Conversion>>
 {
-    private readonly Dictionary<PlayerIndexedType, PlayerConversionState> _state = [];
-    private IList<PlayerIndexedType> _playerPermutations = [];
+    private readonly Dictionary<PlayerIndices, PlayerConversionState> _state = [];
+    private IList<PlayerIndices> _playerPermutations = [];
     private IList<Conversion> _conversions = [];
-    private LastEndFrameMetadataType _metadata;
+    private LastEndFrameMetadata _metadata;
     private GameStart? _settings = null;
 
     public ConversionsComputer()
     {
-        _metadata = new LastEndFrameMetadataType();
+        _metadata = new LastEndFrameMetadata();
     }
 
     public void Setup(GameStart settings)
@@ -36,7 +36,7 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
         _playerPermutations = StatsUtils.GetSinglesPlayerPermutationsFromSettings(settings);
         _conversions.Clear();
         _state.Clear();
-        _metadata = new LastEndFrameMetadataType();
+        _metadata = new LastEndFrameMetadata();
         _settings = settings;
 
         foreach (var indices in _playerPermutations)
@@ -51,7 +51,7 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
         }
     }
 
-    public void ProcessFrame(FrameEntry newFrame, FramesType allFrames)
+    public void ProcessFrame(FrameEntry newFrame, FramesCollection allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -105,7 +105,7 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
                 }
 
                 // If not trade, check the opponent endFrame
-                MoveLandedType? lastMove = conversion.Moves.Count > 0 ? conversion.Moves[^1] : null;
+                MoveLandedInfo? lastMove = conversion.Moves.Count > 0 ? conversion.Moves[^1] : null;
                 int? oppEndFrame = _metadata.LastEndFrameByOppIdx.TryGetValue(lastMove is not null ? lastMove.PlayerIndex : conversion.PlayerIndex, out int endFrame) ? endFrame : null;
                 bool isCounterAttack = oppEndFrame is not null && oppEndFrame.Value > conversion.StartFrame;
                 conversion.OpeningType = isCounterAttack ? "counter-attack" : "neutral-win";
@@ -114,9 +114,9 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
     }
 
     private static bool HandleConversionCompute(
-        FramesType frames,
+        FramesCollection frames,
         PlayerConversionState state,
-        PlayerIndexedType indices,
+        PlayerIndices indices,
         FrameEntry frame,
         IList<Conversion> conversions)
     {
@@ -171,7 +171,7 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
                     StartPercent = prevOpponentFrame?.Percent ?? 0,
                     CurrentPercent = opponentFrame.Percent ?? 0,
                     EndPercent = null,
-                    Moves = new List<MoveLandedType>(),
+                    Moves = new List<MoveLandedInfo>(),
                     DidKill = false,
                     OpeningType = "unknown" // Will be updated later (5 years ago) (lol)
                 };
@@ -185,7 +185,7 @@ public class ConversionsComputer : EventEmitter<ConversionsComputerEvent, Conver
                 // prevents counting multiple hits from the same move such as fox's drill
                 if (state.LastHitAnimation is null)
                 {
-                    state.Move = new MoveLandedType
+                    state.Move = new MoveLandedInfo
                     {
                         PlayerIndex = indices.PlayerIndex,
                         Frame = currentFrameNumber,

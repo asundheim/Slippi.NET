@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 namespace Slippi.NET.Stats.Types;
 public record class ComboState
 {
-    public ComboType? Combo { get; set; }
-    public MoveLandedType? Move { get; set; }
+    public ComboInfo? Combo { get; set; }
+    public MoveLandedInfo? Move { get; set; }
     public required int ResetCounter { get; set; }
     public int? LastHitAnimation { get; set; }
     public string? Event { get; set; }

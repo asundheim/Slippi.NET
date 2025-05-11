@@ -1,6 +1,6 @@
 namespace Slippi.NET.Stats.Types;
 
-public record class Stock : DurationType
+public record class Stock : DurationInfo
 {
     public required float StartPercent { get; init; }
     public required float CurrentPercent { get; set; }

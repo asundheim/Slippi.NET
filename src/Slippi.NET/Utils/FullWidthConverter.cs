@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-
 namespace Slippi.NET.Utils;
 
 public static class FullWidthConverter

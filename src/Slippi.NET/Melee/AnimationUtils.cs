@@ -1,5 +1,13 @@
 namespace Slippi.NET.Melee;
 
+public enum DeathDirection 
+{ 
+    DOWN = 0,
+    LEFT = 1,
+    RIGHT = 2,
+    UP = 3
+}
+
 public static class AnimationUtils
 {
     /// <summary>
@@ -7,7 +15,7 @@ public static class AnimationUtils
     /// </summary>
     /// <param name="actionStateId">The action state ID.</param>
     /// <returns>The death direction as a string, or null if the ID is invalid.</returns>
-    public static string? GetDeathDirection(int actionStateId)
+    public static DeathDirection? GetDeathDirection(int actionStateId)
     {
         if (actionStateId > 0xA)
         {
@@ -16,10 +24,10 @@ public static class AnimationUtils
 
         return actionStateId switch
         {
-            0 => "down",
-            1 => "left",
-            2 => "right",
-            _ => "up"
+            0 => DeathDirection.DOWN,
+            1 => DeathDirection.LEFT,
+            2 => DeathDirection.RIGHT,
+            _ => DeathDirection.UP
         };
     }
 }

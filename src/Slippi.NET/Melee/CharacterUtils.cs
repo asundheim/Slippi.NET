@@ -9,7 +9,7 @@ public static class CharacterUtils
 
     public static readonly CharacterInfo UnknownCharacter = new CharacterInfo
     {
-        Id = -1,
+        Id = (Character)(-1),
         Name = "Unknown Character",
         ShortName = "Unknown",
         Colors = new List<string> { DefaultColor }
@@ -21,7 +21,7 @@ public static class CharacterUtils
     /// <param name="id">The character ID.</param>
     /// <param name="data">The character data.</param>
     /// <returns>A <see cref="CharacterInfo"/> object.</returns>
-    private static CharacterInfo GenerateCharacterInfo(int id, CharacterInfo? data)
+    private static CharacterInfo GenerateCharacterInfo(Character id, CharacterInfo? data)
     {
         if (data is null)
         {
@@ -54,7 +54,7 @@ public static class CharacterUtils
     /// </summary>
     /// <param name="characterId">The character ID.</param>
     /// <returns>A <see cref="CharacterInfo"/> object.</returns>
-    public static CharacterInfo GetCharacterInfo(int characterId)
+    public static CharacterInfo GetCharacterInfo(Character characterId)
     {
         Characters.Lookup.TryGetValue(characterId, out var data);
         return GenerateCharacterInfo(characterId, data);
@@ -65,7 +65,7 @@ public static class CharacterUtils
     /// </summary>
     /// <param name="characterId">The character ID.</param>
     /// <returns>The short name of the character.</returns>
-    public static string? GetCharacterShortName(int characterId)
+    public static string? GetCharacterShortName(Character characterId)
     {
         return GetCharacterInfo(characterId).ShortName;
     }
@@ -75,7 +75,7 @@ public static class CharacterUtils
     /// </summary>
     /// <param name="characterId">The character ID.</param>
     /// <returns>The name of the character.</returns>
-    public static string GetCharacterName(int characterId)
+    public static string GetCharacterName(Character characterId)
     {
         return GetCharacterInfo(characterId).Name;
     }
@@ -86,7 +86,7 @@ public static class CharacterUtils
     /// <param name="characterId">The character ID.</param>
     /// <param name="characterColor">The color index.</param>
     /// <returns>The color name of the character.</returns>
-    public static string GetCharacterColorName(int characterId, int characterColor)
+    public static string GetCharacterColorName(Character characterId, int characterColor)
     {
         var character = GetCharacterInfo(characterId);
         if (characterColor >= 0 && characterColor < character.Colors.Count)

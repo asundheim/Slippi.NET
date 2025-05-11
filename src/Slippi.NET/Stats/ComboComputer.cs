@@ -13,15 +13,15 @@ public class ComboComputerEvent : IEvent<ComboComputerEventArgs>
 
 public record class ComboComputerEventArgs
 {
-    public required ComboType Combo { get; init; }
+    public required ComboInfo Combo { get; init; }
     public required GameStart? Settings { get; init; }
 }
 
-public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEventArgs>, IStatComputer<IList<ComboType>>
+public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEventArgs>, IStatComputer<IList<ComboInfo>>
 {
-    private readonly Dictionary<PlayerIndexedType, ComboState> _state = [];
-    private IList<PlayerIndexedType> _playerPermutations = [];
-    private IList<ComboType> _combos = [];
+    private readonly Dictionary<PlayerIndices, ComboState> _state = [];
+    private IList<PlayerIndices> _playerPermutations = [];
+    private IList<ComboInfo> _combos = [];
     private GameStart? _settings = null;
     
     public void Setup(GameStart settings)
@@ -44,7 +44,7 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
         }
     }
 
-    public void ProcessFrame(FrameEntry newFrame, FramesType allFrames)
+    public void ProcessFrame(FrameEntry newFrame, FramesCollection allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -62,17 +62,17 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
         }
     }
 
-    public IList<ComboType> Fetch()
+    public IList<ComboInfo> Fetch()
     {
         return _combos;
     }
 
     private static void HandleComboCompute(
-        FramesType frames,
+        FramesCollection frames,
         ComboState state,
-        PlayerIndexedType indices,
+        PlayerIndices indices,
         FrameEntry frame,
-        IList<ComboType> combos)
+        IList<ComboInfo> combos)
     {
         int currentFrameNumber = frame.Frame!.Value;
         PostFrameUpdate playerFrame = frame.Players![indices.PlayerIndex]!.Post!;
@@ -116,7 +116,7 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
             bool comboStarted = false;
             if (state.Combo is null)
             {
-                state.Combo = new ComboType()
+                state.Combo = new ComboInfo()
                 {
                     PlayerIndex = indices.OpponentIndex,
                     StartFrame = currentFrameNumber,
@@ -141,7 +141,7 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
                 // prevents counting multiple hits from the same move such as fox's drill
                 if (state.LastHitAnimation is null)
                 {
-                    state.Move = new MoveLandedType()
+                    state.Move = new MoveLandedInfo()
                     {
                         PlayerIndex = indices.PlayerIndex,
                         Frame = currentFrameNumber,
@@ -155,7 +155,7 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
                     // Make sure we don't overwrite the START event
                     if (!comboStarted)
                     {
-                        state.Event = ComboEvent.COMBO_EXTEND;
+                        state.Event = ComboEventNames.COMBO_EXTEND;
                     }
                 }
 
@@ -172,7 +172,7 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
 
             if (comboStarted)
             {
-                state.Event = ComboEvent.COMBO_START;
+                state.Event = ComboEventNames.COMBO_START;
             }
         }
 
@@ -224,7 +224,7 @@ public class ComboComputer : EventEmitter<ComboComputerEvent, ComboComputerEvent
         {
             state.Combo.EndFrame = playerFrame.Frame;
             state.Combo.EndPercent = prevOpponentFrame is not null ? (prevOpponentFrame.Percent ?? 0) : 0;
-            state.Event = ComboEvent.COMBO_END;
+            state.Event = ComboEventNames.COMBO_END;
 
             state.Combo = null;
             state.Move = null;

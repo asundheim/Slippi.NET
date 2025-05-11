@@ -7,8 +7,8 @@ namespace Slippi.NET.Stats;
 
 public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
 {
-    private readonly Dictionary<PlayerIndexedType, PlayerActionState> _state = [];
-    private List<PlayerIndexedType> _playerPermutations = [];
+    private readonly Dictionary<PlayerIndices, PlayerActionState> _state = [];
+    private List<PlayerIndices> _playerPermutations = [];
     
     public void Setup(GameStart settings)
     {
@@ -64,7 +64,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
         }
     }
 
-    public void ProcessFrame(FrameEntry frame, FramesType allFrames)
+    public void ProcessFrame(FrameEntry frame, FramesCollection allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -80,7 +80,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
         return _state.Values.Select(state => state.PlayerCounts).ToList();
     }
 
-    private static void HandleActionCompute(PlayerActionState state, PlayerIndexedType indices, FrameEntry frame)
+    private static void HandleActionCompute(PlayerActionState state, PlayerIndices indices, FrameEntry frame)
     {
         var playerFrame = frame.Players![indices.PlayerIndex]!.Post;
         var opponentFrame = frame.Players[indices.OpponentIndex]!.Post;

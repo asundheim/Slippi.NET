@@ -1,13 +1,9 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Slippi.NET.Slp.EventStream;
+using Slippi.NET.Slp.EventStream.Types;
 using Slippi.NET.Slp.Parser;
 using Slippi.NET.Slp.Parser.Types;
-using Slippi.NET.Slp.Stream;
-using Slippi.NET.Slp.Stream.Types;
 using Slippi.NET.Stats;
 using Slippi.NET.Types;
-using Xunit;
 
 namespace Slippi.NET.Tests;
 
@@ -17,7 +13,7 @@ public class RealtimeTests
     public async Task ReadingLastFinalizedFrameFromSlpStream_ShouldNeverDecrease()
     {
         const string testFile = "slp/finalizedFrame.slp";
-        var stream = new SlpStream(new SlpStreamSettings() { Mode = SlpStreamModes.MANUAL });
+        var stream = new SlpEventStream(new SlpStreamSettings() { Mode = SlpStreamModes.MANUAL });
         var parser = new SlpParser(new SlpParserOptions());
 
         int lastFinalizedFrame = (int)Frames.FIRST - 1;
@@ -66,7 +62,7 @@ public class RealtimeTests
     public async Task ReadingFinalizedFramesFromSlpParser_ShouldSupportOlderSlpFilesWithoutFrameBookend()
     {
         const string testFile = "slp/sheik_vs_ics_yoshis.slp";
-        var stream = new SlpStream(new SlpStreamSettings() { Mode = SlpStreamModes.MANUAL });
+        var stream = new SlpEventStream(new SlpStreamSettings() { Mode = SlpStreamModes.MANUAL });
         var parser = new SlpParser(new SlpParserOptions());
 
         int lastFinalizedFrame = (int)Frames.FIRST - 1;
@@ -98,7 +94,7 @@ public class RealtimeTests
     public async Task ReadingFinalizedFramesFromSlpParser_ShouldOnlyIncrease()
     {
         const string testFile = "slp/finalizedFrame.slp";
-        var stream = new SlpStream(new SlpStreamSettings() { Mode = SlpStreamModes.MANUAL });
+        var stream = new SlpEventStream(new SlpStreamSettings() { Mode = SlpStreamModes.MANUAL });
         var parser = new SlpParser(new SlpParserOptions());
 
         int lastFinalizedFrame = (int)Frames.FIRST - 1;
@@ -125,7 +121,7 @@ public class RealtimeTests
         Assert.Equal(metadata.LastFrame, lastFinalizedFrame);
     }
 
-    private static async Task PipeFileContentsAsync(string filename, SlpStream destination)
+    private static async Task PipeFileContentsAsync(string filename, SlpEventStream destination)
     {
         using var readStream = new FileStream(filename, FileMode.Open, FileAccess.Read);
         using var memoryStream = new MemoryStream(new byte[readStream.Length]);
