@@ -1,5 +1,4 @@
-﻿using ENet;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Slippi.NET.Console.Types;
 using System.Text;
 
@@ -7,7 +6,6 @@ namespace Slippi.NET.Console;
 public class DolphinConnection : Connection
 {
     private static int _enetRef = 0;
-    private const int MAX_PEERS = 32;
 
     private string _ipAddress;
     private int _port;
@@ -15,9 +13,7 @@ public class DolphinConnection : Connection
     private int _gameCursor = 0;
     private string _nickname = "unknown";
     private string _version = string.Empty;
-    private Peer? _peer = null;
-    private Host? _client = null;
-    private CancellationTokenSource _cts = new CancellationTokenSource();
+    private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
     private JsonSerializerSettings _serializerSettings = new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore };
 
@@ -25,7 +21,7 @@ public class DolphinConnection : Connection
     {
         if (_enetRef == 0)
         {
-            ENet.Library.Initialize();
+            DolphinENet.Initialize();
         }
 
         Interlocked.Increment(ref _enetRef);
@@ -67,92 +63,55 @@ public class DolphinConnection : Connection
         _ipAddress = ip;
         _port = port;
 
-        _client = new Host();
-        _client.Create(peerLimit: MAX_PEERS, channelLimit: 3, incomingBandwidth: 0, outgoingBandwidth: 0);
-
-        Address address = new Address()
+        int hr = DolphinENet.Connect(Encoding.UTF8.GetBytes(ip), (ushort)port);
+        if (hr != 0)
         {
-            Port = (ushort)_port
-        };
-        address.SetHost(_ipAddress);
+            System.Console.WriteLine("Connection failed.");
 
-        SetStatus(ConnectionStatus.Connecting);
+        }
 
+        HandleConnect();
+
+        EmitOnConnectEvent();
+        SetStatus(ConnectionStatus.Connected);
+        
         _ = Task.Run(() =>
         {
-            _peer = _client.Connect(address, channelLimit: 3, data: 1337);
-            _peer.Value.Ping();
-
-            EmitOnConnectEvent();
-            SetStatus(ConnectionStatus.Connected);
-
-            ENetLoop(_cts.Token);
+            ENetClientLoop(_cts.Token);
         });
     }
 
-    private void ENetLoop(CancellationToken cancellation)
+    private void ENetClientLoop(CancellationToken cancellation)
     {
-        Event netEvent;
+        const int maxBufferSize = 2048;
+
         bool disconnect = false;
-        if (_client is not null)
+        byte[] buffer = new byte[maxBufferSize];
+        int bufferLength = buffer.Length;
+        while (!disconnect && !cancellation.IsCancellationRequested)
         {
-            while (!disconnect && !cancellation.IsCancellationRequested)
+            bool polled = false;
+
+            while (!polled)
             {
-                bool polled = false;
-
-                while (!polled)
+                if (DolphinENet.Read(15, ref bufferLength, buffer) != 0)
                 {
-                    if (_client.CheckEvents(out netEvent) <= 0)
-                    {
-                        if (_client.Service(timeout: 15, out netEvent) <= 0)
-                        {
-                            break;
-                        }
-
-                        polled = true;
-                    }
-
-                    switch (netEvent.Type)
-                    {
-                        case EventType.None:
-                        case EventType.Timeout:
-                            break;
-
-                        case EventType.Connect:
-                            HandleConnect();
-
-                            break;
-
-                        case EventType.Disconnect:
-                            HandleDisconnect();
-                            disconnect = true;
-
-                            break;
-
-                        case EventType.Receive:
-                            System.Console.WriteLine("Packet received from server - Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
-
-                            HandleMessage(netEvent.Packet);
-
-                            netEvent.Packet.Dispose();
-
-                            break;
-                    }
+                    bufferLength = 2048;
+                    break;
                 }
-            }
 
-            _client.Flush();
+                polled = true;
+                HandleMessage(buffer.AsSpan().Slice(0, bufferLength));
+                bufferLength = maxBufferSize;
+            }
         }
     }
 
+    /// <summary>
+    /// Send the handshake request after the ENet connection is established.
+    /// </summary>
     private void HandleConnect()
     {
-        if (_peer is null)
-        {
-            System.Console.WriteLine("_peer is null!");
-            return;
-        }
-
         _gameCursor = 0;
         DolphinMessage message = new DolphinMessage()
         {
@@ -160,18 +119,16 @@ public class DolphinConnection : Connection
             GameCursor = _gameCursor,
         };
 
-        string messageJson = JsonConvert.SerializeObject(message, Formatting.None, settings: _serializerSettings);
+        string messageJson = JsonConvert.SerializeObject(message, Formatting.Indented, settings: _serializerSettings);
+        messageJson = messageJson.Replace("\r", string.Empty);
         byte[] messageBytes = Encoding.ASCII.GetBytes(messageJson);
 
-        Packet packet = new Packet();
-        packet.Create(messageBytes, messageBytes.Length, PacketFlags.Reliable);
-
-        _peer.Value.Send(0, ref packet);
+        DolphinENet.SendToPeer(messageBytes, messageBytes.Length);
     }
 
-    private void HandleMessage(Packet packet)
+    private void HandleMessage(Span<byte> packet)
     {
-        Span<byte> data = stackalloc byte[packet.Length];
+        Span<byte> data = packet;
         string jsonString = Encoding.ASCII.GetString(data);
 
         DolphinMessage? message = JsonConvert.DeserializeObject<DolphinMessage>(jsonString, _serializerSettings);
@@ -230,17 +187,7 @@ public class DolphinConnection : Connection
 
     public override void HandleDisconnect()
     {
-        if (_peer is not null)
-        {
-            _peer.Value.Disconnect(0);
-            _peer = null;
-        }
-
-        if (_client is not null)
-        {
-            _client.Dispose();
-            _client = null;
-        }
+        DolphinENet.Disconnect();
 
         SetStatus(ConnectionStatus.Disconnected);
     }
@@ -286,7 +233,8 @@ public class DolphinConnection : Connection
         int newEnetRef = Interlocked.Decrement(ref _enetRef);
         if (newEnetRef == 0)
         {
-            ENet.Library.Deinitialize();
+            //ENet.Library.Deinitialize();
+            int _ = DolphinENet.Uninitialize();
         }
 
         _cts.Cancel();

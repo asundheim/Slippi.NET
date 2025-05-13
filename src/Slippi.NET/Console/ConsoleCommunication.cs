@@ -4,8 +4,9 @@ using UBJson;
 
 namespace Slippi.NET.Console;
 
-// This class is responsible for handling the communication protocol between the Wii and the
-// desktop app
+/// <summary>
+/// TODO this has never been tested and almost certainly won't work without some fine-tuning.
+/// </summary>
 public class ConsoleCommunication
 {
     private byte[] _receiveBuf;
@@ -54,7 +55,7 @@ public class ConsoleCommunication
 
     public byte[] GetReceiveBuffer()
     {
-        return _receiveBuf.ToArray();
+        return _receiveBuf;
     }
 
     public IList<CommunicationMessage> GetMessages()

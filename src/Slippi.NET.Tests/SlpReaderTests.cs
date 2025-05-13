@@ -73,6 +73,7 @@ public class SlpReaderTests
 
         using var slpFile = input.OpenSlpFile();
         var gameEnd = slpFile.GetGameEnd();
+
         return gameEnd;
     }
 }

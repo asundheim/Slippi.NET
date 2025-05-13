@@ -8,10 +8,10 @@ using System.Text;
 namespace Slippi.NET.Slp.EventStream;
 
 /// <summary>
-/// SlpStream is a writable stream of Slippi data. It passes the data being written in
+/// <see cref="SlpEventStream"/> is a writable stream of Slippi data. It parses the data being written in
 /// and emits an event based on what kind of Slippi messages were processed. <br/><br/>
 ///
-/// SlpStream emits two events: <see cref="OnRaw"/> and <see cref="OnCommand"/>. <br/><br/>
+/// <see cref="SlpEventStream"/> emits two events: <see cref="OnRaw"/> and <see cref="OnCommand"/>. <br/><br/>
 /// 
 /// The <see cref="OnRaw"/> event emits the raw buffer
 /// bytes whenever it processes each command. You can manually parse this or write it to a
@@ -83,7 +83,6 @@ public class SlpEventStream
 
             // Increment by one for the command byte
             index += 1;
-
 
             Span<byte> payloadPtr = data.Slice(index);
             BufferReader xPayload = new BufferReader(payloadPtr);

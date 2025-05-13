@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Slippi.NET.Console;
 
+/// <summary>
+/// TODO this has never been tested and almost certainly won't work without some fine-tuning.
+/// </summary>
 public class ConsoleConnection : Connection
 {
     public const string NETWORK_MESSAGE = "HELO";

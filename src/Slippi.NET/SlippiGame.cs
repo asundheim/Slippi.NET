@@ -11,6 +11,10 @@ using Slippi.NET.Utils;
 
 namespace Slippi.NET;
 
+/// <summary>
+/// The main entry point for parsing .slp files. Takes a filepath or a raw byte buffer
+/// and provides entrypoints for retrieving metadata, stats, results, and everything else contained in the file.
+/// </summary>
 public class SlippiGame : IDisposable
 {
     private readonly SlpReader _input;

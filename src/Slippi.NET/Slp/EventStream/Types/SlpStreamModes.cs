@@ -1,5 +1,4 @@
-﻿
-namespace Slippi.NET.Slp.EventStream.Types;
+﻿namespace Slippi.NET.Slp.EventStream.Types;
 
 /// <summary>
 /// Contains a set of valid values for <see cref="SlpStreamSettings.Mode"/>

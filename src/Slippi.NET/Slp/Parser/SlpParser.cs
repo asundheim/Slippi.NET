@@ -20,9 +20,9 @@ public class SlpParser
     private SlpParserOptions _options;
     private GeckoCodeList? _geckoList = null;
 
-    public SlpParser(SlpParserOptions options)
+    public SlpParser(SlpParserOptions? options = null)
     {
-        _options = options;
+        _options = options ?? new SlpParserOptions();
     }
 
     public event EventHandler<GameEnd>? OnGameEnd;

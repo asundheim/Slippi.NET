@@ -68,7 +68,15 @@ static class WinnerCalculator
 ```
 
 ## Connection
-`DolphinConnection` and `ConsoleConnection` are implemented but currently untested.
+`ConsoleConnection` is implemented but currently untested.
+
+Using `DolphinConnection` is very straightforward, create a new `DolphinConnection` and call `Connect` with an IP address and port. You can listen to the
+events defined on the base `Connection` class for updates and information on the Dolphin instance.
+
+If Dolphin is local, you can use `127.0.0.1`. The `Ports` enumeration provides common values for ports, with `Default` (`51441`) being the standard
+one that Dolphin uses.
+
+You can find an example in `src/DolphinConnectionTestApp/`.
 
 ## Development
 Restore and build `Slippi.NET.sln` from the root of the project.
@@ -76,5 +84,4 @@ Restore and build `Slippi.NET.sln` from the root of the project.
 Currently all projects target .NET 9 to make use of the latest `Span` improvements to the standard library.
 
 ## Tests
-The `Slippi.NET.Tests` contains all unit tests for the project. All tests have been ported from `slippi-js` aside from the tests in `filewriter.spec.ts` as `SlpFileWriter` has not been converted yet
-.
+The `Slippi.NET.Tests` contains all unit tests for the project. All tests have been ported from `slippi-js`.
