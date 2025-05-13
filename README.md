@@ -1,3 +1,4 @@
+[![NuGet version (Slippi.NET)](https://img.shields.io/nuget/v/Slippi.NET.svg?style=flat-square)](https://www.nuget.org/packages/Slippi.NET/)
 # Slippi.NET
 This project is a port of [slippi-js](https://github.com/project-slippi/slippi-js) to modern .NET while maintaining more or less the same API surface. 
 
