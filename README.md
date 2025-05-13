@@ -4,6 +4,14 @@ This project is a port of [slippi-js](https://github.com/project-slippi/slippi-j
 
 Internally an attempt is made to use stack-allocated `System.Span<byte>` wherever possible, which significantly improves performance over GC-allocated `byte[]`.
 
+# Download
+This package is available on [nuget.org](https://www.nuget.org/) and can be referenced by simply adding a `<PackageReference>` to your project like:
+```
+<ItemGroup>
+    <PackageReference Include="Slippi.NET" Version="0.1.0" />
+</ItemGroup>
+```
+
 ## Usage
 Just as in `slippi-js`, the main entrypoint is `SlippiGame`, taking either a filepath or a byte buffer.
 ```csharp
