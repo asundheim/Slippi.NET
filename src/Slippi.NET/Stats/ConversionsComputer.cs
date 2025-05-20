@@ -45,7 +45,7 @@ public class ConversionsComputer : IStatComputer<IList<Conversion>>
         }
     }
 
-    public void ProcessFrame(FrameEntry newFrame, FramesCollection allFrames)
+    public void ProcessFrame(FrameEntry newFrame, Dictionary<int, FrameEntry> allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -105,7 +105,7 @@ public class ConversionsComputer : IStatComputer<IList<Conversion>>
     }
 
     private static bool HandleConversionCompute(
-        FramesCollection frames,
+        Dictionary<int, FrameEntry> frames,
         PlayerConversionState state,
         PlayerIndices indices,
         FrameEntry frame,
@@ -126,9 +126,9 @@ public class ConversionsComputer : IStatComputer<IList<Conversion>>
         }
 
         var oppActionStateId = opponentFrame!.ActionStateId;
-        bool opntIsDamaged = oppActionStateId is not null && StatsUtils.IsDamaged((State)oppActionStateId);
-        bool opntIsGrabbed = oppActionStateId is not null && StatsUtils.IsGrabbed((State)oppActionStateId);
-        bool opntIsCommandGrabbed = oppActionStateId is not null && StatsUtils.IsCommandGrabbed((State)oppActionStateId);
+        bool opntIsDamaged = oppActionStateId is not null && StatsUtils.IsDamaged((ActionState)oppActionStateId);
+        bool opntIsGrabbed = oppActionStateId is not null && StatsUtils.IsGrabbed((ActionState)oppActionStateId);
+        bool opntIsCommandGrabbed = oppActionStateId is not null && StatsUtils.IsCommandGrabbed((ActionState)oppActionStateId);
         float opntDamageTaken = prevOpponentFrame is not null ? StatsUtils.CalcDamageTaken(opponentFrame, prevOpponentFrame) : 0;
 
         // Keep track of whether actionState changes after a hit. Used to compute move count
@@ -207,7 +207,7 @@ public class ConversionsComputer : IStatComputer<IList<Conversion>>
             return false;
         }
 
-        bool opntInControl = oppActionStateId is not null && StatsUtils.IsInControl((State)oppActionStateId);
+        bool opntInControl = oppActionStateId is not null && StatsUtils.IsInControl((ActionState)oppActionStateId);
         bool opntDidLoseStock = prevOpponentFrame is not null && StatsUtils.DidLoseStock(opponentFrame, prevOpponentFrame);
 
         // Update percent if opponent didn't lose stock

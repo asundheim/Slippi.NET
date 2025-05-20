@@ -24,9 +24,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-	  <PackageReference Include="Semver" Version="3.0.0" />
-	  <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.4" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Semver" Version="3.0.0" />
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>

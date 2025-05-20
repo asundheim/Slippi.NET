@@ -10,7 +10,7 @@ public class SlpParser
     private const int ITEM_SETTINGS_BIT_COUNT = 40;
     public const int MAX_ROLLBACK_FRAMES = 7;
 
-    private FramesCollection _frames = [];
+    private Dictionary<int, FrameEntry> _frames = [];
     private RollbackCounter _rollbackCounter = new RollbackCounter();
     private GameStart? _settings = null;
     private GameEnd? _gameEnd = null;
@@ -146,7 +146,7 @@ public class SlpParser
 
     public GameEnd? GetGameEnd() => _gameEnd;
 
-    public FramesCollection GetFrames() => _frames;
+    public Dictionary<int, FrameEntry> GetFrames() => _frames;
 
     public RollbackFrames GetRollbackFrames()
     {

@@ -33,7 +33,7 @@ public record class InputComputer : IStatComputer<IList<PlayerInput>>
         }
     }
 
-    public void ProcessFrame(FrameEntry frame, FramesCollection allFrames)
+    public void ProcessFrame(FrameEntry frame, Dictionary<int, FrameEntry> allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -50,7 +50,7 @@ public record class InputComputer : IStatComputer<IList<PlayerInput>>
     }
 
     private static void HandleInputCompute(
-        FramesCollection frames,
+        Dictionary<int, FrameEntry> frames,
         PlayerInput state,
         PlayerIndices indices,
         FrameEntry frame)
@@ -73,7 +73,7 @@ public record class InputComputer : IStatComputer<IList<PlayerInput>>
         // Count button presses
         var invertedPreviousButtons = ~prevPlayerFrame.PhysicalButtons ?? 0;
         var currentButtons = playerFrame.PhysicalButtons ?? 0;
-        var buttonChanges = invertedPreviousButtons & currentButtons & 0xfff;
+        var buttonChanges = (ushort)invertedPreviousButtons & (ushort)currentButtons & (ushort)0xfff;
         var newInputsPressed = CountSetBits(buttonChanges);
         state.InputCount += newInputsPressed;
         state.ButtonInputCount += newInputsPressed;

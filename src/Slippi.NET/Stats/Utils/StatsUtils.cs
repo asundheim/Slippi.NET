@@ -45,48 +45,48 @@ public static class StatsUtils
         return percent - prevPercent;
     }
 
-    public static bool IsInControl(State state)
+    public static bool IsInControl(ActionState state)
     {
-        bool ground = state >= State.GROUNDED_CONTROL_START && state <= State.GROUNDED_CONTROL_END;
-        bool squat = state >= State.SQUAT_START && state <= State.SQUAT_END;
-        bool groundAttack = state > State.GROUND_ATTACK_START && state <= State.GROUND_ATTACK_END;
-        bool isGrab = state == State.GRAB;
+        bool ground = state >= ActionState.GROUNDED_CONTROL_START && state <= ActionState.GROUNDED_CONTROL_END;
+        bool squat = state >= ActionState.SQUAT_START && state <= ActionState.SQUAT_END;
+        bool groundAttack = state > ActionState.GROUND_ATTACK_START && state <= ActionState.GROUND_ATTACK_END;
+        bool isGrab = state == ActionState.GRAB;
 
         return ground || squat || groundAttack || isGrab;
     }
 
-    public static bool IsTeching(State state)
+    public static bool IsTeching(ActionState state)
     {
-        return state >= State.TECH_START && state <= State.TECH_END;
+        return state >= ActionState.TECH_START && state <= ActionState.TECH_END;
     }
 
-    public static bool IsDown(State state)
+    public static bool IsDown(ActionState state)
     {
-        return state >= State.DOWN_START && state <= State.DOWN_END;
+        return state >= ActionState.DOWN_START && state <= ActionState.DOWN_END;
     }
 
-    public static bool IsDamaged(State state)
+    public static bool IsDamaged(ActionState state)
     {
-        return (state >= State.DAMAGE_START && state <= State.DAMAGE_END) ||
-               state == State.DAMAGE_FALL ||
-               state == State.JAB_RESET_UP ||
-               state == State.JAB_RESET_DOWN;
+        return (state >= ActionState.DAMAGE_START && state <= ActionState.DAMAGE_END) ||
+               state == ActionState.DAMAGE_FALL ||
+               state == ActionState.JAB_RESET_UP ||
+               state == ActionState.JAB_RESET_DOWN;
     }
 
-    public static bool IsGrabbed(State state)
+    public static bool IsGrabbed(ActionState state)
     {
-        return state >= State.CAPTURE_START && state <= State.CAPTURE_END;
+        return state >= ActionState.CAPTURE_START && state <= ActionState.CAPTURE_END;
     }
 
-    public static bool IsCommandGrabbed(State state)
+    public static bool IsCommandGrabbed(ActionState state)
     {
-        return ((state >= State.COMMAND_GRAB_RANGE1_START && state <= State.COMMAND_GRAB_RANGE1_END) ||
-                (state >= State.COMMAND_GRAB_RANGE2_START && state <= State.COMMAND_GRAB_RANGE2_END)) &&
-               state != State.BARREL_WAIT;
+        return ((state >= ActionState.COMMAND_GRAB_RANGE1_START && state <= ActionState.COMMAND_GRAB_RANGE1_END) ||
+                (state >= ActionState.COMMAND_GRAB_RANGE2_START && state <= ActionState.COMMAND_GRAB_RANGE2_END)) &&
+               state != ActionState.BARREL_WAIT;
     }
 
-    public static bool IsDead(State state)
+    public static bool IsDead(ActionState state)
     {
-        return state >= State.DYING_START && state <= State.DYING_END;
+        return state >= ActionState.DYING_START && state <= ActionState.DYING_END;
     }
 }

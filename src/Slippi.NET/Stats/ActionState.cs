@@ -1,6 +1,6 @@
 namespace Slippi.NET.Stats;
 
-public enum State
+public enum ActionState
 {
     // Animation ID ranges
     DAMAGE_START = 0x4b,
@@ -80,6 +80,20 @@ public enum State
     AERIAL_UAIR = 0x44,
     AERIAL_DAIR = 0x45,
 
+    // Character-specific
+    FOX_SHINE_G = 360,
+    FOX_SHINE_A = 365,
+    FOX_SHINE_TURNAROUND_G = 364,
+    FOX_SHINE_TURNAROUND_A = 369,
+    FOX_SHINE_END_G = 363,
+    FOX_SHINE_END_A = 368,
+    FOX_UPB_G = 353,
+    FOX_UPB_A = 354,
+    FOX_SIDEB_G = 347,
+    FOX_SIDEB_A = 350,
+    FOX_LASER_G = 341,
+    FOX_LASER_A = 344,
+
     // Weird GnW IDs
     GNW_JAB1 = 0x155,
     GNW_JABM = 0x156,
@@ -99,5 +113,5 @@ public enum State
     COMMAND_GRAB_RANGE1_START = 0x10a,
     COMMAND_GRAB_RANGE1_END = 0x130,
     COMMAND_GRAB_RANGE2_START = 0x147,
-    COMMAND_GRAB_RANGE2_END = 0x152
+    COMMAND_GRAB_RANGE2_END = 0x152,
 }

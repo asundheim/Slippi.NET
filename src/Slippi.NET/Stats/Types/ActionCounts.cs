@@ -10,21 +10,21 @@ public record class ActionCounts
     public required int SpotDodgeCount { get; set; }
     public required int LedgegrabCount { get; set; }
     public required int RollCount { get; set; }
-    public required LCancelCount LCancelCount { get; set; }
-    public required AttackCount AttackCount { get; set; }
-    public required GrabCount GrabCount { get; set; }
-    public required ThrowCount ThrowCount { get; set; }
-    public required GroundTechCount GroundTechCount { get; set; }
-    public required WallTechCount WallTechCount { get; set; }
+    public required LCancelCounts LCancelCount { get; set; }
+    public required AttackCounts AttackCount { get; set; }
+    public required GrabCounts GrabCount { get; set; }
+    public required ThrowCounts ThrowCount { get; set; }
+    public required GroundTechCounts GroundTechCount { get; set; }
+    public required WallTechCounts WallTechCount { get; set; }
 }
 
-public record class LCancelCount
+public record class LCancelCounts
 {
     public required int Success { get; set; }
     public required int Fail { get; set; }
 }
 
-public record class AttackCount
+public record class AttackCounts
 {
     public required int Jab1 { get; set; }
     public required int Jab2 { get; set; }
@@ -44,13 +44,13 @@ public record class AttackCount
     public required int Dair { get; set; }
 }
 
-public record class GrabCount
+public record class GrabCounts
 {
     public required int Success { get; set; }
     public required int Fail { get; set; }
 }
 
-public record class ThrowCount
+public record class ThrowCounts
 {
     public required int Up { get; set; }
     public required int Forward { get; set; }
@@ -58,7 +58,7 @@ public record class ThrowCount
     public required int Down { get; set; }
 }
 
-public record class GroundTechCount
+public record class GroundTechCounts
 {
     public required int Away { get; set; }
     public required int In { get; set; }
@@ -66,7 +66,7 @@ public record class GroundTechCount
     public required int Fail { get; set; }
 }
 
-public record class WallTechCount
+public record class WallTechCounts
 {
     public required int Success { get; set; }
     public required int Fail { get; set; }

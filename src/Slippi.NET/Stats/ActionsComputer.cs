@@ -5,10 +5,27 @@ using static Slippi.NET.Stats.Utils.ActionUtils;
 
 namespace Slippi.NET.Stats;
 
-public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
+public record class ActionEventArgs
+{
+    public required FrameEntry Frame { get; set; }
+    public required Actions Action { get; set; }
+    public required int PlayerIndex { get; set; }
+}
+
+public record class RawActionEventArgs
+{
+    public required FrameEntry Frame { get; set; }
+    public required ActionState ActionState { get; set; }
+    public required int PlayerIndex { get; set; }
+}
+
+public class ActionsComputer : IStatComputer<IList<ActionCounts>>
 {
     private readonly Dictionary<PlayerIndices, PlayerActionState> _state = [];
     private List<PlayerIndices> _playerPermutations = [];
+
+    public event EventHandler<ActionEventArgs>? OnAction;
+    public event EventHandler<RawActionEventArgs>? OnRawAction;
     
     public void Setup(GameStart settings)
     {
@@ -27,8 +44,8 @@ public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
                 SpotDodgeCount = 0,
                 LedgegrabCount = 0,
                 RollCount = 0,
-                LCancelCount = new LCancelCount { Success = 0, Fail = 0 },
-                AttackCount = new AttackCount
+                LCancelCount = new LCancelCounts { Success = 0, Fail = 0 },
+                AttackCount = new AttackCounts
                 {
                     Jab1 = 0,
                     Jab2 = 0,
@@ -47,10 +64,10 @@ public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
                     Uair = 0,
                     Dair = 0
                 },
-                GrabCount = new GrabCount { Success = 0, Fail = 0 },
-                ThrowCount = new ThrowCount { Up = 0, Forward = 0, Back = 0, Down = 0 },
-                GroundTechCount = new GroundTechCount { Away = 0, In = 0, Neutral = 0, Fail = 0 },
-                WallTechCount = new WallTechCount { Success = 0, Fail = 0 }
+                GrabCount = new GrabCounts { Success = 0, Fail = 0 },
+                ThrowCount = new ThrowCounts { Up = 0, Forward = 0, Back = 0, Down = 0 },
+                GroundTechCount = new GroundTechCounts { Away = 0, In = 0, Neutral = 0, Fail = 0 },
+                WallTechCount = new WallTechCounts { Success = 0, Fail = 0 }
             };
 
             var playerState = new PlayerActionState
@@ -64,7 +81,7 @@ public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
         }
     }
 
-    public void ProcessFrame(FrameEntry frame, FramesCollection allFrames)
+    public void ProcessFrame(FrameEntry frame, Dictionary<int, FrameEntry> allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -80,12 +97,12 @@ public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
         return _state.Values.Select(state => state.PlayerCounts).ToList();
     }
 
-    private static void HandleActionCompute(PlayerActionState state, PlayerIndices indices, FrameEntry frame)
+    private void HandleActionCompute(PlayerActionState state, PlayerIndices indices, FrameEntry frame)
     {
         var playerFrame = frame.Players![indices.PlayerIndex]!.Post;
         var opponentFrame = frame.Players[indices.OpponentIndex]!.Post;
 
-        static void ExecuteIf(Action execute, bool condition)
+        void ExecuteIf(Action execute, bool condition, Actions action = Actions.None)
         {
             if (!condition)
             {
@@ -93,6 +110,11 @@ public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
             }
 
             execute();
+
+            if (action != Actions.None)
+            {
+                OnAction?.Invoke(this, new ActionEventArgs() { Action = action, Frame = frame, PlayerIndex = indices.PlayerIndex });
+            }
         }
 
         // Manage animation state
@@ -110,93 +132,95 @@ public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
         var isNewAction = currentAnimation != prevAnimation || prevFrameCounter > currentFrameCounter;
         if (!isNewAction) return;
 
-        // Increment counts based on conditions
-        var didDashDance = last3Frames.Count == 3 && last3Frames[0] == (int)State.DASH && 
-                                                     last3Frames[1] == (int)State.TURN && 
-                                                     last3Frames[2] == (int)State.DASH;
-        ExecuteIf(() => state.PlayerCounts.DashDanceCount++, didDashDance);
+        OnRawAction?.Invoke(this, new RawActionEventArgs() { ActionState = (ActionState)currentAnimation, PlayerIndex = indices.PlayerIndex, Frame = frame });
 
-        ExecuteIf(() => state.PlayerCounts.RollCount++, IsRolling((State)currentAnimation));
-        ExecuteIf(() => state.PlayerCounts.SpotDodgeCount++, currentAnimation == (int)State.SPOT_DODGE);
-        ExecuteIf(() => state.PlayerCounts.AirDodgeCount++, currentAnimation == (int)State.AIR_DODGE);
-        ExecuteIf(() => state.PlayerCounts.LedgegrabCount++, currentAnimation == (int)State.CLIFF_CATCH);
+        // Increment counts based on conditions
+        var didDashDance = last3Frames.Count == 3 && last3Frames[0] == (int)ActionState.DASH && 
+                                                     last3Frames[1] == (int)ActionState.TURN && 
+                                                     last3Frames[2] == (int)ActionState.DASH;
+        ExecuteIf(() => state.PlayerCounts.DashDanceCount++, didDashDance, Actions.DashDance);
+
+        ExecuteIf(() => state.PlayerCounts.RollCount++, IsRolling((ActionState)currentAnimation), Actions.Roll);
+        ExecuteIf(() => state.PlayerCounts.SpotDodgeCount++, currentAnimation == (int)ActionState.SPOT_DODGE, Actions.SpotDodge);
+        ExecuteIf(() => state.PlayerCounts.AirDodgeCount++, currentAnimation == (int)ActionState.AIR_DODGE, Actions.AirDodge);
+        ExecuteIf(() => state.PlayerCounts.LedgegrabCount++, currentAnimation == (int)ActionState.CLIFF_CATCH, Actions.Ledgegrab);
 
         // Grabs
-        ExecuteIf(() => state.PlayerCounts.GrabCount.Success++, IsGrabbing((State)prevAnimation) && IsGrabAction((State)currentAnimation));
-        ExecuteIf(() => state.PlayerCounts.GrabCount.Fail++, IsGrabbing((State)prevAnimation) && !IsGrabAction((State)currentAnimation));
-        if (currentAnimation == (int)State.DASH_GRAB && prevAnimation == (int)State.ATTACK_DASH)
+        ExecuteIf(() => state.PlayerCounts.GrabCount.Success++, IsGrabbing((ActionState)prevAnimation) && IsGrabAction((ActionState)currentAnimation), Actions.Grab);
+        ExecuteIf(() => state.PlayerCounts.GrabCount.Fail++, IsGrabbing((ActionState)prevAnimation) && !IsGrabAction((ActionState)currentAnimation), Actions.Grab);
+        if (currentAnimation == (int)ActionState.DASH_GRAB && prevAnimation == (int)ActionState.ATTACK_DASH)
         {
             state.PlayerCounts.AttackCount.Dash -= 1; // subtract from dash attack if boost grab
         }
 
         // Basic attacks
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Jab1++, currentAnimation == (int)State.ATTACK_JAB1);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Jab2++, currentAnimation == (int)State.ATTACK_JAB2);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Jab3++, currentAnimation == (int)State.ATTACK_JAB3);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Jabm++, currentAnimation == (int)State.ATTACK_JABM);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Dash++, currentAnimation == (int)State.ATTACK_DASH);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Ftilt++, IsForwardTilt((State)currentAnimation));
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Utilt++, currentAnimation == (int)State.ATTACK_UTILT);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Dtilt++, currentAnimation == (int)State.ATTACK_DTILT);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Fsmash++, IsForwardSmash((State)currentAnimation));
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Usmash++, currentAnimation == (int)State.ATTACK_USMASH);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Dsmash++, currentAnimation == (int)State.ATTACK_DSMASH);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Nair++, currentAnimation == (int)State.AERIAL_NAIR);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Fair++, currentAnimation == (int)State.AERIAL_FAIR);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Bair++, currentAnimation == (int)State.AERIAL_BAIR);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Uair++, currentAnimation == (int)State.AERIAL_UAIR);
-        ExecuteIf(() => state.PlayerCounts.AttackCount.Dair++, currentAnimation == (int)State.AERIAL_DAIR);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Jab1++, currentAnimation == (int)ActionState.ATTACK_JAB1, Actions.Jab);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Jab2++, currentAnimation == (int)ActionState.ATTACK_JAB2, Actions.Jab);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Jab3++, currentAnimation == (int)ActionState.ATTACK_JAB3, Actions.Jab);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Jabm++, currentAnimation == (int)ActionState.ATTACK_JABM, Actions.Jab);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Dash++, currentAnimation == (int)ActionState.ATTACK_DASH, Actions.DashAttack);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Ftilt++, IsForwardTilt((ActionState)currentAnimation), Actions.FTilt);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Utilt++, currentAnimation == (int)ActionState.ATTACK_UTILT, Actions.UTilt);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Dtilt++, currentAnimation == (int)ActionState.ATTACK_DTILT, Actions.DTilt);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Fsmash++, IsForwardSmash((ActionState)currentAnimation), Actions.FSmash);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Usmash++, currentAnimation == (int)ActionState.ATTACK_USMASH, Actions.USmash);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Dsmash++, currentAnimation == (int)ActionState.ATTACK_DSMASH, Actions.DSmash);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Nair++, currentAnimation == (int)ActionState.AERIAL_NAIR, Actions.Nair);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Fair++, currentAnimation == (int)ActionState.AERIAL_FAIR, Actions.Fair);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Bair++, currentAnimation == (int)ActionState.AERIAL_BAIR, Actions.Bair);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Uair++, currentAnimation == (int)ActionState.AERIAL_UAIR, Actions.UAir);
+        ExecuteIf(() => state.PlayerCounts.AttackCount.Dair++, currentAnimation == (int)ActionState.AERIAL_DAIR, Actions.DAir);
 
         // GnW is weird and has unique IDs for some moves
         if (playerFrame.InternalCharacterId == 0x18)
         {
-            ExecuteIf(() => state.PlayerCounts.AttackCount.Jab1++, currentAnimation == (int)State.GNW_JAB1);
-            ExecuteIf(() => state.PlayerCounts.AttackCount.Jabm++, currentAnimation == (int)State.GNW_JABM);
-            ExecuteIf(() => state.PlayerCounts.AttackCount.Dtilt++, currentAnimation == (int)State.GNW_DTILT);
-            ExecuteIf(() => state.PlayerCounts.AttackCount.Fsmash++, currentAnimation == (int)State.GNW_FSMASH);
-            ExecuteIf(() => state.PlayerCounts.AttackCount.Nair++, currentAnimation == (int)State.GNW_NAIR);
-            ExecuteIf(() => state.PlayerCounts.AttackCount.Bair++, currentAnimation == (int)State.GNW_BAIR);
-            ExecuteIf(() => state.PlayerCounts.AttackCount.Uair++, currentAnimation == (int)State.GNW_UAIR);
+            ExecuteIf(() => state.PlayerCounts.AttackCount.Jab1++, currentAnimation == (int)ActionState.GNW_JAB1, Actions.Jab);
+            ExecuteIf(() => state.PlayerCounts.AttackCount.Jabm++, currentAnimation == (int)ActionState.GNW_JABM, Actions.Jab);
+            ExecuteIf(() => state.PlayerCounts.AttackCount.Dtilt++, currentAnimation == (int)ActionState.GNW_DTILT, Actions.DTilt);
+            ExecuteIf(() => state.PlayerCounts.AttackCount.Fsmash++, currentAnimation == (int)ActionState.GNW_FSMASH, Actions.FSmash);
+            ExecuteIf(() => state.PlayerCounts.AttackCount.Nair++, currentAnimation == (int)ActionState.GNW_NAIR, Actions.Nair);
+            ExecuteIf(() => state.PlayerCounts.AttackCount.Bair++, currentAnimation == (int)ActionState.GNW_BAIR, Actions.Bair);
+            ExecuteIf(() => state.PlayerCounts.AttackCount.Uair++, currentAnimation == (int)ActionState.GNW_UAIR, Actions.UAir);
         }
 
         // Peach is also weird and has a unique ID for her fsmash
         if (playerFrame.InternalCharacterId == 0x09)
         {
-            ExecuteIf(() => state.PlayerCounts.AttackCount.Fsmash++, currentAnimation == (int)State.PEACH_FSMASH1);
-            ExecuteIf(() => state.PlayerCounts.AttackCount.Fsmash++, currentAnimation == (int)State.PEACH_FSMASH2);
-            ExecuteIf(() => state.PlayerCounts.AttackCount.Fsmash++, currentAnimation == (int)State.PEACH_FSMASH3);
+            ExecuteIf(() => state.PlayerCounts.AttackCount.Fsmash++, currentAnimation == (int)ActionState.PEACH_FSMASH1, Actions.FSmash);
+            ExecuteIf(() => state.PlayerCounts.AttackCount.Fsmash++, currentAnimation == (int)ActionState.PEACH_FSMASH2, Actions.FSmash);
+            ExecuteIf(() => state.PlayerCounts.AttackCount.Fsmash++, currentAnimation == (int)ActionState.PEACH_FSMASH3, Actions.FSmash);
         }
 
         // Throws
-        ExecuteIf(() => state.PlayerCounts.ThrowCount.Up++, currentAnimation == (int)State.THROW_UP);
-        ExecuteIf(() => state.PlayerCounts.ThrowCount.Forward++, currentAnimation == (int)State.THROW_FORWARD);
-        ExecuteIf(() => state.PlayerCounts.ThrowCount.Down++, currentAnimation == (int)State.THROW_DOWN);
-        ExecuteIf(() => state.PlayerCounts.ThrowCount.Back++, currentAnimation == (int)State.THROW_BACK);
+        ExecuteIf(() => state.PlayerCounts.ThrowCount.Up++, currentAnimation == (int)ActionState.THROW_UP, Actions.UThrow);
+        ExecuteIf(() => state.PlayerCounts.ThrowCount.Forward++, currentAnimation == (int)ActionState.THROW_FORWARD, Actions.FThrow);
+        ExecuteIf(() => state.PlayerCounts.ThrowCount.Down++, currentAnimation == (int)ActionState.THROW_DOWN, Actions.DThrow);
+        ExecuteIf(() => state.PlayerCounts.ThrowCount.Back++, currentAnimation == (int)ActionState.THROW_BACK, Actions.BThrow);
 
         // Techs
         var opponentDir = playerFrame.PositionX > opponentFrame!.PositionX ? -1 : 1;
         var facingOpponent = playerFrame.FacingDirection == opponentDir;
 
-        ExecuteIf(() => state.PlayerCounts.GroundTechCount.Fail++, IsMissGroundTech((State)currentAnimation));
-        ExecuteIf(() => state.PlayerCounts.GroundTechCount.In++, currentAnimation == (int)State.FORWARD_TECH && facingOpponent);
-        ExecuteIf(() => state.PlayerCounts.GroundTechCount.In++, currentAnimation == (int)State.BACKWARD_TECH && !facingOpponent);
-        ExecuteIf(() => state.PlayerCounts.GroundTechCount.Neutral++, currentAnimation == (int)State.NEUTRAL_TECH);
-        ExecuteIf(() => state.PlayerCounts.GroundTechCount.Away++, currentAnimation == (int)State.BACKWARD_TECH && facingOpponent);
-        ExecuteIf(() => state.PlayerCounts.GroundTechCount.Away++, currentAnimation == (int)State.FORWARD_TECH && !facingOpponent);
-        ExecuteIf(() => state.PlayerCounts.WallTechCount.Success++, currentAnimation == (int)State.WALL_TECH);
-        ExecuteIf(() => state.PlayerCounts.WallTechCount.Fail++, currentAnimation == (int)State.MISSED_WALL_TECH);
+        ExecuteIf(() => state.PlayerCounts.GroundTechCount.Fail++, IsMissGroundTech((ActionState)currentAnimation));
+        ExecuteIf(() => state.PlayerCounts.GroundTechCount.In++, currentAnimation == (int)ActionState.FORWARD_TECH && facingOpponent, Actions.Tech);
+        ExecuteIf(() => state.PlayerCounts.GroundTechCount.In++, currentAnimation == (int)ActionState.BACKWARD_TECH && !facingOpponent, Actions.Tech);
+        ExecuteIf(() => state.PlayerCounts.GroundTechCount.Neutral++, currentAnimation == (int)ActionState.NEUTRAL_TECH, Actions.Tech);
+        ExecuteIf(() => state.PlayerCounts.GroundTechCount.Away++, currentAnimation == (int)ActionState.BACKWARD_TECH && facingOpponent, Actions.Tech);
+        ExecuteIf(() => state.PlayerCounts.GroundTechCount.Away++, currentAnimation == (int)ActionState.FORWARD_TECH && !facingOpponent, Actions.Tech);
+        ExecuteIf(() => state.PlayerCounts.WallTechCount.Success++, currentAnimation == (int)ActionState.WALL_TECH, Actions.Tech);
+        ExecuteIf(() => state.PlayerCounts.WallTechCount.Fail++, currentAnimation == (int)ActionState.MISSED_WALL_TECH, Actions.Tech);
 
-        if (IsAerialAttack((State)currentAnimation))
+        if (IsAerialAttack((ActionState)currentAnimation))
         {
-            ExecuteIf(() => state.PlayerCounts.LCancelCount.Success++, playerFrame.LCancelStatus == 1);
+            ExecuteIf(() => state.PlayerCounts.LCancelCount.Success++, playerFrame.LCancelStatus == 1, Actions.LCancel);
             ExecuteIf(() => state.PlayerCounts.LCancelCount.Fail++, playerFrame.LCancelStatus == 2);
         }
 
         // Handles wavedash detection (and waveland)
-        HandleActionWavedash(state.PlayerCounts, state.Animations);
+        HandleActionWavedash(state.PlayerCounts, state.Animations, frame);
     }
 
-    public static void HandleActionWavedash(ActionCounts counts, List<int> animations)
+    public void HandleActionWavedash(ActionCounts counts, List<int> animations, FrameEntry frame)
     {
         if (animations.Count < 2)
         {
@@ -206,8 +230,8 @@ public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
         var currentAnimation = animations[^1];
         var prevAnimation = animations[^2];
 
-        var isSpecialLanding = currentAnimation == (int)State.LANDING_FALL_SPECIAL;
-        var isAcceptablePrevious = IsWavedashInitiationAnimation((State)prevAnimation);
+        var isSpecialLanding = currentAnimation == (int)ActionState.LANDING_FALL_SPECIAL;
+        var isAcceptablePrevious = IsWavedashInitiationAnimation((ActionState)prevAnimation);
         var isPossibleWavedash = isSpecialLanding && isAcceptablePrevious;
 
         if (!isPossibleWavedash)
@@ -221,29 +245,31 @@ public record class ActionsComputer : IStatComputer<IList<ActionCounts>>
         var recentFrames = animations.GetRange(Math.Max(0, animations.Count - 8), Math.Min(8, animations.Count));
         var recentAnimations = new HashSet<int>(recentFrames);
 
-        if (recentAnimations.Count == 2 && recentAnimations.Contains((int)State.AIR_DODGE))
+        if (recentAnimations.Count == 2 && recentAnimations.Contains((int)ActionState.AIR_DODGE))
         {
             // If the only other animation is air dodge, this might be really late to the point
             // where it was actually an air dodge. Air dodge animation is really long
             return;
         }
 
-        if (recentAnimations.Contains((int)State.AIR_DODGE))
+        if (recentAnimations.Contains((int)ActionState.AIR_DODGE))
         {
             // If one of the recent animations was an air dodge, let's remove that from the
             // air dodge counter, we don't want to count air dodges used to wavedash/land
             counts.AirDodgeCount -= 1;
         }
 
-        if (recentAnimations.Contains((int)State.ACTION_KNEE_BEND))
+        if (recentAnimations.Contains((int)ActionState.ACTION_KNEE_BEND))
         {
             // If a jump was started recently, we will consider this a wavedash
             counts.WavedashCount += 1;
+            OnAction?.Invoke(this, new ActionEventArgs() { Action = Actions.Wavedash, Frame = frame, PlayerIndex = counts.PlayerIndex });
         }
         else
         {
             // If there was no jump recently, this is a waveland
             counts.WavelandCount += 1;
+            OnAction?.Invoke(this, new ActionEventArgs() { Action = Actions.Waveland, Frame = frame, PlayerIndex = counts.PlayerIndex });
         }
     }
 }

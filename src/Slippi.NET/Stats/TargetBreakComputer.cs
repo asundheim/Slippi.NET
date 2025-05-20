@@ -17,7 +17,7 @@ public record class TargetBreakComputer : IStatComputer<IList<TargetBreakInfo>>
         IsTargetTestGame = settings.GameMode == GameMode.TARGET_TEST;
     }
 
-    public void ProcessFrame(FrameEntry frame, FramesCollection allFrames)
+    public void ProcessFrame(FrameEntry frame, Dictionary<int, FrameEntry> allFrames)
     {
         if (!IsTargetTestGame)
         {
@@ -33,7 +33,7 @@ public record class TargetBreakComputer : IStatComputer<IList<TargetBreakInfo>>
     }
 
     private static void HandleTargetBreak(
-        FramesCollection frames,
+        Dictionary<int, FrameEntry> frames,
         FrameEntry frame,
         List<TargetBreakInfo> targetBreaks)
     {

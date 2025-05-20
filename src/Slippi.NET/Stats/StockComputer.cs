@@ -23,7 +23,7 @@ public class StockComputer : IStatComputer<IList<Stock>>
         }
     }
 
-    public void ProcessFrame(FrameEntry frame, FramesCollection allFrames)
+    public void ProcessFrame(FrameEntry frame, Dictionary<int, FrameEntry> allFrames)
     {
         foreach (var indices in _playerPermutations)
         {
@@ -40,7 +40,7 @@ public class StockComputer : IStatComputer<IList<Stock>>
     }
 
     private static void HandleStockCompute(
-        FramesCollection frames,
+        Dictionary<int, FrameEntry> frames,
         StockState state,
         PlayerIndices indices,
         FrameEntry frame,
@@ -62,7 +62,7 @@ public class StockComputer : IStatComputer<IList<Stock>>
         // Once the player is no longer spawning, start the stock
         if (state.Stock == null)
         {
-            if (StatsUtils.IsDead((State)(playerFrame.ActionStateId ?? 0)))
+            if (StatsUtils.IsDead((ActionState)(playerFrame.ActionStateId ?? 0)))
             {
                 return;
             }

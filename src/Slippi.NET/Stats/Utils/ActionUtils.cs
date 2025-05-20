@@ -4,51 +4,51 @@ namespace Slippi.NET.Stats.Utils;
 
 public static class ActionUtils
 {
-    public static bool IsMissGroundTech(State animation)
+    public static bool IsMissGroundTech(ActionState animation)
     {
-        return animation == State.TECH_MISS_DOWN || animation == State.TECH_MISS_UP;
+        return animation == ActionState.TECH_MISS_DOWN || animation == ActionState.TECH_MISS_UP;
     }
 
-    public static bool IsRolling(State animation)
+    public static bool IsRolling(ActionState animation)
     {
-        return animation == State.ROLL_BACKWARD || animation == State.ROLL_FORWARD;
+        return animation == ActionState.ROLL_BACKWARD || animation == ActionState.ROLL_FORWARD;
     }
 
-    public static bool IsGrabAction(State animation)
+    public static bool IsGrabAction(ActionState animation)
     {
         // Includes Grab pull, wait, pummel, and throws
-        return animation > State.GRAB && animation <= State.THROW_DOWN && animation != State.DASH_GRAB;
+        return animation > ActionState.GRAB && animation <= ActionState.THROW_DOWN && animation != ActionState.DASH_GRAB;
     }
 
-    public static bool IsGrabbing(State animation)
+    public static bool IsGrabbing(ActionState animation)
     {
-        return animation == State.GRAB || animation == State.DASH_GRAB;
+        return animation == ActionState.GRAB || animation == ActionState.DASH_GRAB;
     }
 
-    public static bool IsAerialAttack(State animation)
+    public static bool IsAerialAttack(ActionState animation)
     {
-        return animation >= State.AERIAL_ATTACK_START && animation <= State.AERIAL_ATTACK_END;
+        return animation >= ActionState.AERIAL_ATTACK_START && animation <= ActionState.AERIAL_ATTACK_END;
     }
 
-    public static bool IsForwardTilt(State animation)
+    public static bool IsForwardTilt(ActionState animation)
     {
-        return animation >= State.ATTACK_FTILT_START && animation <= State.ATTACK_FTILT_END;
+        return animation >= ActionState.ATTACK_FTILT_START && animation <= ActionState.ATTACK_FTILT_END;
     }
 
-    public static bool IsForwardSmash(State animation)
+    public static bool IsForwardSmash(ActionState animation)
     {
-        return animation >= State.ATTACK_FSMASH_START && animation <= State.ATTACK_FSMASH_END;
+        return animation >= ActionState.ATTACK_FSMASH_START && animation <= ActionState.ATTACK_FSMASH_END;
     }
 
-    public static bool IsWavedashInitiationAnimation(State animation)
+    public static bool IsWavedashInitiationAnimation(ActionState animation)
     {
-        if (animation == State.AIR_DODGE)
+        if (animation == ActionState.AIR_DODGE)
         {
             return true;
         }
 
-        var isAboveMin = animation >= State.CONTROLLED_JUMP_START;
-        var isBelowMax = animation <= State.CONTROLLED_JUMP_END;
+        var isAboveMin = animation >= ActionState.CONTROLLED_JUMP_START;
+        var isBelowMax = animation <= ActionState.CONTROLLED_JUMP_END;
         return isAboveMin && isBelowMax;
     }
 }

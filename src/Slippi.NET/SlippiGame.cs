@@ -23,7 +23,7 @@ public class SlippiGame : IDisposable
     private readonly SlpParser _parser;
     private int? _readPosition = null;
 
-    private readonly ActionsComputer _actionsComputer = new ActionsComputer();
+    private ActionsComputer _actionsComputer;
     private readonly ConversionsComputer _conversionsComputer = new ConversionsComputer();
     private readonly ComboComputer _comboComputer = new ComboComputer();
     private readonly StockComputer _stockComputer = new StockComputer();
@@ -33,12 +33,14 @@ public class SlippiGame : IDisposable
     protected readonly StatsComputer _statsComputer;
 
     public SlippiGame(string filePath) : this(filePath, null) { }
-    public SlippiGame(string filePath, StatOptions? options = null)
+    public SlippiGame(string filePath, StatOptions? options = null, ActionsComputer? customActionsComputer = null)
     {
         _input = new SlpFileReader()
         {
             FilePath = filePath,
         };
+
+        _actionsComputer = customActionsComputer ?? new ActionsComputer();
 
         _statsComputer = new StatsComputer(options);
         _statsComputer.Register(
@@ -55,6 +57,11 @@ public class SlippiGame : IDisposable
 
         // Use finalized frames for stats computation
         _parser.OnFinalizedFrame += OnParserFinalizedFrame;
+
+        if (options?.ProcessOnTheFly ?? false)
+        {
+            _parser.OnGameEnd += OnParserGameEnd;
+        }
     }
 
     public SlippiGame(byte[] fileBytes) : this (fileBytes, null) { }
@@ -65,6 +72,7 @@ public class SlippiGame : IDisposable
             Buffer = fileBytes
         };
 
+        _actionsComputer = new ActionsComputer();
         _statsComputer = new StatsComputer(options);
         _statsComputer.Register(
             _actionsComputer,
@@ -80,7 +88,14 @@ public class SlippiGame : IDisposable
 
         // Use finalized frames for stats computation
         _parser.OnFinalizedFrame += OnParserFinalizedFrame;
+
+        if (options?.ProcessOnTheFly ?? false)
+        {
+            _parser.OnGameEnd += OnParserGameEnd;
+        }
     }
+
+    public event EventHandler? OnGameEnd;
 
     public GameStart? GetSettings()
     {
@@ -115,7 +130,7 @@ public class SlippiGame : IDisposable
         return _parser.GetGameEnd();
     }
 
-    public FramesCollection GetFrames()
+    public Dictionary<int, FrameEntry> GetFrames()
     {
         Process();
         return _parser.GetFrames();
@@ -324,9 +339,15 @@ public class SlippiGame : IDisposable
         _statsComputer.AddFrame(frame);
     }
 
+    private void OnParserGameEnd(object? sender, GameEnd gameEnd)
+    {
+        OnGameEnd?.Invoke(this, EventArgs.Empty);
+    }
+
     public void Dispose()
     {
         _parser.OnSettings -= OnParserSettings;
         _parser.OnFinalizedFrame -= OnParserFinalizedFrame;
+        _parser.OnGameEnd -= OnParserGameEnd;
     }
 }

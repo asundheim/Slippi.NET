@@ -16,8 +16,8 @@ public record class PreFrameUpdate : FrameUpdate
         float? cStickX, 
         float? cStickY, 
         float? trigger, 
-        uint? buttons, 
-        ushort? physicalButtons, 
+        ProcessedButtons? buttons, 
+        PhysicalButtons? physicalButtons, 
         float? physicalLTrigger, 
         float? physicalRTrigger, 
         sbyte? rawJoystickX, 
@@ -50,8 +50,8 @@ public record class PreFrameUpdate : FrameUpdate
     public float? CStickX { get; set; }
     public float? CStickY { get; set; }
     public float? Trigger { get; set; }
-    public uint? Buttons { get; set; }
-    public ushort? PhysicalButtons { get; set; }
+    public ProcessedButtons? Buttons { get; set; }
+    public PhysicalButtons? PhysicalButtons { get; set; }
     public float? PhysicalLTrigger { get; set; }
     public float? PhysicalRTrigger { get; set; }
     public sbyte? RawJoystickX { get; set; }

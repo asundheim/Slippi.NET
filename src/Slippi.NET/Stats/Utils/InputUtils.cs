@@ -16,14 +16,17 @@ public static class InputUtils
 
     public static JoystickRegion GetJoystickRegion(float x, float y)
     {
-        if (x >= 0.2875 && y >= 0.2875) return JoystickRegion.NE;
-        if (x >= 0.2875 && y <= -0.2875) return JoystickRegion.SE;
-        if (x <= -0.2875 && y <= -0.2875) return JoystickRegion.SW;
-        if (x <= -0.2875 && y >= 0.2875) return JoystickRegion.NW;
-        if (y >= 0.2875) return JoystickRegion.N;
-        if (x >= 0.2875) return JoystickRegion.E;
-        if (y <= -0.2875) return JoystickRegion.S;
-        if (x <= -0.2875) return JoystickRegion.W;
-        return JoystickRegion.DZ;
+        return (x, y) switch
+        {
+            (>= 0.2875f, >= 0.2875f) => JoystickRegion.NE,
+            (>= 0.2875f, <= -0.2875f) => JoystickRegion.SE,
+            (<= -0.2875f, <= -0.2875f) => JoystickRegion.SW,
+            (<= -0.2875f, >= 0.2875f) => JoystickRegion.NW,
+            (_, >= 0.2875f) => JoystickRegion.N,
+            (>= 0.2875f, _) => JoystickRegion.E,
+            (_, <= -0.2875f) => JoystickRegion.S,
+            ( <= -0.2875f, _) => JoystickRegion.W,
+            _ => JoystickRegion.DZ
+        };
     }
 }
