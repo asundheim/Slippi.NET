@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "LiveComboRenderer": {
+      "commandName": "Project"
+    },
+    "ReplayComboRenderer": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\src\\Slippi.NET\\src\\ComboInterpreter\\slp\\rat_love.slp 4000"
+    },
+    "QueueComboRenderer": {
+      "commandName": "Project",
+      "commandLineArgs": "queue .\\Assets\\queue.json"
+    }
+  }
+}

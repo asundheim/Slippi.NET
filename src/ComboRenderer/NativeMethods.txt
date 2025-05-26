@@ -1,0 +1,8 @@
+GetWindowRect
+GetWindowText
+FindWindow
+EnumWindows
+SetWinEventHook
+WINEVENT_*
+EVENT_*
+GetWindowThreadProcessId

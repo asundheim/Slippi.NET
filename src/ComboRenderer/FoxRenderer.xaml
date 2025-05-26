@@ -1,0 +1,25 @@
+﻿<Window x:Class="ComboRenderer.FoxRenderer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ComboRenderer"
+        mc:Ignorable="d"
+        AllowsTransparency="True"
+        Title="FoxRenderer" Height="150" Width="1300" 
+        WindowStyle="None" WindowStartupLocation="CenterScreen" Topmost="True">
+    <Window.Background>
+        <SolidColorBrush Opacity="0" Color="White"/>
+    </Window.Background>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel x:Name="ComboRow" Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="5,10,0,0"/>
+    </Grid>
+</Window>

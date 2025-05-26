@@ -1,0 +1,95 @@
+{
+    "mode": "queue",
+    "queue": [
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\CHID#695.slp",
+      "startFrame": 4000,
+      "endFrame": 4600
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\TEA#237.slp",
+      "startFrame": 1750,
+      "endFrame": 2460
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\HOD#492.slp",
+      "startFrame": 3762,
+      "endFrame": 4237
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\DAHL#372-1.slp",
+      "startFrame": 8286,
+      "endFrame": 8700
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\DAHL#372-2.slp",
+      "startFrame": 8164,
+      "endFrame": 8670
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\TOMA#783.slp",
+      "startFrame": 6813,
+      "endFrame": 7400
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\SILVI#0.slp",
+      "startFrame": 11410,
+      "endFrame": 12227
+    },
+    {
+        "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\DERRICK#0.slp",
+        "startFrame": 4800,
+        "endFrame": 5294
+    },
+    {
+        "path":"C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\CHID#695-2.slp",
+        "startFrame": 3359,
+        "endFrame": 3827
+    },
+    {
+        "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\SWID#197.slp",
+        "startFrame": 5714,
+        "endFrame": 6297
+    },
+    {
+        "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\VALK#839.slp",
+        "startFrame": 3739,
+        "endFrame": 4206
+    },
+    {
+        "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\CAM#930.slp",
+        "startFrame": 3130,
+        "endFrame": 3390
+    },
+    {
+        "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\KVD#432.slp",
+        "startFrame": 5537,
+        "endFrame": 6055
+    },
+    {
+        "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\SILVI#0-2.slp",
+        "startFrame": 2489,
+        "endFrame": 3116
+    },
+    {
+        "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\INDI#794.slp",
+        "startFrame": 7483,
+        "endFrame": 7752
+    },
+    {
+        "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\FOUR#862.slp",
+        "startFrame": 2292,
+        "endFrame": 3300
+    },
+    {
+        "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\BIO#0.slp",
+        "startFrame": 9990,
+        "endFrame": 10272
+    },
+    {
+        "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\JETS#0.slp",
+        "startFrame": 6829,
+        "endFrame": 7292
+    }
+  ]
+}

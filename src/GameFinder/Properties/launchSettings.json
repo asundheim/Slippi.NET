@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GameFinder": {
+      "commandName": "Project",
+      "commandLineArgs": "2025-02"
+    }
+  }
+}

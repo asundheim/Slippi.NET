@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MetadataAdder": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\SILVI#0-2.slp"
+    }
+  }
+}
