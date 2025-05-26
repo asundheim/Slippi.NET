@@ -1,3 +1,4 @@
+using Slippi.NET.Melee.Types;
 using System.Diagnostics;
 
 namespace Slippi.NET.Types;
@@ -6,7 +7,7 @@ public record class Player
 {
     public Player(int playerIndex, 
         int port, 
-        int? characterId, 
+        Character? characterId, 
         int? type, 
         int? startStocks, 
         int? characterColor, 
@@ -33,7 +34,7 @@ public record class Player
     {
         PlayerIndex = playerIndex;
         Port = port;
-        CharacterId = characterId;
+        Character = characterId;
         Type = type;
         StartStocks = startStocks;
         CharacterColor = characterColor;
@@ -59,11 +60,16 @@ public record class Player
         UserId = userId;
     }
 
+    /// <summary>
+    /// This <see cref="Player"/>'s index in the range [0, number of players)
+    /// </summary>
     public int PlayerIndex { get; set; }
-    public int Port { get; set; }
 
-    [DebuggerDisplay("{CharacterId} ({CharacterId.HasValue ? Slippi.NET.Melee.CharacterUtils.GetCharacterName(CharacterId.Value) : null})")]
-    public int? CharacterId { get; set; }
+    /// <summary>
+    /// This <see cref="Player"/>'s port in the range [1, 4]
+    /// </summary>
+    public int Port { get; set; }
+    public Character? Character { get; set; }
     public int? Type { get; set; }
     public int? StartStocks { get; set; }
     public int? CharacterColor { get; set; }

@@ -1,4 +1,5 @@
-﻿using Slippi.NET.Stats;
+﻿using Slippi.NET.Melee.Types;
+using Slippi.NET.Stats;
 
 namespace Slippi.NET.Tests;
 
@@ -13,9 +14,9 @@ public class GameTests
 
         // Assert
         Assert.NotNull(settings);
-        Assert.Equal(8, settings.StageId);
-        Assert.Equal(0x13, settings.Players.First().CharacterId);
-        Assert.Equal(0xE, settings.Players.Last().CharacterId);
+        Assert.Equal(8, settings.Stage);
+        Assert.Equal((Character)0x13, settings.Players.First().Character);
+        Assert.Equal((Character)0xE, settings.Players.Last().Character);
         Assert.Equal("0.1.0", settings.SlpVersion);
     }
 
@@ -188,8 +189,8 @@ public class GameTests
 
         // Assert
         Assert.NotNull(settings);
-        Assert.Equal(8, settings.StageId);
-        Assert.Equal(0x13, settings.Players.First().CharacterId);
-        Assert.Equal(0xE, settings.Players.Last().CharacterId);
+        Assert.Equal(8, settings.Stage);
+        Assert.Equal((Character)0x13, settings.Players.First().Character);
+        Assert.Equal((Character)0xE, settings.Players.Last().Character);
     }
 }

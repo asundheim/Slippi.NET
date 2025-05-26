@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "DolphinConnectionTestApp": {
+      "commandName": "Project"
+    },
+    "DolphinLaunchTestApp": {
+      "commandName": "Project",
+      "commandLineArgs": "replay \"C:\\src\\Slippi.NET\\src\\ComboInterpreter\\slp\\fox_falco.slp\""
+    }
+  }
+}

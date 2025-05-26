@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slippi.NET.Tests", "src\Sli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UBJson", "src\UBJson\UBJson.csproj", "{0D61C9DB-8F1E-749A-10F0-B0216F275F29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DolphinConnectionTestApp", "src\DolphinConnectionTestApp\DolphinConnectionTestApp.csproj", "{25EDED14-0CFA-4EAA-87C6-4E209F6452F8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DolphinTestApp", "src\DolphinTestApp\DolphinTestApp.csproj", "{25EDED14-0CFA-4EAA-87C6-4E209F6452F8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DolphinENet", "src\DolphinENet\DolphinENet.vcxproj", "{61DE1493-CC9D-451C-B1C4-17DCCAB29CE1}"
 EndProject

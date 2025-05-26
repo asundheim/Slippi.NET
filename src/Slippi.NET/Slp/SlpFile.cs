@@ -1,4 +1,5 @@
-﻿using Slippi.NET.Slp.Reader;
+﻿using Slippi.NET.Melee.Types;
+using Slippi.NET.Slp.Reader;
 using Slippi.NET.Types;
 using Slippi.NET.Utils;
 using UBJson;
@@ -274,7 +275,7 @@ public class SlpFile : IDisposable
                 inGameMode: x.ReadUInt8(0x5, 0xe0),
                 friendlyFireEnabled: x.ReadUInt8(0x6, 0x01) > 0,
                 isTeams: x.ReadBool(0xd),
-                stageId: x.ReadUInt16(0x13),
+                stage: x.ReadUInt16(0x13).EnumCast<Stage>(),
                 startingTimerSeconds: x.ReadUInt32(0x15),
                 itemSpawnBehavior: x.ReadUInt8(0x10).EnumCast<ItemSpawnLevel>(),
                 enabledItems: GetEnabledItems(x),
@@ -366,7 +367,7 @@ public class SlpFile : IDisposable
         return new Player(
             playerIndex,
             port: playerIndex + 1,
-            characterId: x.ReadUInt8(0x65 + offset),
+            characterId: x.ReadUInt8(0x65 + offset).EnumCast<Character>(),
             type: x.ReadUInt8(0x66 + offset),
             startStocks: x.ReadUInt8(0x67 + offset),
             characterColor: x.ReadUInt8(0x68 + offset),

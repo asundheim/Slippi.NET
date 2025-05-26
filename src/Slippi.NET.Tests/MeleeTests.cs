@@ -41,7 +41,7 @@ public class MeleeTests
     [Fact]
     public void ShouldReturnExpectedCharacterInfo()
     {
-        var foxCharacter = CharacterUtils.GetCharacterInfo(Character.FOX);
+        var foxCharacter = CharacterUtils.GetCharacterInfo(Character.Fox);
         Assert.Equal(_foxCharacter.ShortName, foxCharacter.ShortName);
         Assert.Equal(_foxCharacter.Name, foxCharacter.Name);
         Assert.Equal(_foxCharacter.Id, foxCharacter.Id);
@@ -78,25 +78,25 @@ public class MeleeTests
     [Fact]
     public void ShouldReturnCorrectCharacterShortName()
     {
-        Assert.Equal(_foxCharacter.ShortName, CharacterUtils.GetCharacterShortName(Character.FOX));
+        Assert.Equal(_foxCharacter.ShortName, CharacterUtils.GetCharacterShortName(Character.Fox));
     }
 
     [Fact]
     public void ShouldReturnCorrectCharacterName()
     {
-        Assert.Equal(_foxCharacter.Name, CharacterUtils.GetCharacterName(Character.FOX));
+        Assert.Equal(_foxCharacter.Name, CharacterUtils.GetCharacterName(Character.Fox));
     }
 
     [Fact]
     public void ShouldReturnCorrectCharacterColor()
     {
-        Assert.Equal(_foxCharacter.Colors[0], CharacterUtils.GetCharacterColorName(Character.FOX, 0));
+        Assert.Equal(_foxCharacter.Colors[0], CharacterUtils.GetCharacterColorName(Character.Fox, 0));
     }
 
     [Fact]
     public void ShouldReturnDefaultColorIfColorDoesNotExist()
     {
-        Assert.Equal(_foxCharacter.Colors[0], CharacterUtils.GetCharacterColorName(Character.FOX, 10));
+        Assert.Equal(_foxCharacter.Colors[0], CharacterUtils.GetCharacterColorName(Character.Fox, 10));
     }
 
     [Fact]

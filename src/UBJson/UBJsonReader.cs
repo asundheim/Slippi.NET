@@ -168,7 +168,7 @@ public class UBJsonReader
             _ => isOptional ? ParseSize(code, -1) : throw new ArgumentException($"Unknown code {(char)code}, expecting string")
         };
 
-        return size != 0 ? _reader.ReadStringUTF8(size) : string.Empty;
+        return size > 0 ? _reader.ReadStringUTF8(size) : string.Empty;
     }
 
     private long ParseSize(int defaultValue) => ParseSize(_reader.ReadUInt8(), defaultValue);

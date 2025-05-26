@@ -1,4 +1,5 @@
 ﻿using Semver;
+using Slippi.NET.Melee.Types;
 using Slippi.NET.Slp.Parser.Types;
 using Slippi.NET.Types;
 using Slippi.NET.Utils;
@@ -224,10 +225,10 @@ public class SlpParser
             switch (payload.PostFrameUpdate.InternalCharacterId)
             {
                 case 0x7:
-                    playersByIndex[playerIndex].CharacterId = 0x13; // Sheik
+                    playersByIndex[playerIndex].Character = Character.Sheik;
                     break;
                 case 0x13:
-                    playersByIndex[playerIndex].CharacterId = 0x12; // Zelda
+                    playersByIndex[playerIndex].Character = Character.Zelda;
                     break;
                 default:
                     break;

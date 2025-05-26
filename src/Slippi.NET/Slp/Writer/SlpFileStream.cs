@@ -44,12 +44,19 @@ public class SlpFileStream : IDisposable
 
     public string GetFilePath() => _filePath;
 
-    // TODO this can take more arguments but current usage in slippi-js just sets console nick
-    public void UpdateMetadata(string? consoleNick = null)
+    public void UpdateMetadata(string? consoleNick = null, Dictionary<int, PlayerNameInfo>? newNames = null)
     {
         if (consoleNick is not null)
         {
             _metadata.ConsoleNick = consoleNick;
+        }
+
+        if (newNames is not null)
+        {
+            foreach (var kvp in newNames)
+            {
+                _metadata.Players[kvp.Key].Names = kvp.Value;
+            }
         }
     }
 
@@ -199,7 +206,7 @@ public class SlpFileStream : IDisposable
             ]
         );
 
-        for (int i = 0; i < _metadata.Players.Values.Count; i++)
+        foreach (int i in _metadata.Players.Keys)
         {
             // Start player obj with index being the player index
             var player = _metadata.Players[i];

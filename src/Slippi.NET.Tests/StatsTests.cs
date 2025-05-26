@@ -109,7 +109,7 @@ public class StatsTests
 
         Assert.NotNull(stats);
         
-        Assert.Equal(new ThrowCount() { Up = 1, Forward = 1, Back = 2, Down = 1 }, stats.ActionCounts[1].ThrowCount);
+        Assert.Equal(new ThrowCounts() { Up = 1, Forward = 1, Back = 2, Down = 1 }, stats.ActionCounts[1].ThrowCount);
     }
 
     [Fact]
@@ -119,7 +119,7 @@ public class StatsTests
         var stats = game.GetStats();
 
         Assert.NotNull(stats);
-        Assert.Equal(new GrabCount() { Success = 7, Fail = 3 }, stats.ActionCounts[1].GrabCount);
+        Assert.Equal(new GrabCounts() { Success = 7, Fail = 3 }, stats.ActionCounts[1].GrabCount);
     }
 
     [Fact]
@@ -256,7 +256,7 @@ public class StatsTests
 
         Assert.NotNull(stats);
         Assert.NotNull(stats2);
-        Assert.Equal(new GroundTechCount()
+        Assert.Equal(new GroundTechCounts()
         {
             In = 4,
             Away = 4,
@@ -264,14 +264,14 @@ public class StatsTests
             Fail = 4,
         }, stats.ActionCounts[0].GroundTechCount);
         // 3 of these tech aways are not facing the opponent
-        Assert.Equal(new GroundTechCount()
+        Assert.Equal(new GroundTechCounts()
         {
             In = 1,
             Away = 4,
             Neutral = 4,
             Fail = 11
         }, stats2.ActionCounts[1].GroundTechCount);
-        Assert.Equal(new WallTechCount()
+        Assert.Equal(new WallTechCounts()
         {
             Success = 0,
             Fail = 0,

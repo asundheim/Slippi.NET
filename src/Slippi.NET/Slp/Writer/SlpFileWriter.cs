@@ -109,7 +109,7 @@ public class SlpFileWriter : SlpEventStream, IDisposable
         if (_currentFile is not null)
         {
             // Set the console nickname
-            _currentFile.UpdateMetadata(_settings.ConsoleNickname);
+            _currentFile.UpdateMetadata(_settings.ConsoleNickname, _settings.PlayerNameOverrides);
             _currentFile.Close();
 
             OnFileComplete?.Invoke(this, Path.GetFullPath(_currentFile.GetFilePath()));

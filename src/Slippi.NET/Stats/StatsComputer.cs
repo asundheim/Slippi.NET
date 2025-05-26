@@ -38,7 +38,7 @@ public class StatsComputer
             return;
         }
 
-        int i = _lastProcessedFrame.HasValue ? _lastProcessedFrame.Value + 1 : (int)Frames.FIRST;
+        int i = _lastProcessedFrame.HasValue ? _lastProcessedFrame.Value + 1 : _options.FirstFrame;
         while (_frames.ContainsKey(i))
         {
             var frame = _frames[i];

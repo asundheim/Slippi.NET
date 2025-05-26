@@ -38,5 +38,6 @@ public enum Actions
     Laser,
     JumpCancel,
     SideB,
-    UpB
+    FirefoxStartup,
+    Firefox
 }

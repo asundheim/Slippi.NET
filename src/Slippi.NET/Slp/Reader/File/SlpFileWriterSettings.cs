@@ -1,4 +1,5 @@
 ﻿using Slippi.NET.Slp.EventStream.Types;
+using Slippi.NET.Types;
 
 namespace Slippi.NET.Slp.Reader.File;
 
@@ -18,6 +19,12 @@ public record class SlpFileWriterSettings : SlpStreamSettings
     /// [Optional] Nickname to give to the console.
     /// </summary>
     public string ConsoleNickname { get; set; } = "unknown";
+
+    /// <summary>
+    /// [Optional] Player name info overrides. Useful for updating replays
+    /// gathered from console.
+    /// </summary>
+    public Dictionary<int, PlayerNameInfo>? PlayerNameOverrides { get; set; } = null;
 
     /// <summary>
     /// [Optional] Delegate to compute file names given a folder name and date when creating new files.

@@ -87,8 +87,10 @@ public enum ActionState
     FOX_SHINE_TURNAROUND_A = 369,
     FOX_SHINE_END_G = 363,
     FOX_SHINE_END_A = 368,
-    FOX_UPB_G = 353,
-    FOX_UPB_A = 354,
+    FOX_UPB_G_STARTUP = 353,
+    FOX_UPB_A_STARTUP = 354,
+    FOX_UPB_G = 355, // maybe?
+    FOX_UPB_A = 356,
     FOX_SIDEB_G = 347,
     FOX_SIDEB_A = 350,
     FOX_LASER_G = 341,

@@ -1,3 +1,5 @@
+using Slippi.NET.Melee.Types;
+
 namespace Slippi.NET.Types;
 
 public record class GameStart
@@ -8,7 +10,7 @@ public record class GameStart
         int? inGameMode, 
         bool? friendlyFireEnabled, 
         bool? isTeams, 
-        int? stageId, 
+        Stage? stage, 
         uint? startingTimerSeconds, 
         ItemSpawnLevel? itemSpawnBehavior, 
         ulong? enabledItems, 
@@ -27,7 +29,7 @@ public record class GameStart
         InGameMode = inGameMode;
         FriendlyFireEnabled = friendlyFireEnabled;
         IsTeams = isTeams;
-        StageId = stageId;
+        Stage = stage;
         StartingTimerSeconds = startingTimerSeconds;
         ItemSpawnBehavior = itemSpawnBehavior;
         EnabledItems = enabledItems;
@@ -47,7 +49,7 @@ public record class GameStart
     public int? InGameMode { get; set; }
     public bool? FriendlyFireEnabled { get; set; }
     public bool? IsTeams { get; set; }
-    public int? StageId { get; set; }
+    public Stage? Stage { get; set; }
     public uint? StartingTimerSeconds { get; set; }
     public ItemSpawnLevel? ItemSpawnBehavior { get; set; }
     public ulong? EnabledItems { get; set; }
