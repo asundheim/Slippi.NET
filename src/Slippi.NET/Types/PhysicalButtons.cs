@@ -3,6 +3,7 @@
 [Flags]
 public enum PhysicalButtons : ushort
 {
+    None            = 0x0,
     DPadLeft        = 0x1,
     DPadRight       = 0x2,
     DPadDown        = 0x4,

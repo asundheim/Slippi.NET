@@ -14,7 +14,7 @@ public class GameTests
 
         // Assert
         Assert.NotNull(settings);
-        Assert.Equal(8, settings.Stage);
+        Assert.Equal((Stage)8, settings.Stage);
         Assert.Equal((Character)0x13, settings.Players.First().Character);
         Assert.Equal((Character)0xE, settings.Players.Last().Character);
         Assert.Equal("0.1.0", settings.SlpVersion);
@@ -54,7 +54,7 @@ public class GameTests
         Assert.Equal(4, stats.ActionCounts[0].AttackCount.Bair);
 
         // Test overall
-        Assert.Equal(494, stats.Overall[0].InputCounts.Total);
+        Assert.Equal(501, stats.Overall[0].InputCounts.Total);
     }
 
     [Fact]
@@ -189,7 +189,7 @@ public class GameTests
 
         // Assert
         Assert.NotNull(settings);
-        Assert.Equal(8, settings.Stage);
+        Assert.Equal((Stage)8, settings.Stage);
         Assert.Equal((Character)0x13, settings.Players.First().Character);
         Assert.Equal((Character)0xE, settings.Players.Last().Character);
     }

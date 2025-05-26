@@ -71,9 +71,9 @@ public record class InputComputer : IStatComputer<IList<PlayerInput>>
         }
 
         // Count button presses
-        var invertedPreviousButtons = ~prevPlayerFrame.PhysicalButtons ?? 0;
+        int invertedPreviousButtons = ~((int)(prevPlayerFrame.PhysicalButtons ?? 0));
         var currentButtons = playerFrame.PhysicalButtons ?? 0;
-        var buttonChanges = (ushort)invertedPreviousButtons & (ushort)currentButtons & (ushort)0xfff;
+        var buttonChanges = invertedPreviousButtons & (int)currentButtons & 0xfff;
         var newInputsPressed = CountSetBits(buttonChanges);
         state.InputCount += newInputsPressed;
         state.ButtonInputCount += newInputsPressed;
