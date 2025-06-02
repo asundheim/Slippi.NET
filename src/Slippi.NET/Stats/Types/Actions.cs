@@ -1,5 +1,10 @@
-﻿namespace Slippi.NET.Stats.Types;
+﻿using Slippi.NET.Types;
 
+namespace Slippi.NET.Stats.Types;
+
+/// <summary>
+/// A synthesized action based on <see cref="ActionState"/>s.
+/// </summary>
 public enum Actions
 {
     None,
@@ -37,7 +42,13 @@ public enum Actions
     ShineTurnaround,
     Laser,
     JumpCancel,
-    SideB,
+    FoxSideB,
     FirefoxStartup,
-    Firefox
+    Firefox,
+    ShieldStart,
+    Shield,
+    PlatformDrop,
+    WallJump,
+    ShieldDrop,
+    FastFall,
 }

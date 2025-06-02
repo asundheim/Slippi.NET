@@ -7,7 +7,7 @@ public record class PostFrameUpdate : FrameUpdate
         byte? playerIndex, 
         bool? isFollower, 
         byte? internalCharacterId, 
-        ushort? actionStateId, 
+        ActionState? actionStateId, 
         float? positionX, 
         float? positionY, 
         float? facingDirection, 
@@ -18,6 +18,11 @@ public record class PostFrameUpdate : FrameUpdate
         byte? lastHitBy, 
         byte? stocksRemaining, 
         float? actionStateCounter, 
+        StateFlags1? stateFlags1,
+        StateFlags3? stateFlags3,
+        StateFlags2? stateFlags2,
+        StateFlags4? stateFlags4,
+        StateFlags5? stateFlags5,
         float? miscActionState, 
         bool? isAirborne, 
         ushort? lastGroundId, 
@@ -45,6 +50,11 @@ public record class PostFrameUpdate : FrameUpdate
         LastHitBy = lastHitBy;
         StocksRemaining = stocksRemaining;
         ActionStateCounter = actionStateCounter;
+        StateFlags1 = stateFlags1;
+        StateFlags2 = stateFlags2;
+        StateFlags3 = stateFlags3;
+        StateFlags4 = stateFlags4;
+        StateFlags5 = stateFlags5;
         MiscActionState = miscActionState;
         IsAirborne = isAirborne;
         LastGroundId = lastGroundId;
@@ -66,6 +76,11 @@ public record class PostFrameUpdate : FrameUpdate
     public byte? LastHitBy { get; set; }
     public byte? StocksRemaining { get; set; }
     public float? ActionStateCounter { get; set; }
+    public StateFlags1? StateFlags1 { get; set; }
+    public StateFlags3? StateFlags3 { get; set; }
+    public StateFlags2? StateFlags2 { get; set; }
+    public StateFlags4? StateFlags4 { get; set; }
+    public StateFlags5? StateFlags5 { get; set; }
     public float? MiscActionState { get; set; }
     public bool? IsAirborne { get; set; }
     public ushort? LastGroundId { get; set; }

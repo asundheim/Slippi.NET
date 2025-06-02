@@ -1,4 +1,4 @@
-using Slippi.NET.Stats.Types;
+using Slippi.NET.Types;
 
 namespace Slippi.NET.Stats.Types;
 
@@ -7,5 +7,5 @@ public record class PlayerConversionState
     public required Conversion? Conversion { get; set; }
     public required MoveLandedInfo? Move { get; set; }
     public required int ResetCounter { get; set; }
-    public required int? LastHitAnimation { get; set; }
+    public required ActionState? LastHitAnimation { get; set; }
 }

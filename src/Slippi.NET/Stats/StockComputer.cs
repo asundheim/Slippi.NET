@@ -85,7 +85,7 @@ public class StockComputer : IStatComputer<IList<Stock>>
         {
             state.Stock.EndFrame = playerFrame.Frame;
             state.Stock.EndPercent = prevPlayerFrame.Percent ?? 0;
-            state.Stock.DeathAnimation = playerFrame.ActionStateId;
+            state.Stock.DeathAnimation = playerFrame.ActionStateId.HasValue ? (int)playerFrame.ActionStateId : null;
             state.Stock = null;
         }
         else

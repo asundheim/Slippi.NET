@@ -83,10 +83,10 @@ public class ComboComputer : IStatComputer<IList<ComboInfo>>
             prevOpponentFrame = prevFrame.Players[indices.OpponentIndex]!.Post;
         }
 
-        int oppActionStateId = opponentFrame.ActionStateId!.Value;
-        bool opntIsDamaged = StatsUtils.IsDamaged((ActionState)oppActionStateId);
-        bool opntIsGrabbed = StatsUtils.IsGrabbed((ActionState)oppActionStateId);
-        bool opntIsCommandGrabbed = StatsUtils.IsCommandGrabbed((ActionState)oppActionStateId);
+        ActionState oppActionStateId = opponentFrame.ActionStateId!.Value;
+        bool opntIsDamaged = StatsUtils.IsDamaged(oppActionStateId);
+        bool opntIsGrabbed = StatsUtils.IsGrabbed(oppActionStateId);
+        bool opntIsCommandGrabbed = StatsUtils.IsCommandGrabbed(oppActionStateId);
         float opntDamageTaken = prevOpponentFrame is not null ? StatsUtils.CalcDamageTaken(opponentFrame, prevOpponentFrame) : 0;
 
         // Keep track of whether actionState changes after a hit. Used to compute move count
@@ -178,10 +178,10 @@ public class ComboComputer : IStatComputer<IList<ComboInfo>>
             return;
         }
 
-        bool opntIsTeching = StatsUtils.IsTeching((ActionState)oppActionStateId);
-        bool opntIsDowned = StatsUtils.IsDown((ActionState)oppActionStateId);
+        bool opntIsTeching = StatsUtils.IsTeching(oppActionStateId);
+        bool opntIsDowned = StatsUtils.IsDown(oppActionStateId);
         bool opntDidLoseStock = prevOpponentFrame is not null && StatsUtils.DidLoseStock(opponentFrame, prevOpponentFrame);
-        bool opntIsDying = StatsUtils.IsDead((ActionState)oppActionStateId);
+        bool opntIsDying = StatsUtils.IsDead(oppActionStateId);
 
         // Update precent if opponent didn't lose stock
         if (!opntDidLoseStock)

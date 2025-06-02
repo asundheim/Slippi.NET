@@ -7,7 +7,7 @@ public record class PreFrameUpdate : FrameUpdate
         byte? playerIndex, 
         bool? isFollower, 
         uint? seed, 
-        ushort? actionStateId, 
+        ActionState? actionStateId, 
         float? positionX, 
         float? positionY, 
         float? facingDirection, 

@@ -30,7 +30,10 @@ public partial class DolphinLauncher : IDisposable
     private int _playbackEndFrame = int.MaxValue;
     private string _filePath = string.Empty;
 
+    private IList<QueueItem>? _queue = null;
     private int? _queueEnd = null;
+
+    private int _gameCounter = 0;
 
     private Process? _launchedDolphin = null;
 
@@ -100,6 +103,7 @@ public partial class DolphinLauncher : IDisposable
     {
         if (args.Mode == DolphinLaunchModes.Queue)
         {
+            _queue = args.Queue;
             _queueEnd = args.Queue[^1].EndFrame;
         }
 
@@ -188,6 +192,8 @@ public partial class DolphinLauncher : IDisposable
                             FilePath = _filePath,
                             StartFrame = _playbackStartFrame
                         });
+
+                        _gameCounter++;
                     }
                     
                     return;
@@ -210,6 +216,8 @@ public partial class DolphinLauncher : IDisposable
                             FilePath = _filePath,
                             StartFrame = _playbackStartFrame
                         });
+
+                        _gameCounter++;
                     }
 
                     return;
@@ -219,7 +227,16 @@ public partial class DolphinLauncher : IDisposable
             Match m = _frameRegex().Match(args.Data);
             if (m.Success)
             {
-                _frames.Add(int.Parse(m.Groups[1].Value));
+                int frameNum = int.Parse(m.Groups[1].Value);
+                if (frameNum == _playbackEndFrame || frameNum == _gameEndFrame)
+                {
+                    _gotFilePath = false;
+                    _gotGameEnd = false;
+                    _gotPlaybackEndFrame = false;
+                    _gotPlaybackStartFrame = false;
+                }
+                
+                _frames.Add(frameNum);
             }
         }
     }
@@ -241,16 +258,9 @@ public partial class DolphinLauncher : IDisposable
             {
                 OnPlaybackComplete?.Invoke(this, EventArgs.Empty);
 
-                if (_queueEnd is null)
+                if (_queueEnd is null || (_gameCounter == _queue?.Count && _queueEnd == frame))
                 {
                     _launchedDolphin?.Kill();
-                }
-                else
-                {
-                    _gotFilePath = false;
-                    _gotGameEnd = false;
-                    _gotPlaybackEndFrame = false;
-                    _gotPlaybackStartFrame = false;
                 }
             }
         }

@@ -23,7 +23,7 @@ public class SlippiGame : IDisposable
     private readonly SlpParser _parser;
     private int? _readPosition = null;
 
-    private ActionsComputer _actionsComputer;
+    private ActionsComputer _actionsComputer = new ActionsComputer();
     private readonly ConversionsComputer _conversionsComputer = new ConversionsComputer();
     private readonly ComboComputer _comboComputer = new ComboComputer();
     private readonly StockComputer _stockComputer = new StockComputer();
@@ -33,24 +33,29 @@ public class SlippiGame : IDisposable
     protected readonly StatsComputer _statsComputer;
 
     public SlippiGame(string filePath) : this(filePath, null) { }
-    public SlippiGame(string filePath, StatOptions? options = null, ActionsComputer? customActionsComputer = null)
+    public SlippiGame(string filePath, StatOptions? options = null, IList<IStatComputer<object>>? customComputers = null)
     {
         _input = new SlpFileReader()
         {
             FilePath = filePath,
         };
 
-        _actionsComputer = customActionsComputer ?? new ActionsComputer();
-
         _statsComputer = new StatsComputer(options);
-        _statsComputer.Register(
-            _actionsComputer,
-            _comboComputer,
-            _conversionsComputer,
-            _inputComputer,
-            _stockComputer,
-            _targetBreakComputer
-        );
+        if (customComputers is not null)
+        {
+            _statsComputer.Register([..customComputers]);
+        }
+        else
+        {
+            _statsComputer.Register(
+                _actionsComputer,
+                _comboComputer,
+                _conversionsComputer,
+                _inputComputer,
+                _stockComputer,
+                _targetBreakComputer
+            );
+        }
 
         _parser = new SlpParser(new SlpParserOptions());
         _parser.OnSettings += OnParserSettings;
