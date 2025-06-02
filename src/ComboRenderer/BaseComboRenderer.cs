@@ -1,4 +1,5 @@
 ﻿using ComboInterpreter;
+using OBSWebsocketDotNet;
 
 namespace ComboRenderer;
 internal abstract class BaseComboRenderer : IDisposable
@@ -14,7 +15,10 @@ internal abstract class BaseComboRenderer : IDisposable
     public event EventHandler<FoxComboInterpreter>? OnNewGame;
     protected void InvokeNewGame(FoxComboInterpreter comboBot) => OnNewGame?.Invoke(this, comboBot);
 
-    public abstract void Begin();
+    public event EventHandler<DIEventArgs>? OnDI;
+    protected void InvokeDI(DIEventArgs e) => OnDI?.Invoke(this, e);
+
+    public abstract void Begin(OBSWebsocket? obs = null);
 
     public CancellationToken CancellationToken => _cancellationToken;
 

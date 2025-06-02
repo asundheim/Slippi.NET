@@ -1,14 +1,9 @@
 ﻿using Slippi.NET;
-using Slippi.NET.Melee.Data;
 using Slippi.NET.Melee.Types;
-using Slippi.NET.Slp.Parser;
-using Slippi.NET.Slp.Parser.Types;
 using Slippi.NET.Stats;
 using Slippi.NET.Stats.Types;
 using Slippi.NET.Types;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Reflection.Metadata;
 
 namespace ComboInterpreter;
 
@@ -23,6 +18,7 @@ public abstract class BaseComboInterpreter : IDisposable
     protected readonly Dictionary<int, FrameEntry>? _frames; // replay
 
     protected readonly ActionsComputer _actionsComputer;
+    protected readonly DIComputer _diComputer;
     protected readonly int _playerIndex;
 
     protected readonly TaskCompletionSource _gameEnd;
@@ -39,11 +35,14 @@ public abstract class BaseComboInterpreter : IDisposable
         _actionsComputer.OnAction += OnAction;
         _actionsComputer.OnRawAction += OnRawAction;
 
-        _game = new SlippiGame(gamePath, new StatOptions() 
-        { 
-            ProcessOnTheFly = !isReplay, 
-            FirstFrame = isReplay ? startFrame : (int)Frames.FIRST 
-        }, customActionsComputer: isReplay ? null : _actionsComputer);
+        _diComputer = new DIComputer();
+        _diComputer.OnDI += HandleDI;
+
+        _game = new SlippiGame(gamePath, new StatOptions()
+        {
+            ProcessOnTheFly = !isReplay,
+            FirstFrame = isReplay ? startFrame : (int)Frames.FIRST
+        }, customComputers: isReplay ? null : [_actionsComputer, _diComputer]);
         _gameEnd = new TaskCompletionSource();
 
         if (!isReplay)
@@ -58,7 +57,7 @@ public abstract class BaseComboInterpreter : IDisposable
         else
         {
             _statsComputer = new StatsComputer(new StatOptions() { ProcessOnTheFly = false, FirstFrame = startFrame });
-            _statsComputer.Register(_actionsComputer);
+            _statsComputer.Register(_actionsComputer, _diComputer);
             _statsComputer.Setup(_game.GetSettings() ?? throw new Exception("Invalid replay"));
 
             _frames = _game.GetFrames();
@@ -81,7 +80,7 @@ public abstract class BaseComboInterpreter : IDisposable
         {
             throw new Exception(
                 $"Failed to find a match. \n" +
-                $"Searched for: {string.Join(",", [..netplayCodesOrNames])}\n" +
+                $"Searched for: {string.Join(",", [.. netplayCodesOrNames])}\n" +
                 $"Found: {string.Join(",", _game.GetMetadata()?.Players.Select(p => $"{p.Value.Names?.Netplay ?? "N/A"} / {p.Value.Names?.Code ?? "N/A"}") ?? [])}"
             );
         }
@@ -96,7 +95,7 @@ public abstract class BaseComboInterpreter : IDisposable
 
     public BlockingCollection<InterpretedCombo> ComboStream => _combos;
 
-
+    public event EventHandler<DIEventArgs>? OnDI;
 
     public async Task WaitForLiveGameEndAsync()
     {
@@ -129,6 +128,186 @@ public abstract class BaseComboInterpreter : IDisposable
 
     protected virtual void OnAction(object? sender, ActionEventArgs args)
     {
+        ActionEvent? actionEvent = PreProcessAction(args);
+        if (actionEvent is not null)
+        {
+            HandleActionEvent(actionEvent);
+
+            PostProcessActionEvent(actionEvent);
+        }
+    }
+
+    protected virtual void HandleDI(object? sender, DIEventArgs args)
+    {
+        if (args.PlayerIndex != _playerIndex)
+        {
+            SimpleButtons stickDirection = Utils.GetStick(Utils.ToSimpleButtons(args.PreFrameUpdate));
+            OnDI?.Invoke(sender, args);
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    protected virtual ActionEvent? PreProcessAction(ActionEventArgs args)
+    {
+        if (args.Action == Actions.None)
+        {
+            return null;
+        }
+
+        int frame = args.Frame.Frame!.Value;
+        if (args.PlayerIndex == _playerIndex)
+        {
+            ActionEvent actionEvent = new ActionEvent()
+            {
+                Action = args.Action,
+                FrameEntry = args.Frame,
+            };
+
+            _eventBuffer.Add(actionEvent);
+            if (LOG_VERBOSE)
+            {
+                Console.WriteLine($"VERBOSE: {actionEvent.Action.ToString()}");
+            }
+
+            if (!_isReplay)
+            {
+                ProcessPendingActions(actionEvent);
+            }
+
+            return actionEvent;
+        }
+
+        return null;
+    }
+
+    protected virtual void HandleActionEvent(ActionEvent actionEvent)
+    {
+        switch (actionEvent.Action)
+        {
+            case Actions.AirDodge:
+                {
+                    _pendingBuffer.Add(new PendingAction()
+                    {
+                        Action = actionEvent,
+                        CancelIf = static c => c.Action == Actions.Wavedash || c.Action == Actions.Waveland,
+                        FramesLeft = 8,
+                    });
+
+                    break;
+                }
+            case Actions.Dash:
+                {
+                    _pendingBuffer.Add(new PendingAction()
+                    {
+                        Action = actionEvent,
+                        ActionsLeft = 1,
+                        CancelIf = static (c) => c.Action == Actions.DashDance || c.Action == Actions.Dash
+                    });
+
+                    break;
+                }
+            case Actions.PlatformDrop:
+                {
+                    if (IsFallThroughShieldDrop())
+                    {
+                        _pendingBuffer.Add(new PendingAction()
+                        {
+                            Action = new ActionEvent()
+                            {
+                                Action = Actions.ShieldDrop,
+                                FrameEntry = actionEvent.FrameEntry,
+                                HasContinuation = false,
+                            },
+                            ActionsLeft = 1,
+                            ContinuationIf = static (c) => c.Action == Actions.Bair ||
+                                                           c.Action == Actions.Nair ||
+                                                           c.Action == Actions.DAir ||
+                                                           c.Action == Actions.Fair ||
+                                                           c.Action == Actions.UAir
+                        });
+                    }
+                    else
+                    {
+                        InterpretActionEvent(actionEvent);
+                    }
+
+                    break;
+                }
+            case Actions.Shield:
+                {
+                    _pendingBuffer.Add(new PendingAction()
+                    {
+                        Action = actionEvent,
+                        ActionsLeft = 1,
+                        CancelIf = static (c) => c.Action == Actions.PlatformDrop
+                    });
+
+                    break;
+                }
+            case Actions.JumpCancel: // can override in derived class for e.g. fox jc upsmash
+                {
+                    _pendingBuffer.Add(new PendingAction()
+                    {
+                        Action = actionEvent,
+                        ActionsLeft = 1,
+                        ContinuationIf = static (c) => c.Action == Actions.Grab,
+                        CancelIf = static (c) => (c.Action != Actions.USmash && c.Action != Actions.Grab) || c.Action == Actions.JumpCancel,
+                    });
+
+                    break;
+                }
+            case Actions.FastFall:
+            case Actions.WallJump:
+            case Actions.Jab:
+            case Actions.Grab:
+            case Actions.Nair:
+            case Actions.UAir:
+            case Actions.Roll:
+            case Actions.Tech:
+            case Actions.Bair:
+            case Actions.DAir:
+            case Actions.Fair:
+            case Actions.BThrow:
+            case Actions.UThrow:
+            case Actions.DThrow:
+            case Actions.SpotDodge:
+            case Actions.Wavedash:
+            case Actions.Waveland:
+            case Actions.DashAttack:
+            case Actions.UTilt:
+            case Actions.DTilt:
+            case Actions.FTilt:
+            case Actions.DashDance:
+            case Actions.LCancel:
+            case Actions.FSmash:
+            case Actions.USmash:
+            case Actions.DSmash:
+                {
+                    InterpretActionEvent(actionEvent);
+                    break;
+                }
+            default:
+                if (actionEvent.Action != Actions.None)
+                {
+                    if (LOG_VERBOSE)
+                    {
+                        Console.Write($" Skip: {actionEvent.Action.ToString()} ");
+                    }
+                }
+
+                break;
+        }
+    }
+
+    protected virtual void PostProcessActionEvent(ActionEvent actionEvent)
+    {
+        if (_isReplay)
+        {
+            ProcessPendingActions(actionEvent);
+        }
     }
 
     protected virtual void OnRawAction(object? sender, RawActionEventArgs actionState)
@@ -310,48 +489,38 @@ public abstract class BaseComboInterpreter : IDisposable
         }
     }
 
-    protected Actions ComputeActionFromActionState(ActionState actionState)
+    protected virtual Actions ComputeActionFromActionState(ActionState actionState)
     {
         Actions overrideAction = Actions.None;
         switch (actionState)
         {
-            case ActionState.FOX_SHINE_A:
-            case ActionState.FOX_SHINE_G:
-                overrideAction = Actions.Shine;
-                break;
-            case ActionState.FOX_LASER_A:
-            case ActionState.FOX_LASER_G:
-                overrideAction = Actions.Laser;
-                break;
-            case ActionState.FOX_SHINE_TURNAROUND_A:
-            case ActionState.FOX_SHINE_TURNAROUND_G:
-                overrideAction = Actions.ShineTurnaround;
-                break;
-            case ActionState.FOX_SHINE_END_A:
-            case ActionState.FOX_SHINE_END_G:
-                overrideAction = Actions.ShineEnd;
-                break;
-            case ActionState.FOX_SIDEB_A:
-            case ActionState.FOX_SIDEB_G:
-                overrideAction = Actions.SideB;
-                break;
-            case ActionState.FOX_UPB_A_STARTUP:
-            case ActionState.FOX_UPB_G_STARTUP:
-                overrideAction = Actions.FirefoxStartup;
-                break;
-            case ActionState.FOX_UPB_A:
-            case ActionState.FOX_UPB_G:
-                overrideAction = Actions.Firefox;
-                break;
             case ActionState.DASH:
                 overrideAction = Actions.Dash;
                 break;
             case ActionState.JUMP_BACKWARD:
             case ActionState.JUMP_FORWARD:
+            case ActionState.JUMP_AERIAL_FORWARD:
+            case ActionState.JUMP_AERIAL_BACKWARD:
+            case ActionState.CLIFF_JUMP_QUICK_1:
+            case ActionState.CLIFF_JUMP_QUICK_2:
+            case ActionState.CLIFF_JUMP_SLOW_1:
+            case ActionState.CLIFF_JUMP_SLOW_2:
                 overrideAction = Actions.Jump;
                 break;
             case ActionState.GROUNDED_CONTROL_END:
                 overrideAction = Actions.JumpCancel;
+                break;
+            case ActionState.WALLJUMP:
+                overrideAction = Actions.WallJump;
+                break;
+            case ActionState.GUARD:
+                overrideAction = Actions.Shield;
+                break;
+            case ActionState.GUARD_START:
+                overrideAction = Actions.ShieldStart;
+                break;
+            case ActionState.PASS:
+                overrideAction = Actions.PlatformDrop;
                 break;
             default:
                 break;
@@ -360,7 +529,7 @@ public abstract class BaseComboInterpreter : IDisposable
         return overrideAction;
     }
 
-    protected void InterpretActionEvent(ActionEvent actionEvent)
+    protected virtual void InterpretActionEvent(ActionEvent actionEvent)
     {
         SimpleButtons buttons = actionEvent.FrameEntry.Players![_playerIndex]!.Pre!.ToSimpleButtons();
         bool facingLeft = (actionEvent.FrameEntry.Players![_playerIndex]!.Post!.FacingDirection ?? 0) < 0;
@@ -536,7 +705,7 @@ public abstract class BaseComboInterpreter : IDisposable
 
                     break;
                 }
-            case Actions.SideB:
+            case Actions.FoxSideB:
                 {
                     _combos.Add(new InterpretedCombo()
                     {
@@ -701,7 +870,7 @@ public abstract class BaseComboInterpreter : IDisposable
                         DisplayName = "roll",
                         HasContinuation = false,
                         Buttons = Utils.GetTriggerButton(buttons) | Utils.FacingDirectionToStick(facingLeft),
-                        EndsCombo = true,
+                        EndsCombo = false,
                     });
 
                     break;
@@ -714,7 +883,7 @@ public abstract class BaseComboInterpreter : IDisposable
                         DisplayName = "tech",
                         HasContinuation = false,
                         Buttons = Utils.GetTriggerButton(buttons),
-                        EndsCombo = true,
+                        EndsCombo = false,
                     });
 
                     break;
@@ -727,7 +896,7 @@ public abstract class BaseComboInterpreter : IDisposable
                         DisplayName = $"air dodge",
                         HasContinuation = false,
                         Buttons = Utils.GetTriggerButton(buttons) | Utils.GetStick(buttons),
-                        EndsCombo = true,
+                        EndsCombo = false,
                     });
 
                     break;
@@ -790,6 +959,8 @@ public abstract class BaseComboInterpreter : IDisposable
                 }
             case Actions.JumpCancel:
                 {
+                    _eventBuffer.Add(actionEvent); // HACK 
+
                     SimpleButtons jumpButton = Utils.GetJumpButton(buttons);
                     _combos.Add(new InterpretedCombo()
                     {
@@ -830,10 +1001,68 @@ public abstract class BaseComboInterpreter : IDisposable
 
                     break;
                 }
+            case Actions.ShieldDrop:
+                {
+                    SimpleButtons stick = Utils.GetStick(buttons);
+                    _combos.Add(new InterpretedCombo()
+                    {
+                        ActionEvent = actionEvent,
+                        DisplayName = "shield drop",
+                        HasContinuation = actionEvent.HasContinuation,
+                        Buttons = stick | Utils.GetTriggerButton(buttons),
+                        EndsCombo = false,
+                    });
+
+                    break;
+                }
+            case Actions.PlatformDrop:
+                {
+                    _combos.Add(new InterpretedCombo()
+                    {
+                        ActionEvent = actionEvent,
+                        DisplayName = "drop",
+                        HasContinuation = false,
+                        Buttons = SimpleButtons.STICK_DOWN,
+                        EndsCombo = false,
+                    });
+
+                    break;
+                }
+            case Actions.WallJump:
+                {
+                    _combos.Add(new InterpretedCombo()
+                    {
+                        ActionEvent = actionEvent,
+                        DisplayName = "walljump",
+                        HasContinuation = actionEvent.HasContinuation,
+                        Buttons = Utils.FacingDirectionToStick(facingLeft),
+                        EndsCombo = false
+                    });
+
+                    break;
+                }
+            case Actions.FastFall:
+                {
+                    _combos.Add(new InterpretedCombo()
+                    {
+                        ActionEvent = actionEvent,
+                        DisplayName = "ff",
+                        HasContinuation = false,
+                        Buttons = SimpleButtons.STICK_DOWN,
+                        EndsCombo = false,
+                    });
+
+                    break;
+                }
             default:
                 break;
         }
     }
+
+    // assuming the platform drop is already in the buffer
+    protected bool IsFallThroughShieldDrop() => _eventBuffer.Count > 3 &&
+        (_eventBuffer[^2].Action == Actions.ShieldStart ||
+        (_eventBuffer[^2].Action == Actions.Shield && _eventBuffer[^3].Action == Actions.ShieldStart));
 
     public virtual void Dispose()
     {

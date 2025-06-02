@@ -1,6 +1,7 @@
 ﻿using Slippi.NET.Melee.Types;
 using Slippi.NET.Stats;
 using Slippi.NET.Stats.Types;
+using Slippi.NET.Types;
 
 namespace ComboInterpreter;
 
@@ -16,228 +17,156 @@ public class FoxComboInterpreter : BaseComboInterpreter
     { 
     }
 
-    protected override void OnAction(object? sender, ActionEventArgs args)
+    protected override void HandleActionEvent(ActionEvent actionEvent)
     {
-        base.OnAction(sender, args);
-
-        if (args.Action == Actions.None)
+        switch (actionEvent.Action)
         {
-            return;
-        }
+            case Actions.Jab:
+                {
+                    _pendingBuffer.Add(new PendingAction()
+                    {
+                        Action = actionEvent,
+                        ContinuationIf = static c => c.Action == Actions.USmash || c.Action == Actions.Bair || c.Action == Actions.UAir || c.Action == Actions.DSmash,
+                        ActionsLeft = 3,
+                        FramesLeft = 20,
+                    });
 
-        int frame = args.Frame.Frame!.Value;
-        if (args.PlayerIndex == _playerIndex)
-        {
-            ActionEvent actionEvent = new ActionEvent()
-            {
-                Action = args.Action,
-                FrameEntry = args.Frame,
-            };
+                    break;
+                }
+            case Actions.Shine:
+                {
+                    _pendingBuffer.Add(new PendingAction()
+                    {
+                        Action = actionEvent,
+                        ActionsLeft = 5,
+                        FramesLeft = 20,
+                        ContinuationIf = static (c) => c.Action == Actions.Bair ||
+                                                       c.Action == Actions.Nair ||
+                                                       c.Action == Actions.DAir ||
+                                                       c.Action == Actions.Fair ||
+                                                       c.Action == Actions.UAir ||
+                                                       c.Action == Actions.USmash ||
+                                                       c.Action == Actions.DSmash ||
+                                                       c.Action == Actions.FSmash ||
+                                                       c.Action == Actions.Jab ||
+                                                       c.Action == Actions.Grab ||
+                                                       c.Action == Actions.ShineTurnaround ||
+                                                       c.Action == Actions.Jump ||
+                                                       c.Action == Actions.Wavedash ||
+                                                       c.Action == Actions.Waveland,
+                        AppendContinuationWithIf = static (c) => c.Action != Actions.Jump && c.Action != Actions.Wavedash && c.Action != Actions.USmash && c.Action != Actions.Grab,
+                        AppendContinuationWith = new ActionEvent()
+                        {
+                            Action = Actions.JumpCancel,
+                            FrameEntry = actionEvent.FrameEntry,
+                            HasContinuation = true,
+                        },
+                    });
 
-            _eventBuffer.Add(actionEvent);
-            if (LOG_VERBOSE)
-            {
-                Console.WriteLine($"VERBOSE: {actionEvent.Action.ToString()}");
-            }
-            
-            if (!_isReplay)
-            {
-                ProcessPendingActions(actionEvent);
-            }
+                    break;
+                }
+            case Actions.ShineTurnaround:
+                {
+                    _pendingBuffer.Add(new PendingAction()
+                    {
+                        Action = actionEvent,
+                        ActionsLeft = 3,
+                        ContinuationIf = static (c) => c.Action == Actions.Bair ||
+                                                       c.Action == Actions.Nair ||
+                                                       c.Action == Actions.DAir ||
+                                                       c.Action == Actions.Fair ||
+                                                       c.Action == Actions.UAir ||
+                                                       c.Action == Actions.USmash ||
+                                                       c.Action == Actions.DSmash ||
+                                                       c.Action == Actions.FSmash ||
+                                                       c.Action == Actions.Jab ||
+                                                       c.Action == Actions.Grab ||
+                                                       c.Action == Actions.ShineTurnaround ||
+                                                       c.Action == Actions.Jump ||
+                                                       c.Action == Actions.Wavedash ||
+                                                       c.Action == Actions.Waveland
+                    });
 
-            switch (args.Action)
-            {
-                case Actions.Jab:
+                    break;
+                }
+            case Actions.JumpCancel:
+                {
+                    _pendingBuffer.Add(new PendingAction()
+                    {
+                        Action = actionEvent,
+                        ActionsLeft = 1,
+                        ContinuationIf = static (c) => c.Action == Actions.USmash ||
+                                                       c.Action == Actions.Grab ||
+                                                       c.Action == Actions.Shine,
+                        CancelIf = static (c) => (c.Action != Actions.USmash &&
+                                                 c.Action != Actions.Grab &&
+                                                 c.Action != Actions.Shine) || c.Action == Actions.JumpCancel,
+                    });
+
+                    break;
+                }
+            case Actions.Jump:
+                {
+                    if (DidShineRecently())
                     {
                         _pendingBuffer.Add(new PendingAction()
                         {
-                            Action = actionEvent,
-                            ContinuationIf = (static c => c.Action == Actions.USmash || c.Action == Actions.Bair || c.Action == Actions.UAir || c.Action == Actions.DSmash),
-                            ActionsLeft = 3,
-                            FramesLeft = 20,
+                            Action = new ActionEvent() { Action = Actions.JumpCancel, FrameEntry = actionEvent.FrameEntry },
+                            ActionsLeft = 1,
+                            ContinuationIf = static (c) => c.Action == Actions.Bair ||
+                                                           c.Action == Actions.Nair ||
+                                                           c.Action == Actions.DAir ||
+                                                           c.Action == Actions.Fair ||
+                                                           c.Action == Actions.UAir ||
+                                                           c.Action == Actions.USmash ||
+                                                           c.Action == Actions.Grab ||
+                                                           c.Action == Actions.Jab,
+                            CancelIf = static (c) => c.Action == Actions.Wavedash ||
+                                                     c.Action == Actions.Waveland ||
+                                                     c.Action == Actions.AirDodge
+
                         });
-
-                        break;
                     }
-                case Actions.AirDodge:
+                    else
                     {
                         _pendingBuffer.Add(new PendingAction()
                         {
                             Action = actionEvent,
-                            CancelIf = (static c => c.Action == Actions.Wavedash || c.Action == Actions.Waveland),
                             FramesLeft = 8,
+                            CancelIf = static (c) => c.Action == Actions.Wavedash ||
+                                                     c.Action == Actions.Waveland ||
+                                                     c.Action == Actions.AirDodge
                         });
-
-                        break;
                     }
-                case Actions.Dash:
+
+                    break;
+                }
+            case Actions.WallJump:
+                {
+                    _pendingBuffer.Add(new PendingAction()
                     {
-                        _pendingBuffer.Add(new PendingAction()
-                        {
-                            Action = actionEvent,
-                            ActionsLeft = 1,
-                            CancelIf = static (c) => c.Action == Actions.DashDance || c.Action == Actions.Dash
-                        });
+                        Action = actionEvent,
+                        ActionsLeft = 1,
+                        ContinuationIf = static (c) => c.Action == Actions.Bair || c.Action == Actions.Shine
+                    });
 
-                        break;
-                    }
-                case Actions.Shine:
-                    {
-                        _pendingBuffer.Add(new PendingAction()
-                        {
-                            Action = actionEvent,
-                            ActionsLeft = 5,
-                            FlushIf = static (c) => c.Action == Actions.ShineEnd,
-                            ContinuationIf = static (c) => c.Action == Actions.Bair ||
-                                                           c.Action == Actions.Nair ||
-                                                           c.Action == Actions.DAir ||
-                                                           c.Action == Actions.Fair ||
-                                                           c.Action == Actions.UAir ||
-                                                           c.Action == Actions.USmash ||
-                                                           c.Action == Actions.DSmash ||
-                                                           c.Action == Actions.FSmash ||
-                                                           c.Action == Actions.Jab ||
-                                                           c.Action == Actions.Grab ||
-                                                           c.Action == Actions.ShineTurnaround ||
-                                                           c.Action == Actions.Jump ||
-                                                           c.Action == Actions.Wavedash ||
-                                                           c.Action == Actions.Waveland,
-                            AppendContinuationWithIf = static (c) => c.Action != Actions.Jump && c.Action != Actions.Wavedash,
-                            AppendContinuationWith = new ActionEvent()
-                            {
-                                Action = Actions.JumpCancel,
-                                FrameEntry = args.Frame,
-                                HasContinuation = true,
-                            }
-                        });
-
-                        break;
-                    }
-                case Actions.ShineTurnaround:
-                    {
-                        _pendingBuffer.Add(new PendingAction()
-                        {
-                            Action = actionEvent,
-                            ActionsLeft = 3,
-                            ContinuationIf = static (c) => c.Action == Actions.Bair ||
-                                                           c.Action == Actions.Nair ||
-                                                           c.Action == Actions.DAir ||
-                                                           c.Action == Actions.Fair ||
-                                                           c.Action == Actions.UAir ||
-                                                           c.Action == Actions.USmash ||
-                                                           c.Action == Actions.DSmash ||
-                                                           c.Action == Actions.FSmash ||
-                                                           c.Action == Actions.Jab ||
-                                                           c.Action == Actions.Grab ||
-                                                           c.Action == Actions.ShineTurnaround ||
-                                                           c.Action == Actions.Jump ||
-                                                           c.Action == Actions.Wavedash ||
-                                                           c.Action == Actions.Waveland
-                        });
-
-                        break;
-                    }
-                case Actions.JumpCancel:
-                    {
-                        _pendingBuffer.Add(new PendingAction()
-                        {
-                            Action = actionEvent,
-                            ActionsLeft = 1,
-                            ContinuationIf = static (c) => c.Action == Actions.USmash ||
-                                                           c.Action == Actions.Grab ||
-                                                           c.Action == Actions.Shine,
-                            CancelIf = static (c) => c.Action != Actions.USmash &&
-                                                     c.Action != Actions.Grab &&
-                                                     c.Action != Actions.Shine,
-                        });
-
-                        break;
-                    }
-                case Actions.Jump:
-                    {
-                        if (DidShineRecently())
-                        {
-                            _pendingBuffer.Add(new PendingAction()
-                            {
-                                Action = new ActionEvent() { Action = Actions.JumpCancel, FrameEntry = args.Frame },
-                                ActionsLeft = 1,
-                                ContinuationIf = static (c) => c.Action == Actions.Bair ||
-                                                               c.Action == Actions.Nair ||
-                                                               c.Action == Actions.DAir ||
-                                                               c.Action == Actions.Fair ||
-                                                               c.Action == Actions.UAir ||
-                                                               c.Action == Actions.USmash ||
-                                                               c.Action == Actions.Grab ||
-                                                               c.Action == Actions.Jab,
-                                CancelIf = static (c) => c.Action == Actions.Wavedash ||
-                                                         c.Action == Actions.Waveland ||
-                                                         c.Action == Actions.AirDodge
-
-                            });
-                        }
-                        else
-                        {
-                            _pendingBuffer.Add(new PendingAction()
-                            {
-                                Action = actionEvent,
-                                FramesLeft = 8,
-                                CancelIf = static (c) => c.Action == Actions.Wavedash ||
-                                                         c.Action == Actions.Waveland ||
-                                                         c.Action == Actions.AirDodge
-                            });
-                        }
-
-                        break;
-                    }
-                case Actions.Grab:
-                case Actions.Laser:
-                case Actions.Nair:
-                case Actions.UAir:
-                case Actions.Roll:
-                case Actions.Tech:
-                case Actions.Bair:
-                case Actions.DAir:
-                case Actions.Fair:
-                case Actions.BThrow:
-                case Actions.UThrow:
-                case Actions.DThrow:
-                case Actions.SpotDodge:
-                case Actions.FirefoxStartup:
-                case Actions.Firefox:
-                case Actions.SideB:
-                case Actions.Wavedash:
-                case Actions.Waveland:
-                case Actions.DashAttack:
-                case Actions.UTilt:
-                case Actions.DTilt:
-                case Actions.FTilt:
-                case Actions.DashDance:
-                case Actions.LCancel:
-                case Actions.FSmash:
-                case Actions.USmash:
-                case Actions.DSmash:
+                    break;
+                }
+            case Actions.FirefoxStartup:
+            case Actions.Firefox:
+            case Actions.Laser:
+            case Actions.FoxSideB:
+                {
                     InterpretActionEvent(actionEvent);
                     break;
-                default:
-                    if (args.Action != Actions.None)
-                    {
-                        if (LOG_VERBOSE)
-                        {
-                            Console.Write($" Skip: {args.Action.ToString()} ");
-                        }
-                    }
+                }
+            default:
+                {
+                    base.HandleActionEvent(actionEvent);
                     break;
-            }
-
-            if (_isReplay)
-            {
-                ProcessPendingActions(actionEvent);
-            }
+                }
         }
     }
-
-    private const bool log_all = false;
-    private const bool log_fox = false;
 
     protected override void OnRawAction(object? sender, RawActionEventArgs args)
     {
@@ -252,64 +181,60 @@ public class FoxComboInterpreter : BaseComboInterpreter
             {
                 OnAction(sender, new ActionEventArgs() { Action = overrideAction, Frame = args.Frame, PlayerIndex = args.PlayerIndex });
             }
-
-            if (log_all)
-            {
-                Console.WriteLine(args.ActionState.ToString());
-                return;
-            }
-
-            if (log_fox)
-            {
-                LogFoxActionStateInfo(args);
-            }
         }
     }
 
-    private void LogFoxActionStateInfo(RawActionEventArgs args)
+    protected override Actions ComputeActionFromActionState(ActionState actionState)
     {
-        string foxAction = string.Empty;
-        switch (args.ActionState)
+        Actions overrideAction = Actions.None; // tracepoint here with {actionState} to log all action states
+
+        switch (actionState)
         {
             case ActionState.FOX_SHINE_A:
             case ActionState.FOX_SHINE_G:
-                foxAction = "Shine";
+                overrideAction = Actions.Shine;
                 break;
             case ActionState.FOX_LASER_A:
             case ActionState.FOX_LASER_G:
-                foxAction = "Laser";
+                overrideAction = Actions.Laser;
                 break;
             case ActionState.FOX_SHINE_TURNAROUND_A:
             case ActionState.FOX_SHINE_TURNAROUND_G:
-                foxAction = "Turnaround (Shine)";
+                overrideAction = Actions.ShineTurnaround;
+                break;
+            case ActionState.FOX_SHINE_END_A:
+            case ActionState.FOX_SHINE_END_G:
+                overrideAction = Actions.ShineEnd;
                 break;
             case ActionState.FOX_SIDEB_A:
             case ActionState.FOX_SIDEB_G:
-                foxAction = "Side B";
+                overrideAction = Actions.FoxSideB;
                 break;
             case ActionState.FOX_UPB_A_STARTUP:
             case ActionState.FOX_UPB_G_STARTUP:
-                foxAction = "Up B";
+                overrideAction = Actions.FirefoxStartup;
                 break;
-            case ActionState.DASH:
-                foxAction = "Dash";
-                break;
-            case ActionState.JUMP_BACKWARD:
-            case ActionState.JUMP_FORWARD:
-                foxAction = "Jump";
+            case ActionState.FOX_UPB_A:
+            case ActionState.FOX_UPB_G:
+                overrideAction = Actions.Firefox;
                 break;
             default:
                 break;
         }
 
-        if (foxAction != string.Empty)
+        if (overrideAction != Actions.None)
         {
-            Console.WriteLine(foxAction);
+            return overrideAction;
         }
+
+        return base.ComputeActionFromActionState(actionState);
     }
 
-    private bool DidShineRecently() => _eventBuffer.Count > 3 && (
-                                            _eventBuffer[^1].Action == Actions.Shine ||
-                                            _eventBuffer[^2].Action == Actions.Shine ||
-                                            _eventBuffer[^3].Action == Actions.Shine);
+    private bool DidShineRecently() => _eventBuffer.Count > 4 && 
+                                      (_eventBuffer[^1].Action != Actions.JumpCancel && _eventBuffer[^1].Action != Actions.Jump) &&
+                                      (_eventBuffer[^2].Action != Actions.JumpCancel && _eventBuffer[^2].Action != Actions.Jump) &&
+                                      (_eventBuffer[^1].Action == Actions.Shine ||
+                                       _eventBuffer[^2].Action == Actions.Shine ||
+                                       _eventBuffer[^3].Action == Actions.Shine ||
+                                       _eventBuffer[^4].Action == Actions.Shine);
 }

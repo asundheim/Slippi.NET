@@ -191,7 +191,7 @@ public static class ComboImageBuilder
 
     private static Image ImageForButton(SimpleButtons button)
     {
-        const int SCALE = 16;
+        const int SCALE = 10;
 
         BitmapImage bmp = new BitmapImage(ImageSourceForButton(button));
 
@@ -209,7 +209,7 @@ public static class ComboImageBuilder
 
     private static Image ImageForDashDance(SimpleButtons button)
     {
-        const int SCALE = 16;
+        const int SCALE = 10;
 
         BitmapImage bmp = new BitmapImage(
             button == SimpleButtons.STICK_LEFT ? new Uri(@"Assets\analog-dd-left.png", UriKind.Relative) : new Uri(@"Assets\analog-dd-right.png", UriKind.Relative)
@@ -243,14 +243,14 @@ public static class ComboImageBuilder
         return p;
     }
 
-    public static Path GetStrokeText(Window window, string text)
+    public static Path GetStrokeText(Window window, string text, int fontSize = 32)
     {
         FormattedText f = new FormattedText(
             text,
             CultureInfo.CurrentUICulture,
             FlowDirection.LeftToRight,
             new Typeface("Consolas"),
-            24,
+            fontSize,
             Brushes.White,
             VisualTreeHelper.GetDpi(window).PixelsPerDip
         );

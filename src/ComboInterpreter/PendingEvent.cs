@@ -1,5 +1,8 @@
-﻿namespace ComboInterpreter;
+﻿using System.Diagnostics;
 
+namespace ComboInterpreter;
+
+[DebuggerDisplay("{Action.Actions}")]
 public record class PendingAction
 {
     public required ActionEvent Action { get; set; }

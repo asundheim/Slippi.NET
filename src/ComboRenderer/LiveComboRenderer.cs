@@ -1,4 +1,5 @@
 ﻿using ComboInterpreter;
+using OBSWebsocketDotNet;
 using Slippi.NET.Console;
 using Slippi.NET.Console.Types;
 using Slippi.NET.Slp.Reader.File;
@@ -15,11 +16,14 @@ internal class LiveComboRenderer : BaseComboRenderer
     {
     }
 
-    public override void Begin()
+    public override void Begin(OBSWebsocket? obs = null)
     {
         // live
         _connection = new DolphinConnection();
-        _fileWriter = new SlpFileWriter(new SlpFileWriterSettings() { FolderPath = System.IO.Path.GetTempPath() });
+        _fileWriter = new SlpFileWriter(new SlpFileWriterSettings() 
+        { 
+            FolderPath = System.IO.Path.GetTempPath() 
+        });
 
         _connection.OnHandshake += (object? sender, ConnectionDetails args) =>
         {

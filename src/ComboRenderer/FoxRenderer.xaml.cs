@@ -1,5 +1,6 @@
 ﻿using ComboInterpreter;
 using Newtonsoft.Json;
+using OBSWebsocketDotNet;
 using Slippi.NET.Console.Types;
 using Slippi.NET.Stats.Types;
 using Slippi.NET.Types;
@@ -8,6 +9,8 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using WindowUtils;
 
@@ -18,6 +21,9 @@ public partial class FoxRenderer : Window
     private BaseComboRenderer _comboRenderer;
     private DolphinWindowTracker? _dolphinTracker = null;
     private FoxComboInterpreter? _comboBot;
+
+    private OBSWebsocket? _obs = null;
+    private string? _restoreOutputPath;
 
     [SupportedOSPlatform("windows10.0")]
     public FoxRenderer()
@@ -52,7 +58,6 @@ public partial class FoxRenderer : Window
         else
         {
             // replay
-            
             if (args.Length > 2)
             {
                 if (args[1] == "queue")
@@ -61,8 +66,10 @@ public partial class FoxRenderer : Window
                     var dolphinArgs = JsonConvert.DeserializeObject<DolphinLaunchArgs>(System.IO.File.ReadAllText(launchArgsPath));
 
                     _comboRenderer = new ReplayComboRenderer(this, dolphinArgs?.Queue ?? throw new ArgumentException());
+                    //_obs = new OBSWebsocket();
+                    //ConnectToOBS();
 
-                    // TODO record with OBS
+                    _restoreOutputPath = _obs?.GetProfileParameter("Output", "FilenameFormatting").GetValue("parameterValue")!.ToObject<string>()!;
                 }
                 else
                 {
@@ -82,6 +89,7 @@ public partial class FoxRenderer : Window
                 Dispatcher.Invoke(() =>
                 {
                     ComboRow.Children.Clear();
+                    DIContainer.Child = null;
                 });
 
                 _comboBot?.Dispose();
@@ -97,14 +105,18 @@ public partial class FoxRenderer : Window
                     AdjustWindowToDolphin(_dolphinTracker.GetDolphinWindowInfo());
                 });
             };
+
+            _comboRenderer.OnDI += HandleDI;
         }
 
-        _comboRenderer.Begin();
+        _comboRenderer.Begin(_obs);
     }
 
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
+
+        _obs?.SetProfileParameter("Output", "FilenameFormatting", _restoreOutputPath ?? string.Empty);
 
         _comboBot?.Dispose();
         _dolphinTracker?.Dispose();
@@ -125,6 +137,65 @@ public partial class FoxRenderer : Window
             this.Left = dolphinWindow.Left + 100;
             this.Top = dolphinWindow.Top + 45;
             this.Width = dolphinWindow.Width - 200;
+            this.Height = dolphinWindow.Height - 45;
+        }
+    }
+
+    private void HandleDI(object? sender, DIEventArgs e)
+    {
+        double angle = Math.Atan2(e.PreFrameUpdate.JoystickY ?? 0, e.PreFrameUpdate.JoystickX ?? 0);
+        double angleDegrees = angle * (180 / Math.PI);
+        Dispatcher.BeginInvoke(() =>
+        {
+            const int SCALE = 10;
+            BitmapImage bmp = new BitmapImage(new Uri(@"Assets\analog-dd-left.png", UriKind.Relative));
+            Image img = new Image()
+            {
+                Source = bmp,
+                Width = bmp.Width / SCALE,
+                Height = bmp.Height / SCALE,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+
+            img.RenderTransform = new RotateTransform(angleDegrees + 180, img.Width / 2, img.Height / 2);
+            RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+
+            int stocksLeft = e.PostFrameUpdate.StocksRemaining!.Value;
+            StackPanel panel = new StackPanel() 
+            { 
+                Orientation = Orientation.Vertical,
+                Margin = new Thickness((e.PlayerIndex * 424) + (stocksLeft * 48) + 130, 0, 0, 320)
+            };
+            //panel.Background = Brushes.Black;
+            panel.HorizontalAlignment = HorizontalAlignment.Left;
+
+            var text = ComboImageBuilder.GetStrokeText(this, "DI CAM", 40);
+            text.Margin = new Thickness(0, 0, 0, 5);
+            panel.Children.Add(text);
+            panel.Children.Add(img);
+
+            this.DIContainer.Child = panel;
+            this.DIContainer.BorderBrush = Brushes.White;
+        });
+    }
+
+    private void ConnectToOBS()
+    {
+        if (_obs is not null)
+        {
+            TaskCompletionSource tcsOnConnect = new TaskCompletionSource();
+
+            _obs.Connected += (o, e) =>
+            {
+                tcsOnConnect.SetResult();
+            };
+
+            Task.Run(async () =>
+            {
+                _obs.ConnectAsync("ws://[fd89:c58d:7ed1:7154:fa4b:bc46:ec06:3c41]:4455", string.Empty);
+                await tcsOnConnect.Task;
+            }).Wait();
         }
     }
 

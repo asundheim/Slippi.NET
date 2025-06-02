@@ -90,6 +90,26 @@
         "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\JETS#0.slp",
         "startFrame": 6829,
         "endFrame": 7292
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\DOBY#705.slp",
+      "startFrame": 7500,
+      "endFrame": 8182
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\KITE#0.slp",
+      "startFrame": 5769,
+      "endFrame": 6740
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\BOSS#832.slp",
+      "startFrame": 2136,
+      "endFrame": 2985
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\SALT#348.slp",
+      "startFrame": -100,
+      "endFrame": 635
     }
   ]
 }

@@ -1,8 +1,11 @@
 ﻿using ComboInterpreter;
+using OBSWebsocketDotNet;
 using Slippi.NET.Console;
 using Slippi.NET.Console.Types;
 using Slippi.NET.Types;
+using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace ComboRenderer;
 
@@ -30,7 +33,7 @@ internal class ReplayComboRenderer : BaseComboRenderer
         _replays = replays;
     }
 
-    public override void Begin()
+    public override void Begin(OBSWebsocket? obs = null)
     {
         _dolphinLauncher = new DolphinLauncher(@"C:\Users\ander\Downloads\meleeout.iso");
 
@@ -40,19 +43,34 @@ internal class ReplayComboRenderer : BaseComboRenderer
             _cts = new CancellationTokenSource();
             _cancellationToken = _cts.Token;
 
+            _startFrame = args.StartFrame;
+            obs?.SetProfileParameter("Output", "FilenameFormatting", Path.GetFileNameWithoutExtension(args.FilePath));
+
+            if (_comboBot is not null)
+            {
+                _comboBot.OnDI -= HandleDI;
+            }
+
             _comboBot = new FoxComboInterpreter(args.FilePath, args.StartFrame, "george seinfeld", "ders", "D#345", "D#10");
+            _comboBot.OnDI += HandleDI;
 
             InvokeNewGame(_comboBot);
         };
 
         _dolphinLauncher.OnReplayedFrame += (object? sender, int frame) =>
         {
+            if (_startFrame == frame)
+            {
+                obs?.StartRecord();
+            }
+
             _comboBot?.ProcessFrame(frame);
         };
 
         _dolphinLauncher.OnPlaybackComplete += (_, _) =>
         {
             _cts?.Cancel();
+            obs?.StopRecord();
         };
 
         _dolphinLauncher.OnDolphinClosed += (_, _) =>
@@ -85,6 +103,11 @@ internal class ReplayComboRenderer : BaseComboRenderer
         }
 
         _dolphinLauncher.LaunchDolphin(launchArgs);
+    }
+
+    private void HandleDI(object? sender, DIEventArgs e)
+    {
+        InvokeDI(e);
     }
 
     public override void Dispose()

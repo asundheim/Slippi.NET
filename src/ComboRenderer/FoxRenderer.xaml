@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ComboRenderer"
         mc:Ignorable="d"
         AllowsTransparency="True"
-        Title="FoxRenderer" Height="150" Width="1300" 
+        Title="FoxRenderer" Height="1000" Width="1300" 
         WindowStyle="None" WindowStartupLocation="CenterScreen" Topmost="True">
     <Window.Background>
         <SolidColorBrush Opacity="0" Color="White"/>
@@ -14,12 +14,11 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
 
-        <StackPanel x:Name="ComboRow" Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="5,10,0,0"/>
+        <StackPanel x:Name="ComboRow" Orientation="Horizontal" Grid.Row="0" Margin="5,10,0,0"/>
+        <Border x:Name="DIContainer" Grid.Row="2"/>
     </Grid>
 </Window>

@@ -65,7 +65,7 @@ internal class StreamLogger
             {
                 if (!continuation)
                 {
-                    Console.WriteLine();
+                    //Console.WriteLine();
                     currentLine = string.Empty;
                     activeLine = false;
                 }
@@ -96,27 +96,27 @@ internal class StreamLogger
                 int parensIndex = currentLine.LastIndexOf(result) + result.Length;
                 if (parensIndex <= Console.CursorLeft)
                 {
-                    Console.SetCursorPosition(parensIndex, Console.CursorTop);
+                    //Console.SetCursorPosition(parensIndex, Console.CursorTop);
                     sameActionCount++;
-                    Console.Write($"({sameActionCount}) ");
+                    //Console.Write($"({sameActionCount}) ");
                 }
                 else
                 {
                     sameActionCount = 1;
-                    Console.Write(sb.ToString());
+                    //Console.Write(sb.ToString());
                     currentLine += result;
                 }
             }
             else
             {
                 sameActionCount = 1;
-                Console.Write(sb.ToString());
+                //Console.Write(sb.ToString());
                 currentLine += result;
             }
 
             if (combo.EndsCombo || combo.DisplayName == "Dash")
             {
-                Console.WriteLine();
+                //Console.WriteLine();
                 currentLine = string.Empty;
                 activeLine = false;
                 s.Restart();
