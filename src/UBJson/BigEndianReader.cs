@@ -15,7 +15,7 @@ public class BigEndianReader
 
     public sbyte ReadInt8()
     {
-        Span<byte> s = stackalloc byte[sizeof(short)];
+        Span<byte> s = stackalloc byte[sizeof(sbyte)];
         _stream.ReadExactly(s);
 
         return (sbyte)s[0];
