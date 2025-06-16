@@ -231,35 +231,40 @@ public static class ComboImageBuilder
     {
         var p = GetStrokeText(window, "+");
         p.Margin = new Thickness(5, 0, 5, 0);
-
+        
         return p;
     }
 
     private static Path ArrowText(Window window)
     {
-        var p = GetStrokeText(window, "→");
+        var p = GetStrokeText(window, "➜", bold: false);
         p.Margin = new Thickness(5, 0, 5, 0);
 
         return p;
     }
 
-    public static Path GetStrokeText(Window window, string text, int fontSize = 32)
+    public static Path GetStrokeText(Window window, string text, int fontSize = 32, bool bold = true)
     {
         FormattedText f = new FormattedText(
             text,
             CultureInfo.CurrentUICulture,
             FlowDirection.LeftToRight,
-            new Typeface("Consolas"),
+            new Typeface("Tahoma"),
             fontSize,
             Brushes.White,
             VisualTreeHelper.GetDpi(window).PixelsPerDip
         );
+        
+        if (bold)
+        {
+            f.SetFontWeight(FontWeights.Bold);
+        }
 
         Geometry g = f.BuildGeometry(new Point(0, 0));
         Path p = new Path();
         p.Fill = Brushes.White;
         p.Stroke = Brushes.Black;
-        p.StrokeThickness = 0.75;
+        p.StrokeThickness = 1;
         p.Data = g;
         p.HorizontalAlignment = HorizontalAlignment.Center;
         p.VerticalAlignment = VerticalAlignment.Center;

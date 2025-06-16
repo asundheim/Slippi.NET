@@ -775,7 +775,7 @@ public abstract class BaseComboInterpreter : IDisposable
                     _combos.Add(new InterpretedCombo()
                     {
                         ActionEvent = actionEvent,
-                        DisplayName = "↑throw",
+                        DisplayName = "upthrow",
                         HasContinuation = false,
                         Buttons = SimpleButtons.STICK_UP,
                         EndsCombo = false,
@@ -788,7 +788,7 @@ public abstract class BaseComboInterpreter : IDisposable
                     _combos.Add(new InterpretedCombo()
                     {
                         ActionEvent = actionEvent,
-                        DisplayName = $"{(facingLeft ? "←" : "→")}throw",
+                        DisplayName = $"{(facingLeft ? "f" : "➜")}throw",
                         HasContinuation = false,
                         Buttons = Utils.FacingDirectionToStick(facingLeft),
                         EndsCombo = false,
@@ -801,7 +801,7 @@ public abstract class BaseComboInterpreter : IDisposable
                     _combos.Add(new InterpretedCombo()
                     {
                         ActionEvent = actionEvent,
-                        DisplayName = $"{(!facingLeft ? "←" : "→")}throw",
+                        DisplayName = $"{(!facingLeft ? "back" : "➜")}throw",
                         HasContinuation = false,
                         Buttons = Utils.FacingDirectionToOppositeStick(facingLeft),
                         EndsCombo = false,
@@ -814,7 +814,7 @@ public abstract class BaseComboInterpreter : IDisposable
                     _combos.Add(new InterpretedCombo()
                     {
                         ActionEvent = actionEvent,
-                        DisplayName = "↓throw",
+                        DisplayName = "downthrow",
                         HasContinuation = false,
                         Buttons = SimpleButtons.STICK_DOWN,
                         EndsCombo = false,

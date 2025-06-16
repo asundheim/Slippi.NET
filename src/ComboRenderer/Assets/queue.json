@@ -2,6 +2,21 @@
     "mode": "queue",
     "queue": [
     {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\BREN#824.slp",
+      "startFrame": 610,
+      "endFrame": 1274
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\ELOC#180.slp",
+      "startFrame": 9080,
+      "endFrame": 9769
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\MILK#338.slp",
+      "startFrame": 4583,
+      "endFrame": 5838
+    },
+    {
       "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\CHID#695.slp",
       "startFrame": 4000,
       "endFrame": 4600

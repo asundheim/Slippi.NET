@@ -25,6 +25,8 @@ public partial class FoxRenderer : Window
     private OBSWebsocket? _obs = null;
     private string? _restoreOutputPath;
 
+    private DateTime _lastDi = DateTime.MinValue;
+
     [SupportedOSPlatform("windows10.0")]
     public FoxRenderer()
     {
@@ -66,8 +68,8 @@ public partial class FoxRenderer : Window
                     var dolphinArgs = JsonConvert.DeserializeObject<DolphinLaunchArgs>(System.IO.File.ReadAllText(launchArgsPath));
 
                     _comboRenderer = new ReplayComboRenderer(this, dolphinArgs?.Queue ?? throw new ArgumentException());
-                    //_obs = new OBSWebsocket();
-                    //ConnectToOBS();
+                    _obs = new OBSWebsocket();
+                    ConnectToOBS();
 
                     _restoreOutputPath = _obs?.GetProfileParameter("Output", "FilenameFormatting").GetValue("parameterValue")!.ToObject<string>()!;
                 }
@@ -117,6 +119,7 @@ public partial class FoxRenderer : Window
         base.OnClosed(e);
 
         _obs?.SetProfileParameter("Output", "FilenameFormatting", _restoreOutputPath ?? string.Empty);
+        _obs?.Disconnect();
 
         _comboBot?.Dispose();
         _dolphinTracker?.Dispose();
@@ -165,19 +168,49 @@ public partial class FoxRenderer : Window
             StackPanel panel = new StackPanel() 
             { 
                 Orientation = Orientation.Vertical,
-                Margin = new Thickness((e.PlayerIndex * 424) + (stocksLeft * 48) + 130, 0, 0, 320)
             };
             //panel.Background = Brushes.Black;
             panel.HorizontalAlignment = HorizontalAlignment.Left;
 
-            var text = ComboImageBuilder.GetStrokeText(this, "DI CAM", 40);
+            var text = ComboImageBuilder.GetStrokeText(this, "DI CAM", 36);
             text.Margin = new Thickness(0, 0, 0, 5);
             panel.Children.Add(text);
             panel.Children.Add(img);
+            panel.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            Border panelBorder = new Border()
+            {
+                BorderBrush = new SolidColorBrush(Colors.Black),
+                BorderThickness = new Thickness(2),
+                Child = panel,
+                Margin = new Thickness((e.PlayerIndex * 424) + (stocksLeft * 50) + 135, 0, 0, 320),
+                Background = new SolidColorBrush(Colors.Black) { Opacity = 0.5 },
+                CornerRadius = new CornerRadius(15),
+                Padding = new Thickness(5)
+            };
 
-            this.DIContainer.Child = panel;
-            this.DIContainer.BorderBrush = Brushes.White;
+            this.DIContainer.Child = panelBorder;
+            _lastDi = DateTime.Now;
+
+            _ = Task.Run(async () =>
+            {
+                await DITimeout();
+            });
         });
+    }
+
+    private async Task DITimeout()
+    {
+        await Task.Delay(750);
+        if (_lastDi != DateTime.MinValue)
+        {
+            if (DateTime.Now.Subtract(_lastDi).Duration().TotalMilliseconds >= 750)
+            {
+                _ = Dispatcher.BeginInvoke(() =>
+                {
+                    this.DIContainer.Child = null;
+                });
+            }
+        }
     }
 
     private void ConnectToOBS()
@@ -248,6 +281,7 @@ public partial class FoxRenderer : Window
                 string result = sb.ToString();
 
                 StackPanel newImage = ComboImageBuilder.CreateImage(this, combo.ActionEvent, combo.Buttons);
+                newImage.VerticalAlignment = VerticalAlignment.Bottom;
                 newImage.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
                 if (ComboRow.Children.Count > 0)
@@ -274,23 +308,25 @@ public partial class FoxRenderer : Window
                 Grid imageTextGrid = new Grid()
                 {
                     Margin = combo.HasContinuation ? new Thickness(0) : new Thickness(0, 0, 10, 0),
-                    VerticalAlignment = VerticalAlignment.Center
+                    Height = 180,
+                    VerticalAlignment = VerticalAlignment.Bottom
                 };
 
                 imageTextGrid.RowDefinitions.Add(new RowDefinition()
                 {
-                    Height = new GridLength(1, GridUnitType.Star)
+                    Height = new GridLength(127, GridUnitType.Pixel)
                 });
 
                 imageTextGrid.RowDefinitions.Add(new RowDefinition()
                 {
-                    Height = GridLength.Auto
+                    Height = new GridLength(40, GridUnitType.Pixel)
                 });
 
                 imageTextGrid.Children.Add(newImage);
                 Grid.SetRow(newImage, 0);
 
                 var text = ComboImageBuilder.GetStrokeText(this, combo.DisplayName);
+                text.VerticalAlignment = VerticalAlignment.Center;
                 imageTextGrid.Children.Add(text);
                 Grid.SetRow(text, 1);
 
