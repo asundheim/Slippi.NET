@@ -2,6 +2,26 @@
     "mode": "queue",
     "queue": [
     {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\THER#787.slp",
+      "startFrame": 540,
+      "endFrame": 1016
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\THER#787-1.slp",
+      "startFrame": 6100,
+      "endFrame": 6534
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\BREN#824-1.slp",
+      "startFrame": 1882,
+      "endFrame": 2445
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\LPMM#86.slp",
+      "startFrame": 2700,
+      "endFrame": 3523
+    },
+    {
       "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\BREN#824.slp",
       "startFrame": 610,
       "endFrame": 1274

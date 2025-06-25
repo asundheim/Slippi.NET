@@ -59,7 +59,7 @@ internal class ReplayComboRenderer : BaseComboRenderer
 
         _dolphinLauncher.OnReplayedFrame += (object? sender, int frame) =>
         {
-            if (_startFrame == frame)
+            if (_startFrame + 2 /* avoid recording the white frames if it's seeking */ == frame)
             {
                 obs?.StartRecord();
             }
