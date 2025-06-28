@@ -10,6 +10,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using WindowUtils;
@@ -188,7 +189,14 @@ public partial class FoxRenderer : Window
                 Padding = new Thickness(5)
             };
 
+            bool animate = this.DIContainer.Child is null;
             this.DIContainer.Child = panelBorder;
+
+            if (animate)
+            {
+                PopInOut(panelBorder);
+            }
+            
             _lastDi = DateTime.Now;
 
             _ = Task.Run(async () =>
@@ -252,7 +260,7 @@ public partial class FoxRenderer : Window
             var combo = _comboBot?.ComboStream.Take(cancellation) ?? throw new Exception("No combo interpreter set up");
             s.Stop();
 
-            Dispatcher.Invoke(() =>
+            Dispatcher.Invoke((Delegate)(() =>
             {
                 if (queueFlush || (s.ElapsedMilliseconds >= 450 && activeLine))
                 {
@@ -284,6 +292,7 @@ public partial class FoxRenderer : Window
                 newImage.VerticalAlignment = VerticalAlignment.Bottom;
                 newImage.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
+                bool animate = true;
                 if (ComboRow.Children.Count > 0)
                 {
                     if ((previousAction == Actions.DashDance && combo.ActionEvent.Action == Actions.DashDance) ||
@@ -291,6 +300,7 @@ public partial class FoxRenderer : Window
                         (previousAction == Actions.FirefoxStartup && combo.ActionEvent.Action == Actions.Firefox))
                     {
                         ComboRow.Children.RemoveAt(ComboRow.Children.Count - 1);
+                        animate = false;
                     }
                 }
 
@@ -329,8 +339,14 @@ public partial class FoxRenderer : Window
                 text.VerticalAlignment = VerticalAlignment.Center;
                 imageTextGrid.Children.Add(text);
                 Grid.SetRow(text, 1);
+                
 
                 ComboRow.Children.Add(imageTextGrid);
+
+                if (animate)
+                {
+                    PopInOut(imageTextGrid);
+                }
 
                 if (combo.HasContinuation)
                 {
@@ -356,7 +372,29 @@ public partial class FoxRenderer : Window
                 }
 
                 previousAction = combo.ActionEvent.Action;
-            });
+            }));
+        }
+    }
+
+    private static void PopInOut(UIElement animatable)
+    {
+        animatable.RenderTransformOrigin = new Point(0.5, 0.5);
+
+        ScaleTransform scale = new ScaleTransform();
+        animatable.RenderTransform = scale;
+
+        DoubleAnimation popOut = new DoubleAnimation(fromValue: 0, toValue: 1.1, duration: new Duration(TimeSpan.FromMilliseconds(100)), FillBehavior.Stop);
+        DoubleAnimation popIn = new DoubleAnimation(fromValue: 1.2, toValue: 1, duration: new Duration(TimeSpan.FromMilliseconds(30)), FillBehavior.Stop);
+        popOut.Completed += OnPopOut;
+
+        animatable.RenderTransform.ApplyAnimationClock(ScaleTransform.ScaleXProperty, popOut.CreateClock());
+        animatable.RenderTransform.ApplyAnimationClock(ScaleTransform.ScaleYProperty, popOut.CreateClock());
+
+        void OnPopOut(object? sender, EventArgs e)
+        {
+            popOut.Completed -= OnPopOut;
+            animatable.RenderTransform.ApplyAnimationClock(ScaleTransform.ScaleXProperty, popIn.CreateClock());
+            animatable.RenderTransform.ApplyAnimationClock(ScaleTransform.ScaleYProperty, popIn.CreateClock());
         }
     }
 }
