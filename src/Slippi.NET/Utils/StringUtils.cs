@@ -2,7 +2,7 @@
 
 namespace Slippi.NET.Utils;
 
-internal class StringUtils
+public class StringUtils
 {
     public static StringUtils Instance = new StringUtils();
 
