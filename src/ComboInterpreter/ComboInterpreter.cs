@@ -66,7 +66,7 @@ public abstract class BaseComboInterpreter : IDisposable
         int? candidatePlayerIndex = null;
         candidatePlayerIndex = _game.GetSettings()?.Players
                 .Where(p => netplayCodesOrNames.Any(c => string.Equals(c, p.ConnectCode, StringComparison.Ordinal) ||
-                                                         string.Equals(c, p.Nametag, StringComparison.Ordinal)))
+                                                         string.Equals(c, p.DisplayName, StringComparison.Ordinal)))
                 .FirstOrDefault()?.PlayerIndex;
 
         if (candidatePlayerIndex is null)

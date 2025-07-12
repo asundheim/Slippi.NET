@@ -2,6 +2,16 @@
     "mode": "queue",
     "queue": [
     {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\YAYA#919.slp",
+      "startFrame": 3500,
+      "endFrame": 4127
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\JOHN#311.slp",
+      "startFrame": 7771,
+      "endFrame": 8234
+    },
+    {
       "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\THER#787.slp",
       "startFrame": 540,
       "endFrame": 1016

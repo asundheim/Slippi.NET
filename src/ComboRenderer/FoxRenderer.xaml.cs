@@ -69,8 +69,8 @@ public partial class FoxRenderer : Window
                     var dolphinArgs = JsonConvert.DeserializeObject<DolphinLaunchArgs>(System.IO.File.ReadAllText(launchArgsPath));
 
                     _comboRenderer = new ReplayComboRenderer(this, dolphinArgs?.Queue ?? throw new ArgumentException());
-                    //_obs = new OBSWebsocket();
-                    //ConnectToOBS();
+                    _obs = new OBSWebsocket();
+                    ConnectToOBS();
 
                     _restoreOutputPath = _obs?.GetProfileParameter("Output", "FilenameFormatting").GetValue("parameterValue")!.ToObject<string>()!;
                 }
