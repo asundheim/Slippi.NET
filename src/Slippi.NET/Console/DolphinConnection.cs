@@ -69,6 +69,7 @@ public class DolphinConnection : Connection
             System.Console.WriteLine("Connection failed.");
         }
 
+        SetStatus(ConnectionStatus.Connecting);
         HandleConnect();
         
         _ = Task.Run(() =>
@@ -145,15 +146,15 @@ public class DolphinConnection : Connection
         switch (message.Type)
         {
             case DolphinMessageTypes.CONNECT_REPLY:
-                _connectionStatus = ConnectionStatus.Connected;
+                SetStatus(ConnectionStatus.Connected);
+
                 _gameCursor = message.GameCursor!.Value;
                 _nickname = message.Nickname ?? "unknown";
                 _version = message.Version ?? string.Empty;
 
                 EmitOnHandshakeEvent(GetDetails());
                 EmitOnConnectEvent();
-                SetStatus(ConnectionStatus.Connected);
-
+                
                 break;
 
             case DolphinMessageTypes.GAME_EVENT:
