@@ -67,13 +67,9 @@ public class DolphinConnection : Connection
         if (hr != 0)
         {
             System.Console.WriteLine("Connection failed.");
-
         }
 
         HandleConnect();
-
-        EmitOnConnectEvent();
-        SetStatus(ConnectionStatus.Connected);
         
         _ = Task.Run(() =>
         {
@@ -155,6 +151,8 @@ public class DolphinConnection : Connection
                 _version = message.Version ?? string.Empty;
 
                 EmitOnHandshakeEvent(GetDetails());
+                EmitOnConnectEvent();
+                SetStatus(ConnectionStatus.Connected);
 
                 break;
 
