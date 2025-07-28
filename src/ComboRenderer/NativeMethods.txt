@@ -6,3 +6,13 @@ SetWinEventHook
 WINEVENT_*
 EVENT_*
 GetWindowThreadProcessId
+Shell32.*
+LoadIconMetric
+NIN_*
+LOWORD
+HIWORD
+WM_*
+NOTIFYICON_VERSION*
+CreateIconFromResourceEx
+CreateWindowEx
+SetFocus

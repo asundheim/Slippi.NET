@@ -1,7 +1,8 @@
 {
   "profiles": {
     "LiveComboRenderer": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "nativeDebugging": false
     },
     "ReplayComboRenderer": {
       "commandName": "Project",

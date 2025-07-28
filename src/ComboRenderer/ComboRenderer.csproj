@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+	<LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>Assets\gamecube.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,14 +23,16 @@
 
     <ItemGroup>
         <Content Include="Assets\**\*.*" CopyToOutputDirectory="PreserveNewest" />
-	    <None Include="slp\**\*.*"/>
+	    <None Include="slp\**\*.*" />
     </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.198">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="ModernWpfUI" Version="0.9.6" />
     <PackageReference Include="obs-websocket-dotnet" Version="5.0.1" />
   </ItemGroup>
 

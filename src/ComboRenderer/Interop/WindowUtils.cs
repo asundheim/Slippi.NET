@@ -6,7 +6,7 @@ using Windows.Win32.Foundation;
 using Windows.Win32.UI.Accessibility;
 using static Windows.Win32.PInvoke;
 
-namespace WindowUtils;
+namespace ComboRenderer.Interop;
 
 internal class WindowInfo
 {
@@ -28,8 +28,11 @@ internal partial class DolphinWindowTracker : IDisposable
     [GeneratedRegex(@"Faster Melee - Slippi \(.*\) - Playback", RegexOptions.Compiled)]
     private static partial Regex _playbackRegex();
 
-    [GeneratedRegex(@"Dolphin", RegexOptions.Compiled)]
+    [GeneratedRegex(@"Faster Melee - Slippi \(.*\)", RegexOptions.Compiled)]
     private static partial Regex _liveRegex();
+
+    [GeneratedRegex(@"Dolphin")]
+    private static partial Regex _liveRegex2();
 
     public DolphinWindowTracker(bool isPlaybackDolphin = true) 
     { 
@@ -48,7 +51,7 @@ internal partial class DolphinWindowTracker : IDisposable
 
             string windowName = new string(pWindowTextBuffer.Slice(0, windowNameLength));
             Match m = (_isPlaybackDolphin ? _playbackRegex() : _liveRegex()).Match(windowName);
-            if (m.Success)
+            if (m.Success || (!_isPlaybackDolphin && (_liveRegex2().Match(windowName)).Success))
             {
                 if (PInvoke.GetWindowRect(hwnd, out RECT rect))
                 {

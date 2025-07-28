@@ -25,10 +25,7 @@ internal class LiveComboRenderer : BaseComboRenderer
             FolderPath = System.IO.Path.GetTempPath() 
         });
 
-        _connection.OnHandshake += (object? sender, ConnectionDetails args) =>
-        {
-            Console.WriteLine("Connected");
-        };
+        _connection.OnStatusChange += (object? sender, ConnectionStatus status) => InvokeOnStatusChange(status);
 
         _connection.OnData += (object? sender, byte[] data) =>
         {
@@ -45,7 +42,7 @@ internal class LiveComboRenderer : BaseComboRenderer
                 await Task.Delay(1000);
 
                 _cancellationToken = _cts.Token;
-                var comboBot = new FoxComboInterpreter(path, "george seinfeld", "ders", "D#345", "D#10");
+                var comboBot = new FoxComboInterpreter(path, [..SettingsManager.Instance.Settings.ConnectCodes, ..SettingsManager.Instance.Settings.DisplayNames]);
 
                 InvokeNewGame(comboBot);
             });
@@ -53,14 +50,32 @@ internal class LiveComboRenderer : BaseComboRenderer
 
         _fileWriter.OnFileComplete += (_, _) =>
         {
+            InvokeGameEnd();
             _cts.Cancel();
         };
 
-        _connection.Connect("127.0.0.1", (int)Ports.Default, true, 30_000);
+        _ = Task.Run(async () =>
+        {
+            while (!_cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    _connection.Connect("127.0.0.1", (int)Ports.Default, true, 10_000);
+                    break;
+                }
+                catch
+                {
+                    // wait 5s between attempts
+                    await Task.Delay(5_000);
+                }
+            }
+        });
     }
 
     public override void Dispose()
     {
+        base.Dispose();
+
         _connection?.Dispose();
         _fileWriter?.Dispose();
     }

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ComboRenderer"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
         mc:Ignorable="d"
         AllowsTransparency="True"
         Title="FoxRenderer" Height="1000" Width="1300" 
@@ -11,7 +12,7 @@
     <Window.Background>
         <SolidColorBrush Opacity="0" Color="White"/>
     </Window.Background>
-    <Grid>
+    <Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -25,5 +26,7 @@
         </Border>
         
         <Border x:Name="DIContainer" Grid.Row="2" Width="Auto" Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+        <tb:TaskbarIcon x:Name="TaskbarIcon" IconSource="/Assets/gamecube.png" MenuActivation="LeftOrRightClick" />
     </Grid>
 </Window>

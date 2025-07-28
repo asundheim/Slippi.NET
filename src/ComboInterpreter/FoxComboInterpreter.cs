@@ -54,7 +54,11 @@ public class FoxComboInterpreter : BaseComboInterpreter
                                                        c.Action == Actions.Jump ||
                                                        c.Action == Actions.Wavedash ||
                                                        c.Action == Actions.Waveland,
-                        AppendContinuationWithIf = static (c) => c.Action != Actions.Jump && c.Action != Actions.Wavedash && c.Action != Actions.USmash && c.Action != Actions.Grab,
+                        AppendContinuationWithIf = static (c) => c.Action != Actions.Jump && 
+                                                                 c.Action != Actions.Wavedash && 
+                                                                 c.Action != Actions.USmash && 
+                                                                 c.Action != Actions.Grab && 
+                                                                 c.Action != Actions.ShineTurnaround,
                         AppendContinuationWith = new ActionEvent()
                         {
                             Action = Actions.JumpCancel,
@@ -107,7 +111,7 @@ public class FoxComboInterpreter : BaseComboInterpreter
                 }
             case Actions.Jump:
                 {
-                    if (DidShineRecently())
+                    if (DidShineRecentlyForJumpCancel())
                     {
                         _pendingBuffer.Add(new PendingAction()
                         {
@@ -230,9 +234,9 @@ public class FoxComboInterpreter : BaseComboInterpreter
         return base.ComputeActionFromActionState(actionState);
     }
 
-    private bool DidShineRecently() => _eventBuffer.Count > 4 && 
-                                      (_eventBuffer[^1].Action != Actions.JumpCancel && _eventBuffer[^1].Action != Actions.Jump) &&
-                                      (_eventBuffer[^2].Action != Actions.JumpCancel && _eventBuffer[^2].Action != Actions.Jump) &&
+    private bool DidShineRecentlyForJumpCancel() => _eventBuffer.Count > 4 && 
+                                      (_eventBuffer[^1].Action != Actions.JumpCancel) &&
+                                      (_eventBuffer[^2].Action != Actions.JumpCancel) &&
                                       (_eventBuffer[^1].Action == Actions.Shine ||
                                        _eventBuffer[^2].Action == Actions.Shine ||
                                        _eventBuffer[^3].Action == Actions.Shine ||

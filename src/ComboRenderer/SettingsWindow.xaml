@@ -1,0 +1,199 @@
+﻿<Window x:Class="ComboRenderer.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ComboRenderer"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        mc:Ignorable="d"
+        Background="#333333"
+        MinWidth="400"
+        MinHeight="800"
+        SizeToContent="WidthAndHeight"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        Title="Slippi Combo Renderer">
+    <Window.Resources>
+        <local:InverseBooleanConverter x:Key="InverseBoolConverter"/>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Tahoma"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="18" />
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="Gray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="Separator">
+            <Setter Property="Margin" Value="0,5,0,5"/>
+        </Style>
+        <Style TargetType="{x:Type ui:PathIcon}">
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style TargetType="Button" x:Key="IconButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0" Padding="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#ABABABAB"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <TextDecorationCollection x:Key="DottedUnderline">
+            <TextDecoration Location="Underline">
+                <TextDecoration.Pen>
+                    <Pen Brush="White" Thickness="1">
+                        <Pen.DashStyle>
+                            <DashStyle Dashes="3,3" Offset="1"/>
+                        </Pen.DashStyle>
+                    </Pen>
+                </TextDecoration.Pen>
+            </TextDecoration>
+        </TextDecorationCollection>
+    </Window.Resources>
+    <Border Grid.Row="0" BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" Padding="10" VerticalAlignment="Stretch" >
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Border Padding="5">
+                <StackPanel Orientation="Vertical">
+                    <Separator/>
+                    <TextBlock Text="Close this window to save changes. On close, this will collapse to the system taskbar as a tray icon. You can quit it from there." 
+                               TextWrapping="Wrap" FontStyle="Oblique"
+                               FontSize="14"/>
+                    <Separator/>
+                    <CheckBox x:Name="chkFollowDolphin" IsChecked="True" Checked="chkFollowDolphin_Checked" Unchecked="chkFollowDolphin_Unchecked"
+                        Margin="0,0,0,0">
+                        <TextBlock Text="Auto-align to Dolphin"
+                            Cursor="Help" ToolTipService.InitialShowDelay="0" ToolTip="Uncheck this if you want OBS to handle positioning / compositing."/>
+                    </CheckBox>
+                    <StackPanel Orientation="Vertical" Margin="15,0" IsEnabled="{Binding ElementName=chkFollowDolphin, Path=IsChecked, Converter={StaticResource InverseBoolConverter}}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Width: " VerticalAlignment="Center" IsEnabled="{Binding ElementName=chkFollowDolphin, Path=IsChecked, Converter={StaticResource InverseBoolConverter}}"/>
+                            <ui:NumberBox x:Name="WidthBox" Width="100" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=chkFollowDolphin, Path=IsChecked, Converter={StaticResource InverseBoolConverter}}"
+                                          ValueChanged="WidthBox_ValueChanged"/>
+                        </StackPanel>
+                        <Separator/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Height: " VerticalAlignment="Center" IsEnabled="{Binding ElementName=chkFollowDolphin, Path=IsChecked, Converter={StaticResource InverseBoolConverter}}"/>
+                            <ui:NumberBox x:Name="HeightBox" Width="100" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=chkFollowDolphin, Path=IsChecked, Converter={StaticResource InverseBoolConverter}}"
+                                          ValueChanged="HeightBox_ValueChanged"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Separator/>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Track Connect Codes: " VerticalAlignment="Center"/>
+                        <Button x:Name="AddConnectCode" Style="{StaticResource IconButton}" Click="AddConnectCode_Click">
+                            <ui:PathIcon Foreground="PaleGreen" >
+                                <ui:PathIcon.Data>
+                                    M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2
+                                </ui:PathIcon.Data>
+                            </ui:PathIcon>
+                        </Button>
+                    </StackPanel>
+
+                    <ListView x:Name="ConnectCodes">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding}" Margin="0,2,0,0" VerticalAlignment="Center" />
+                                    <Button Margin="5,0,0,0" Style="{StaticResource IconButton}" Click="RemoveConnectCode_Click">
+                                        <ui:PathIcon Foreground="Salmon">
+                                            <ui:PathIcon.Data>
+                                                M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z
+                                            </ui:PathIcon.Data>
+                                        </ui:PathIcon>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <Separator />
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Track Display Names: "/>
+                        <Button x:Name="AddDisplayName" Style="{StaticResource IconButton}" Click="AddDisplayName_Click">
+                            <ui:PathIcon Foreground="PaleGreen" >
+                                <ui:PathIcon.Data>
+                                    M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2
+                                </ui:PathIcon.Data>
+                            </ui:PathIcon>
+                        </Button>
+                    </StackPanel>
+
+                    <ListView x:Name="DisplayNames">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding}" Margin="0,2,0,0" VerticalAlignment="Center" />
+                                    <Button Margin="5,0,0,0" Style="{StaticResource IconButton}" Click="RemoveDisplayName_Click">
+                                        <ui:PathIcon Foreground="Salmon">
+                                            <ui:PathIcon.Data>
+                                                M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z
+                                            </ui:PathIcon.Data>
+                                        </ui:PathIcon>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <Separator/>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Track window: " VerticalAlignment="Center"/>
+                        <ComboBox x:Name="TrackWindowComboBox" IsEditable="False" IsReadOnly="True" Text="{Binding RelativeSource={RelativeSource Self}, Path=SelectedItem}"
+                                  SelectedIndex="0"
+                                  SelectionChanged="TrackWindowComboBox_SelectionChanged">
+                            <ComboBoxItem Content="Live"/>
+                            <ComboBoxItem Content="Replay"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <Separator/>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="DolphinStatusText" Text="Dolphin Status: Disconnected" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Separator/>
+
+                    <!--<StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="ComboRendererStatusText" Text="Combo Renderer Status: Active"/>
+                        <Button x:Name="PauseRendererButton" Margin="5,0,0,0" Style="{StaticResource IconButton}" Click="PauseRendererButton_Click">
+                            <ui:PathIcon>
+                                <ui:PathIcon.Data>
+                                    M6 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5m4 0a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5
+                                </ui:PathIcon.Data>
+                            </ui:PathIcon>
+                        </Button>
+                        <Button x:Name="PlayRendererButton" Margin="5,0,0,0" Style="{StaticResource IconButton}" Click="PlayRendererButton_Click">
+                            <ui:PathIcon>
+                                <ui:PathIcon.Data>
+                                    m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393
+                                </ui:PathIcon.Data>
+                            </ui:PathIcon>
+                        </Button>
+                    </StackPanel>-->
+
+                    <Separator/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
+    

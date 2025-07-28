@@ -5,7 +5,6 @@ using Slippi.NET.Console.Types;
 using Slippi.NET.Types;
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace ComboRenderer;
 
@@ -51,7 +50,7 @@ internal class ReplayComboRenderer : BaseComboRenderer
                 _comboBot.OnDI -= HandleDI;
             }
 
-            _comboBot = new FoxComboInterpreter(args.FilePath, args.StartFrame, "george seinfeld", "ders", "D#345", "D#10");
+            _comboBot = new FoxComboInterpreter(args.FilePath, args.StartFrame, [..SettingsManager.Instance.Settings.ConnectCodes, ..SettingsManager.Instance.Settings.DisplayNames]);
             _comboBot.OnDI += HandleDI;
 
             InvokeNewGame(_comboBot);
@@ -99,7 +98,7 @@ internal class ReplayComboRenderer : BaseComboRenderer
         }
         else 
         {
-            throw new Exception();
+            throw new Exception("?");
         }
 
         _dolphinLauncher.LaunchDolphin(launchArgs);
@@ -112,6 +111,8 @@ internal class ReplayComboRenderer : BaseComboRenderer
 
     public override void Dispose()
     {
+        base.Dispose();
+
         _dolphinLauncher?.Dispose();
     }
 }

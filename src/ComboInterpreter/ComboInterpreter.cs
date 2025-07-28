@@ -4,12 +4,13 @@ using Slippi.NET.Stats;
 using Slippi.NET.Stats.Types;
 using Slippi.NET.Types;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace ComboInterpreter;
 
 public abstract class BaseComboInterpreter : IDisposable
 {
-    protected const bool LOG_VERBOSE = false;
+    protected const bool LOG_VERBOSE = true;
 
     protected readonly bool _isReplay;
     protected readonly SlippiGame _game;
@@ -30,13 +31,8 @@ public abstract class BaseComboInterpreter : IDisposable
     public BaseComboInterpreter(Character character, bool isReplay, int startFrame, string gamePath, params string[] netplayCodesOrNames)
     {
         _isReplay = isReplay;
-
         _actionsComputer = new ActionsComputer();
-        _actionsComputer.OnAction += OnAction;
-        _actionsComputer.OnRawAction += OnRawAction;
-
         _diComputer = new DIComputer();
-        _diComputer.OnDI += HandleDI;
 
         _game = new SlippiGame(gamePath, new StatOptions()
         {
@@ -87,10 +83,15 @@ public abstract class BaseComboInterpreter : IDisposable
         else
         {
             _playerIndex = candidatePlayerIndex.Value;
-            Console.WriteLine($"Player index: {_playerIndex}");
+            Debug.WriteLine($"Player index: {_playerIndex}");
         }
 
+        _actionsComputer.OnAction += OnAction;
+        _actionsComputer.OnRawAction += OnRawAction;
+        _diComputer.OnDI += HandleDI;
+
         _game.GetStats();
+
     }
 
     public BlockingCollection<InterpretedCombo> ComboStream => _combos;
@@ -169,7 +170,7 @@ public abstract class BaseComboInterpreter : IDisposable
             _eventBuffer.Add(actionEvent);
             if (LOG_VERBOSE)
             {
-                Console.WriteLine($"VERBOSE: {actionEvent.Action.ToString()}");
+                Debug.WriteLine($"VERBOSE: {actionEvent.Action.ToString()}");
             }
 
             if (!_isReplay)
@@ -340,7 +341,7 @@ public abstract class BaseComboInterpreter : IDisposable
                 int actionsLeft = pendingAction.ActionsLeft;
                 int framesLeft = pendingAction.FramesLeft;
                 ActionEvent? futureAction = null;
-
+                 
                 void OnFutureAction(object? sender, ActionEventArgs args)
                 {
                     if (args.PlayerIndex == _playerIndex)

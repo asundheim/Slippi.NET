@@ -2,6 +2,31 @@
     "mode": "queue",
     "queue": [
     {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\STRONG#3.slp",
+      "startFrame": 4900,
+      "endFrame": 5517
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\JZ#339.slp",
+      "startFrame": 6885,
+      "endFrame": 7380
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\BREN#824-3.slp",
+      "startFrame": 5050,
+      "endFrame": 5969
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\DOBY#705-2.slp",
+      "startFrame": 1189,
+      "endFrame": 1800
+    },
+    {
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\SATP#173.slp",
+      "startFrame": 3670,
+      "endFrame": 4400
+    },
+    {
       "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\YAYA#919.slp",
       "startFrame": 3500,
       "endFrame": 4127
@@ -22,7 +47,7 @@
       "endFrame": 6534
     },
     {
-      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\BREN#824-1.slp",
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\BREN#824-2.slp",
       "startFrame": 1882,
       "endFrame": 2445
     },
@@ -32,7 +57,7 @@
       "endFrame": 3523
     },
     {
-      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\BREN#824.slp",
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\BREN#824-1.slp",
       "startFrame": 610,
       "endFrame": 1274
     },
@@ -137,7 +162,7 @@
         "endFrame": 7292
     },
     {
-      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\DOBY#705.slp",
+      "path": "C:\\src\\Slippi.NET\\src\\ComboRenderer\\slp\\DOBY#705-1.slp",
       "startFrame": 7500,
       "endFrame": 8182
     },
