@@ -1,5 +1,5 @@
 using Slippi.NET.Melee.Types;
-using System.Diagnostics;
+using Slippi.NET.Melee;
 
 namespace Slippi.NET.Types;
 
@@ -10,7 +10,7 @@ public record class Player
         Character? characterId, 
         int? type, 
         int? startStocks, 
-        int? characterColor, 
+        byte? characterColor, 
         int? teamShade, 
         int? handicap, 
         int? teamId, 
@@ -72,7 +72,15 @@ public record class Player
     public Character? Character { get; set; }
     public int? Type { get; set; }
     public int? StartStocks { get; set; }
-    public int? CharacterColor { get; set; }
+
+    /// <remarks>
+    /// Use <see cref="CharacterColorName"/> or <see cref="CharacterUtils.GetCharacterColorName(Character, int)"/> 
+    /// to turn this into a human-readable name.
+    /// </remarks>
+    public byte? CharacterColor { get; set; }
+    public string CharacterColorName => this.Character is not null && this.CharacterColor is not null ? 
+        CharacterUtils.GetCharacterColorName(this.Character.Value, this.CharacterColor.Value) : string.Empty;
+
     public int? TeamShade { get; set; }
     public int? Handicap { get; set; }
     public int? TeamId { get; set; }

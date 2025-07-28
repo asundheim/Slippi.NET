@@ -1,5 +1,6 @@
 using Slippi.NET.Melee.Data;
 using Slippi.NET.Melee.Types;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Slippi.NET.Melee;
 
@@ -86,7 +87,7 @@ public static class CharacterUtils
     /// <param name="characterId">The character ID.</param>
     /// <param name="characterColor">The color index.</param>
     /// <returns>The color name of the character.</returns>
-    public static string GetCharacterColorName(Character characterId, int characterColor)
+    public static string GetCharacterColorName(Character characterId, byte characterColor)
     {
         var character = GetCharacterInfo(characterId);
         if (characterColor >= 0 && characterColor < character.Colors.Count)
@@ -95,5 +96,22 @@ public static class CharacterUtils
         }
 
         return DefaultColor;
+    }
+
+    public static bool TryGetCharacterColorId(Character characterId, string characterColor, [NotNullWhen(true)] out byte? colorId)
+    {
+        colorId = null;
+
+        var character = GetCharacterInfo(characterId);
+        for (int i = 0; i <  character.Colors.Count; i++)
+        {
+            if (string.Equals(character.Colors[i], characterColor, StringComparison.OrdinalIgnoreCase))
+            {
+                colorId = (byte)i;
+                return true;
+            }
+        }
+
+        return false;
     }
 }

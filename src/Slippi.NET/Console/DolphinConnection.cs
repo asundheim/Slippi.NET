@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Slippi.NET.Console.Types;
+using System.Diagnostics;
 using System.Text;
 
 namespace Slippi.NET.Console;
@@ -63,10 +64,10 @@ public class DolphinConnection : Connection
         _ipAddress = ip;
         _port = port;
 
-        int hr = DolphinENet.Connect(Encoding.UTF8.GetBytes(ip), (ushort)port);
+        int hr = DolphinENet.Connect(ip, (ushort)port);
         if (hr != 0)
         {
-            System.Console.WriteLine("Connection failed.");
+            throw new Exception("Connection failed.");
         }
 
         SetStatus(ConnectionStatus.Connecting);
@@ -91,9 +92,15 @@ public class DolphinConnection : Connection
 
             while (!polled)
             {
-                if (DolphinENet.Read(15, ref bufferLength, buffer) != 0)
+                int hr = DolphinENet.Read(15, ref bufferLength, buffer);
+                if (hr < 0)
                 {
-                    bufferLength = 2048;
+                    disconnect = true;
+                    Debug.WriteLine("Disconnect");
+                    break;
+                }
+                else if (hr == 1 /* S_FALSE */)
+                {
                     break;
                 }
 
@@ -102,6 +109,8 @@ public class DolphinConnection : Connection
                 bufferLength = maxBufferSize;
             }
         }
+
+        HandleDisconnect();
     }
 
     /// <summary>

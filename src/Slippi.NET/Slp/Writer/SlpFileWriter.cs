@@ -83,6 +83,21 @@ public class SlpFileWriter : SlpEventStream, IDisposable
 
                     break;
                 }
+            case Command.GAME_START:
+                {
+                    if (_settings.CharacterColorOverrides is not null && 
+                        SlpFile.ParseMessage(args.Command, args.Payload) is GameStartPayload gameStart)
+                    {
+                        foreach (var kvp in _settings.CharacterColorOverrides)
+                        {
+                            int offset = kvp.Key * 0x24;
+                            args.Payload[offset + 0x68] = kvp.Value;
+                        }
+                    }
+
+                    WritePayload(args.Payload);
+                    break;
+                }
             default:
                 {
                     WritePayload(args.Payload);

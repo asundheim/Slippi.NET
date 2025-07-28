@@ -94,7 +94,7 @@ __declspec(dllexport) int Read(int timeout, int* pLength, char* pData)
     }
 
     ENetEvent event;
-    if (enet_host_service(s_client, &event, 5000) > 0) 
+    if (enet_host_service(s_client, &event, timeout) > 0) 
     {
         /*printf("A packet of length %zu was received on channel %u.\n",
             event.packet->dataLength,
@@ -112,19 +112,20 @@ __declspec(dllexport) int Read(int timeout, int* pLength, char* pData)
             else
             {
                 enet_packet_destroy(event.packet);
+                return S_FALSE;
             }
         }
         else if (event.type == ENET_EVENT_TYPE_DISCONNECT || event.type == ENET_EVENT_TYPE_DISCONNECT_TIMEOUT)
         {
             CloseENet();
         }
+
+        return E_FAIL;
     }
     else 
     {
-        // puts("Failed to receive event");
+        return S_FALSE;
     }
-
-    return E_FAIL;
 }
 
 __declspec(dllexport) int Disconnect() 

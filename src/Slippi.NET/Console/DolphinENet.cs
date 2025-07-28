@@ -5,23 +5,23 @@ namespace Slippi.NET.Console;
 /// <summary>
 /// This abomination exists because the .NET ENet library I found did not work, but the native one did.
 /// </summary>
-internal static class DolphinENet
+internal static partial class DolphinENet
 {
-    [DllImport("DolphinENet.dll")]
-    public static extern int Initialize();
+    [LibraryImport("DolphinENet.dll")]
+    public static partial int Initialize();
 
-    [DllImport("DolphinENet.dll")]
-    public static extern int Connect(byte[] pzHost, ushort port);
+    [LibraryImport("DolphinENet.dll")]
+    public static partial int Connect([MarshalAs(UnmanagedType.LPUTF8Str)] string pzHost, ushort port);
 
-    [DllImport("DolphinENet.dll")]
-    public static extern int SendToPeer(byte[] buffer, int length);
+    [LibraryImport("DolphinENet.dll")]
+    public static partial int SendToPeer([In, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] byte[] buffer, int length);
 
-    [DllImport("DolphinENet.dll")]
-    public static extern int Read(int timeout, ref int pLength, byte[] pData);
+    [LibraryImport("DolphinENet.dll")]
+    public static partial int Read(int timeout, ref int pLength, [In, Out, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] byte[] pData);
 
-    [DllImport("DolphinENet.dll")]
-    public static extern int Disconnect();
+    [LibraryImport("DolphinENet.dll")]
+    public static partial int Disconnect();
 
-    [DllImport("DolphinENet.dll")]
-    public static extern int Uninitialize();
+    [LibraryImport("DolphinENet.dll")]
+    public static partial int Uninitialize();
 }

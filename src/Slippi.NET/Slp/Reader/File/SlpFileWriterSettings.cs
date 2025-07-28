@@ -27,6 +27,11 @@ public record class SlpFileWriterSettings : SlpStreamSettings
     public Dictionary<int, PlayerNameInfo>? PlayerNameOverrides { get; set; } = null;
 
     /// <summary>
+    /// [Optional] Player color overrides.
+    /// </summary>
+    public Dictionary<int, byte>? CharacterColorOverrides { get; set; } = null;
+
+    /// <summary>
     /// [Optional] Delegate to compute file names given a folder name and date when creating new files.
     /// </summary>
     public Func<string, DateTime, string> MakeNewFileName { get; set; } =
