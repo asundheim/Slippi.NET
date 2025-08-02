@@ -30,7 +30,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\DolphinENet\DolphinENet.vcxproj">
+		<ProjectReference Include="$(MSBuildThisFileDirectory)\..\DolphinENet\DolphinENet.vcxproj">
 			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
 			<OutputItemType>Content</OutputItemType>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -38,7 +38,7 @@
 			<PackagePath>runtimes/win-x64/native</PackagePath>
 		</ProjectReference>
 
-		<ProjectReference Include="..\UBJson\UBJson.csproj">
+		<ProjectReference Include="$(MSBuildThisFileDirectory)..\UBJson\UBJson.csproj">
 			<PrivateAssets>all</PrivateAssets>
 		</ProjectReference>
 	</ItemGroup>

@@ -7,10 +7,11 @@ using System.Text.RegularExpressions;
 
 namespace Slippi.NET.Console;
 
-public record class PlaybackFilePathAndStartFrameEventArgs
+public record class PlaybackEventArgs
 {
     public required string FilePath { get; init; }
     public required int StartFrame { get; init; }
+    public required QueueItem? QueueItem { get; init; }
 }
 
 public partial class DolphinLauncher : IDisposable
@@ -82,7 +83,7 @@ public partial class DolphinLauncher : IDisposable
     /// <summary>
     /// Emitted when dolphin has sent both the PLAYBACK_START_FRAME frame number and the FILE_PATH filepath.
     /// </summary>
-    public event EventHandler<PlaybackFilePathAndStartFrameEventArgs>? OnPlaybackStartFrameAndFilePath;
+    public event EventHandler<PlaybackEventArgs>? OnPlaybackStartFrameAndFilePath;
 
     /// <summary>
     /// Emitted every frame during playback when Dolphin indicates that the given frame number has been played back.
@@ -140,7 +141,7 @@ public partial class DolphinLauncher : IDisposable
 
     private void OnDolphinStdErr(object? sender, DataReceivedEventArgs args)
     {
-        System.Console.WriteLine(args.Data);
+        Debug.WriteLine(args.Data);
     }
 
     private void OnDolphinStdOut(object? sender, DataReceivedEventArgs args)
@@ -154,7 +155,7 @@ public partial class DolphinLauncher : IDisposable
                 {
                     _gotGameEnd = true;
                     _gameEndFrame = int.Parse(mGameEnd.Groups[1].Value);
-                    System.Console.WriteLine($"Game End Frame: {_gameEndFrame}");
+                    Debug.WriteLine($"Game End Frame: {_gameEndFrame}");
 
                     return;
                 }
@@ -166,7 +167,7 @@ public partial class DolphinLauncher : IDisposable
                 if (playbackEnd.Success)
                 {
                     _gotPlaybackEndFrame = true;
-                    System.Console.WriteLine($"Playback End Frame: {playbackEnd.Groups[1].Value}");
+                    Debug.WriteLine($"Playback End Frame: {playbackEnd.Groups[1].Value}");
                     if (int.TryParse(playbackEnd.Groups[1].Value, out int playbackEndFrame))
                     {
                         _playbackEndFrame = playbackEndFrame;
@@ -183,14 +184,15 @@ public partial class DolphinLauncher : IDisposable
                 {
                     _gotPlaybackStartFrame = true;
                     _playbackStartFrame = int.Parse(playbackStart.Groups[1].Value);
-                    System.Console.WriteLine($"Playback Start Frame: {_playbackStartFrame}");
+                    Debug.WriteLine($"Playback Start Frame: {_playbackStartFrame}");
 
                     if (_gotFilePath)
                     {
-                        OnPlaybackStartFrameAndFilePath?.Invoke(this, new PlaybackFilePathAndStartFrameEventArgs()
+                        OnPlaybackStartFrameAndFilePath?.Invoke(this, new PlaybackEventArgs()
                         {
                             FilePath = _filePath,
-                            StartFrame = _playbackStartFrame
+                            StartFrame = _playbackStartFrame,
+                            QueueItem = _queue?[_gameCounter]
                         });
 
                         _gameCounter++;
@@ -207,14 +209,15 @@ public partial class DolphinLauncher : IDisposable
                 {
                     _gotFilePath = true;
                     _filePath = filePath.Groups[1].Value;
-                    System.Console.WriteLine($"File path: {_filePath}");
+                    Debug.WriteLine($"File path: {_filePath}");
 
                     if (_gotPlaybackStartFrame)
                     {
-                        OnPlaybackStartFrameAndFilePath?.Invoke(this, new PlaybackFilePathAndStartFrameEventArgs()
+                        OnPlaybackStartFrameAndFilePath?.Invoke(this, new PlaybackEventArgs()
                         {
                             FilePath = _filePath,
-                            StartFrame = _playbackStartFrame
+                            StartFrame = _playbackStartFrame,
+                            QueueItem= _queue?[_gameCounter]
                         });
 
                         _gameCounter++;
