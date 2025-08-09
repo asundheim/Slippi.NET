@@ -38,17 +38,20 @@ public enum Actions
     Jump,
     Dash,
     Shine,
-    ShineEnd,
-    ShineTurnaround,
-    Laser,
+    ShineEnd,           // fox or falco
+    ShineTurnaround,    // fox or falco
+    Laser,              // fox or falco
     JumpCancel,
-    FoxSideB,
-    FirefoxStartup,
-    Firefox,
+    SideB,
+    FirefoxStartup,     // fox
+    Firefox,            // fox
     ShieldStart,
     Shield,
     PlatformDrop,
     WallJump,
     ShieldDrop,
     FastFall,
+    FalcoSideB,         // falco
+    FireBirdStartup,    // falco
+    FireBird,           // falco
 }

@@ -111,6 +111,22 @@ public enum ActionState : ushort
     FOX_LASER_G = 0x155,
     FOX_LASER_A = 0x158,
 
+    // identical to Fox
+    FALCO_SHINE_G = 0x168,
+    FALCO_SHINE_A = 0x16D,
+    FALCO_SHINE_TURNAROUND_G = 0x16C,
+    FALCO_SHINE_TURNAROUND_A = 0x171,
+    FALCO_SHINE_END_G = 0x16B,
+    FALCO_SHINE_END_A = 0x170,
+    FALCO_UPB_G_STARTUP = 0x161,
+    FALCO_UPB_A_STARTUP = 0x162,
+    FALCO_UPB_G = 0x163,
+    FALCO_UPB_A = 0x164,
+    FALCO_SIDEB_G = 0x15B,
+    FALCO_SIDEB_A = 0x15E,
+    FALCO_LASER_G = 0x155,
+    FALCO_LASER_A = 0x158,
+
     // Weird GnW IDs
     GNW_JAB1 = 0x155,
     GNW_JABM = 0x156,
