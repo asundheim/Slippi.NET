@@ -31,6 +31,9 @@ public partial class DolphinLauncher : IDisposable
     private int _playbackEndFrame = int.MaxValue;
     private string _filePath = string.Empty;
 
+    private string? _commsPath = null;
+    private DolphinLaunchArgs? _args = null;
+
     private IList<QueueItem>? _queue = null;
     private int? _queueEnd = null;
 
@@ -102,41 +105,54 @@ public partial class DolphinLauncher : IDisposable
 
     public void LaunchDolphin(DolphinLaunchArgs args)
     {
+        _args = args;
         if (args.Mode == DolphinLaunchModes.Queue)
         {
             _queue = args.Queue;
             _queueEnd = args.Queue[^1].EndFrame;
         }
 
-        string tempLaunchFile = Path.Join(Path.GetTempPath(), "tempLaunch.json");
-        File.WriteAllText(tempLaunchFile, JsonConvert.SerializeObject(args, new JsonSerializerSettings() 
-        { 
-            DefaultValueHandling = DefaultValueHandling.Ignore, 
-            Formatting = Formatting.Indented
-        }));
-
-        ProcessStartInfo processStart = new ProcessStartInfo()
+        if (_commsPath is null)
         {
-            FileName = _dolphinPath,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            Arguments = $"-i \"{tempLaunchFile}\" -e \"{_meleePath}\" --cout"
-        };
+            _commsPath = Path.Join(Path.GetTempPath(), "DolphinLauncher", "tempLaunch.json");
+            Directory.CreateDirectory(Path.GetDirectoryName(_commsPath)!);
+            File.WriteAllText(_commsPath, JsonConvert.SerializeObject(args, new JsonSerializerSettings()
+            {
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                Formatting = Formatting.Indented
+            }));
 
-        _launchedDolphin = new Process();
-        _launchedDolphin.EnableRaisingEvents = true;
-        _launchedDolphin.StartInfo = processStart;
-        
-        _launchedDolphin.OutputDataReceived += OnDolphinStdOut;
-        _launchedDolphin.ErrorDataReceived += OnDolphinStdErr;
-        _launchedDolphin.Exited += OnDolphinExit;
+            ProcessStartInfo processStart = new ProcessStartInfo()
+            {
+                FileName = _dolphinPath,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                Arguments = $"-i \"{_commsPath}\" -e \"{_meleePath}\" --cout"
+            };
 
-        _ = Task.Run(() => ProcessReplayedFrames(_cts.Token));
+            _launchedDolphin = new Process();
+            _launchedDolphin.EnableRaisingEvents = true;
+            _launchedDolphin.StartInfo = processStart;
 
-        _launchedDolphin.Start();
-        _launchedDolphin.BeginOutputReadLine();
-        _launchedDolphin.BeginErrorReadLine();
+            _launchedDolphin.OutputDataReceived += OnDolphinStdOut;
+            _launchedDolphin.ErrorDataReceived += OnDolphinStdErr;
+            _launchedDolphin.Exited += OnDolphinExit;
+
+            _ = Task.Run(() => ProcessReplayedFrames(_cts.Token));
+
+            _launchedDolphin.Start();
+            _launchedDolphin.BeginOutputReadLine();
+            _launchedDolphin.BeginErrorReadLine();
+        }
+        else
+        {
+            File.WriteAllText(_commsPath, JsonConvert.SerializeObject(args, new JsonSerializerSettings()
+            {
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                Formatting = Formatting.Indented
+            }));
+        }
     }
 
     private void OnDolphinStdErr(object? sender, DataReceivedEventArgs args)
@@ -257,7 +273,7 @@ public partial class DolphinLauncher : IDisposable
             int frame = _frames.Take(cancellation);
             OnReplayedFrame?.Invoke(this, frame);
 
-            if (frame == _playbackEndFrame || frame == _gameEndFrame)
+            if (frame == _playbackEndFrame || (frame == _gameEndFrame && _args?.Mode != DolphinLaunchModes.Mirror))
             {
                 OnPlaybackComplete?.Invoke(this, EventArgs.Empty);
 

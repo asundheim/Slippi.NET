@@ -81,7 +81,7 @@ public class SlpFileStream : IDisposable
     private void InitializeNewGame()
     {
         // 0 buffer to ensure data is immediately flushed to the file, in case others are reading it
-        _fileStream = new FileStream(_filePath, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite, bufferSize: 0, useAsync: true);
+        _fileStream = new FileStream(_filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize: 0, useAsync: true);
 
         ReadOnlySpan<byte> header = 
         [

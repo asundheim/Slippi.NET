@@ -54,7 +54,7 @@ public class SlpEventStream
         int index = 0;
         while (index < data.Length)
         {
-            if (data.Length >= 5 && Encoding.UTF8.GetString(data.Slice(index, 5)) == ConsoleConnection.NETWORK_MESSAGE)
+            if ((data.Length - index) >= 5 && Encoding.UTF8.GetString(data.Slice(index, 5)) == ConsoleConnection.NETWORK_MESSAGE)
             {
                 index += 5;
                 continue;
