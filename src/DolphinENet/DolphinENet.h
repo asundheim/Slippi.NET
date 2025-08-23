@@ -26,8 +26,24 @@ extern "C"
 // TODO make some sort of connection manager for simultaneous local connections?
 static ENetHost* s_client = nullptr;
 static ENetPeer* s_peer = nullptr;
+static CRITICAL_SECTION s_lock;
+
+class CriticalSectionHolder 
+{
+public:
+    CriticalSectionHolder() 
+    {
+        EnterCriticalSection(&s_lock);
+    }
+
+    ~CriticalSectionHolder() 
+    {
+        LeaveCriticalSection(&s_lock);
+    }
+};
 
 static void CloseENet() {
+    auto holder = CriticalSectionHolder();
     if (s_peer != nullptr)
     {
         enet_peer_disconnect(s_peer, 0);

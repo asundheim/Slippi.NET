@@ -10,8 +10,8 @@ internal static partial class DolphinENet
     [LibraryImport("DolphinENet.dll")]
     public static partial int Initialize();
 
-    [LibraryImport("DolphinENet.dll")]
-    public static partial int Connect([MarshalAs(UnmanagedType.LPUTF8Str)] string pzHost, ushort port);
+    [LibraryImport("DolphinENet.dll", StringMarshalling = StringMarshalling.Utf8)]
+    public static partial int Connect(string pzHost, ushort port);
 
     [LibraryImport("DolphinENet.dll")]
     public static partial int SendToPeer([In, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] byte[] buffer, int length);

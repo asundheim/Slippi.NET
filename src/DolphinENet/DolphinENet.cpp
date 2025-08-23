@@ -10,12 +10,15 @@ __declspec(dllexport) int Initialize()
     }
     else 
     {
+        InitializeCriticalSection(&s_lock);
         return S_OK;
     }
 }
 
 __declspec(dllexport) int Connect(char* pzHost, unsigned short port)
 {
+    auto holder = CriticalSectionHolder();
+
     s_client = enet_host_create(NULL /* create a client host */,
         1 /* only allow 1 outgoing connection */,
         2 /* allow up 2 channels to be used, 0 and 1 */,
@@ -138,6 +141,7 @@ __declspec(dllexport) int Disconnect()
 __declspec(dllexport) int Uninitialize()
 {
     enet_deinitialize();
+    DeleteCriticalSection(&s_lock);
 
     return S_OK;
 }
