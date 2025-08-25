@@ -360,7 +360,7 @@ public class SlpFile : IDisposable
         if (payload.Length >= userIdStart + userIdLength)
         {
             ReadOnlySpan<byte> userIdBuf = payload.Slice(userIdStart, userIdLength);
-            connectCode = StringUtils.Instance.ReadUtf8(userIdBuf) ?? string.Empty;
+            userId = StringUtils.Instance.ReadUtf8(userIdBuf) ?? string.Empty;
         }
 
         int offset = playerIndex * 0x24;
