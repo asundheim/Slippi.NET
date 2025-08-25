@@ -8,7 +8,7 @@ Internally an attempt is made to use stack-allocated `System.Span<byte>` whereve
 This package is available on [nuget.org](https://www.nuget.org/) and can be referenced by simply adding a `<PackageReference>` to your project like:
 ```
 <ItemGroup>
-    <PackageReference Include="Slippi.NET" Version="0.5.0" />
+    <PackageReference Include="Slippi.NET" Version="0.7.0" />
 </ItemGroup>
 ```
 
