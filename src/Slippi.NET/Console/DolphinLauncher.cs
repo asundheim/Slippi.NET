@@ -114,7 +114,7 @@ public partial class DolphinLauncher : IDisposable
 
         if (_commsPath is null)
         {
-            _commsPath = Path.Join(Path.GetTempPath(), "DolphinLauncher", "tempLaunch.json");
+            _commsPath = Path.Join(Path.GetTempPath(), "DolphinLauncher", $"{Guid.NewGuid()}-comms.json");
             Directory.CreateDirectory(Path.GetDirectoryName(_commsPath)!);
             File.WriteAllText(_commsPath, JsonConvert.SerializeObject(args, new JsonSerializerSettings()
             {
@@ -304,8 +304,21 @@ public partial class DolphinLauncher : IDisposable
             _launchedDolphin.ErrorDataReceived -= OnDolphinStdErr;
             _launchedDolphin.Kill();
             _launchedDolphin.Dispose();
+            _launchedDolphin = null;
         }
         
         _cts.Dispose();
+
+        if (_commsPath is not null)
+        {
+            try
+            {
+
+                File.Delete(_commsPath);
+            }
+            catch { }
+
+            _commsPath = null;
+        }
     }
 }
