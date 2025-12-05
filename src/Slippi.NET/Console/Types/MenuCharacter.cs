@@ -1,0 +1,30 @@
+﻿namespace Slippi.NET.Console.Types;
+
+public enum MenuCharacter : byte
+{
+    DrMario = 0x00,
+    Mario = 0x01,
+    Luigi = 0x02,
+    Bowser = 0x03,
+    Peach = 0x04,
+    Yoshi = 0x05,
+    DonkeyKong = 0x06,
+    CaptainFalcon = 0x07,
+    Ganondorf = 0x08,
+    Falco = 0x09,
+    Fox = 0x0A,
+    Ness = 0x0B,
+    IceClimbers = 0x0C,
+    Kirby = 0x0D,
+    Samus = 0x0E,
+    Zelda = 0x0F,
+    Link = 0x10,
+    YoungLink = 0x11,
+    Pichu = 0x12,
+    Pikachu = 0x13,
+    JigglyPuff = 0x14,
+    Mewtwo = 0x15,
+    Marth = 0x16,
+    Roy = 0x17,
+    UNKNOWN_CHARACTER = 0xFF,
+}

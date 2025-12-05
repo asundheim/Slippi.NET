@@ -21,7 +21,7 @@ public class DolphinLaunchTestApp : IDisposable
 
     public void LaunchAndWait()
     {
-        _meleeIsoPath ??= @"C:\Users\ander\Downloads\meleeout.iso";
+        _meleeIsoPath ??= @"C:\isos\meleeout.iso";
         _launcher = new DolphinLauncher(_meleeIsoPath);
         _launcher.OnPlaybackComplete += OnPlaybackComplete;
 

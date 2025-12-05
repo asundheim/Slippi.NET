@@ -14,6 +14,8 @@ public abstract class Connection : IDisposable
     public event EventHandler<ConnectionDetails>? OnHandshake;
     public event EventHandler<ConnectionStatus>? OnStatusChange;
     public event EventHandler<byte[]>? OnData;
+    public event EventHandler<MenuEvent>? OnMenuEvent;
+    public event EventHandler<MenuEvent>? OnNewMenuEvent;
 
     protected void EmitOnConnectEvent() => OnConnect?.Invoke(this, EventArgs.Empty);
     protected void EmitOnErrorEvent(Exception e) => OnError?.Invoke(this, e);
@@ -21,6 +23,8 @@ public abstract class Connection : IDisposable
     protected void EmitOnHandshakeEvent(ConnectionDetails details) => OnHandshake?.Invoke(this, details);
     protected void EmitOnStatusChangeEvent(ConnectionStatus status) => OnStatusChange?.Invoke(this, status);
     protected void EmitOnDataEvent(byte[] data) => OnData?.Invoke(this, data);
+    protected void EmitOnMenuEvent(MenuEvent menuEvent) => OnMenuEvent?.Invoke(this, menuEvent);
+    protected void EmitOnNewMenuEvent(MenuEvent menuEvent) => OnNewMenuEvent?.Invoke(this, menuEvent);
 
     public abstract void Dispose();
 }

@@ -48,6 +48,7 @@ public class DolphinConnectionTestApp
         connection.OnMessage += Connection_OnMessage;
         connection.OnHandshake += Connection_OnHandshake;
         connection.OnData += Connection_OnData;
+        connection.OnNewMenuEvent += Connection_OnMenuEvent;
 
         connection.Connect("127.0.0.1", (int)Ports.Default, isRealtime: true, timeout: 10_000);
         Console.ReadLine();
@@ -57,6 +58,31 @@ public class DolphinConnectionTestApp
         Console.WriteLine("Disconnected.");
 
         _fileWriter.Dispose();
+    }
+
+    private void Connection_OnMenuEvent(object? sender, MenuEvent e)
+    {
+        Console.WriteLine("--Menu Event--");
+        Console.WriteLine($"Menu: {e.Menu}");
+        Console.WriteLine($"SubMenu: {e.SubMenu}");
+        Console.WriteLine($"Online mode: {e.OnlineMode}");
+        Console.WriteLine($"Frame Count: {e.FrameCount}");
+        Console.WriteLine($"Stage: {e.Stage}");
+        Console.WriteLine($"Ready to Start: {e.ReadyToStart}");
+        if (e.PlayerStates is not null)
+        {
+            foreach (var player in e.PlayerStates)
+            {
+                Console.WriteLine($"--Player {player.PlayerIndex} ({player.ControllerStatus})--");
+                if (player.ControllerStatus != MenuControllerStatus.Unplugged)
+                {
+                    Console.WriteLine($"CursorX: {player.CursorX}");
+                    Console.WriteLine($"CursorY: {player.CursorY}");
+                    Console.WriteLine($"Character: {player.Character}");
+                    Console.WriteLine($"Coin down: {player.CoinDown}");
+                }
+            }
+        }
     }
 
     private void Connection_OnData(object? sender, byte[] e)
