@@ -2,6 +2,8 @@
 using Slippi.NET.Slp.Reader.File;
 using Slippi.NET.Slp.Reader.Buffer;
 using System.Buffers.Binary;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Slippi.NET.Slp;
 
@@ -70,40 +72,47 @@ public abstract class SlpRef : IDisposable
         return len - position - 1;
     }
 
-    public Dictionary<int, int> GetMessageSizes(int position)
+    public Dictionary<Command, int> GetMessageSizes(int position)
     {
-        Dictionary<int, int> messageSizes = [];
+        Dictionary<Command, int> messageSizes = [];
 
         // Support old file format
         if (position == 0)
         {
-            messageSizes[0x36] = 0x140;
-            messageSizes[0x37] = 0x6;
-            messageSizes[0x38] = 0x46;
-            messageSizes[0x39] = 0x1;
+            messageSizes[Command.GAME_START] = 0x140;
+            messageSizes[Command.PRE_FRAME_UPDATE] = 0x6;
+            messageSizes[Command.POST_FRAME_UPDATE] = 0x46;
+            messageSizes[Command.GAME_END] = 0x1;
 
             return messageSizes;
         }
 
         Span<byte> buffer = stackalloc byte[2];
-        ReadRef(buffer, position);
+        int bytesRead = ReadRef(buffer, position);
+        Debug.Assert(bytesRead == buffer.Length, "Mismatched read?");
 
+        // 0x0: Command Byte
         if (buffer[0] != (byte)Command.MESSAGE_SIZES)
         {
+            Debug.Fail("Message sizes not at requested location?");
             return messageSizes;
         }
 
+        // 0x1: Payload Size - The size in bytes of the payload for this event, including this byte (i.e. 3n+1, where n is the number of commands to follow)
         int payloadLength = buffer[1];
-        messageSizes[0x35] = payloadLength;
+        messageSizes[Command.MESSAGE_SIZES] = payloadLength;
 
         Span<byte> messageSizesBuffer = stackalloc byte[payloadLength - 1];
-        ReadRef(messageSizesBuffer, position + 2);
+        bytesRead = ReadRef(messageSizesBuffer, position + 2);
+        Debug.Assert(bytesRead == messageSizesBuffer.Length, "Mismatched read?");
 
         for (int i = 0; i < payloadLength - 1; i += 3)
         {
-            byte command = messageSizesBuffer[i];
+            // 0x2 + 0x3i: Command Byte
+            Command command = Unsafe.As<byte, Command>(ref messageSizesBuffer[i]);
+            Debug.Assert(Enum.IsDefined(command), "Read unknown command?");
 
-            // Get size of command
+            // 0x3 + 0x3i: Command payload size
             messageSizes[command] = BinaryPrimitives.ReadUInt16BigEndian(messageSizesBuffer.Slice(i + 1, 2));
         }
 

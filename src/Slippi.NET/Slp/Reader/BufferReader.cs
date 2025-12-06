@@ -12,7 +12,10 @@ public readonly ref struct BufferReader
     public BufferReader(in ReadOnlySpan<byte> buffer)
     {
         _buffer = buffer;
+        Length = _buffer.Length;
     }
+
+    public readonly int Length;
 
     public float? ReadFloat(int offset)
     {
@@ -56,7 +59,7 @@ public readonly ref struct BufferReader
 
     public ushort? ReadUInt16(int offset)
     {
-        if (ValidateRead(offset, sizeof (ushort)))
+        if (ValidateRead(offset, sizeof(ushort)))
         { 
             return ReadUInt16BigEndian(_buffer.Slice(offset));
         }

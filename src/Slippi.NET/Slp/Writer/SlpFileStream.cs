@@ -151,7 +151,7 @@ public class SlpFileStream : IDisposable
 
     private void WriteFooter()
     {
-        // assuming we don't have more than 8MB footer? this is probably a very wasteful alloc
+        // assuming we don't have more than 8KB footer? this is probably a very wasteful alloc
         byte[] buffer = new byte[8092];
         MemoryStream footer = new MemoryStream(buffer, writable: true);
         footer.Seek(0, SeekOrigin.Begin);

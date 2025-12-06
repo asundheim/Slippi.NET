@@ -2,6 +2,8 @@
 using Slippi.NET.Slp.EventStream;
 using Slippi.NET.Slp.Reader.File;
 using Slippi.NET.Slp.Writer;
+using Slippi.NET.Types;
+using System.Runtime.CompilerServices;
 
 namespace Slippi.NET.Tests;
 
@@ -86,7 +88,7 @@ public class SlpFileWriterTests
         return (dataLength, newFilename);
     }
 
-    private int PipeMessageSizes(FileStream stream, int start, SlpEventStream writeStream)
+    private int PipeMessageSizes(FileStream stream, int start, SlpFileWriter writeStream)
     {
         int pos = start;
 
@@ -105,15 +107,15 @@ public class SlpFileWriterTests
         return pos;
     }
 
-    private void PipeAllEvents(FileStream stream, int start, int end, SlpEventStream writeStream, Dictionary<int, int> messageSizes)
+    private void PipeAllEvents(FileStream stream, int start, int end, SlpEventStream writeStream, Dictionary<Command, int> messageSizes)
     {
         int pos = start;
+        Span<byte> commandByteBuffer = stackalloc byte[1];
         while (pos < end)
         {
-            Span<byte> commandByteBuffer = new byte[1];
             stream.Seek(pos, SeekOrigin.Begin);
             stream.ReadExactly(commandByteBuffer);
-            int length = messageSizes[commandByteBuffer[0]] + 1;
+            int length = messageSizes[Unsafe.As<byte, Command>(ref commandByteBuffer[0])] + 1;
 
             Span<byte> buffer = new byte[length];
             stream.Seek(pos, SeekOrigin.Begin);

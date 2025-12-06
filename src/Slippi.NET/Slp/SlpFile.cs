@@ -2,6 +2,8 @@
 using Slippi.NET.Slp.Reader;
 using Slippi.NET.Types;
 using Slippi.NET.Utils;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using UBJson;
 using static Slippi.NET.Utils.ByteUtils;
 using static Slippi.NET.Utils.FullWidthConverter;
@@ -27,7 +29,7 @@ public class SlpFile : IDisposable
 
     public required int MetadataLength { get; set; }
 
-    public Dictionary<int, int> MessageSizes { get; set; } = [];
+    public Dictionary<Command, int> MessageSizes { get; set; } = [];
 
     public int IterateEvents(EventCallbackFunc callback, int? startPos = null)
     {
@@ -35,17 +37,16 @@ public class SlpFile : IDisposable
         int stopReadingAt = RawDataPosition + RawDataLength;
 
         // Generate read buffers for each message
-        Dictionary<int, byte[]> commandPayloadBuffers = MessageSizes.ToDictionary(key => key.Key, value => new byte[value.Value + 1]);
+        Dictionary<Command, byte[]> commandPayloadBuffers = MessageSizes.ToDictionary(key => key.Key, value => new byte[value.Value + 1]);
 
-        Span<byte> splitMessageBuffer = stackalloc byte[1];
-
+        Span<byte> splitMessageBuffer = [];
         Span<byte> commandByteBuffer = stackalloc byte[1];
         while (readPosition < stopReadingAt)
         {
             SlpRef.ReadRef(commandByteBuffer, readPosition);
 
-            byte commandByte = commandByteBuffer[0];
-            if (!commandPayloadBuffers.TryGetValue(commandByte, out byte[]? payloadBuffer))
+            Command command = Unsafe.As<byte, Command>(ref commandByteBuffer[0]);
+            if (!commandPayloadBuffers.TryGetValue(command, out byte[]? payloadBuffer))
             {
                 // If we don't have an entry for this command, return false to indicate failed read
                 return readPosition;
@@ -61,7 +62,7 @@ public class SlpFile : IDisposable
             int advanceAmount = buffer.Length;
 
             SlpRef.ReadRef(buffer, readPosition);
-            if (commandByte == (byte)Command.SPLIT_MESSAGE)
+            if (command == Command.SPLIT_MESSAGE)
             {
                 // Here we have a split message, we will collect data from them until the last
                 // message of the list is received
@@ -70,9 +71,7 @@ public class SlpFile : IDisposable
                 bool isLastMessage = reader.ReadBool(0x204) ?? false;
                 byte internalCommand = reader.ReadUInt8(0x203) ?? 0;
 
-                // If this is the first message, initialize the splitMessageBuffer
-                // with the internal command byte because our parseMessage function
-                // seems to expect a command byte at the start
+                // Prepend the actual command to the buffer
                 if (splitMessageBuffer.Length == 0)
                 {
                     splitMessageBuffer = new byte[1] { internalCommand };
@@ -81,19 +80,20 @@ public class SlpFile : IDisposable
                 // Collect new data into splitMessageBuffer
                 Span<byte> appendBuf = buffer.Slice(1, size);
                 Span<byte> mergedBuf = [.. splitMessageBuffer, .. appendBuf];
-                splitMessageBuffer = mergedBuf;
+                splitMessageBuffer = new byte[splitMessageBuffer.Length + size];
+                mergedBuf.CopyTo(splitMessageBuffer);
 
                 if (isLastMessage)
                 {
-                    commandByte = splitMessageBuffer[0]; // ?? 0 - huh?
+                    command = Unsafe.As<byte, Command>(ref splitMessageBuffer[0]);
                     buffer = new byte[splitMessageBuffer.Length];
                     splitMessageBuffer.CopyTo(buffer);
                     splitMessageBuffer = [];
                 }
             }
 
-            EventPayload? parsedPayload = ParseMessage((Command)commandByte, buffer);
-            bool shouldStop = callback((Command)commandByte, parsedPayload, buffer.ToArray());
+            EventPayload? parsedPayload = ParseMessage(command, buffer);
+            bool shouldStop = callback(command, parsedPayload, buffer.ToArray());
             if (shouldStop)
             {
                 break;
@@ -105,20 +105,27 @@ public class SlpFile : IDisposable
         return readPosition;
     }
 
+    /// <summary>
+    /// Parse a command payload from a span of payload bytes.
+    /// </summary>
+    /// <param name="command">The command to interpret the payload as</param>
+    /// <param name="payload">The event payload. Includes the command byte (i.e. the first byte should be the command itself)</param>
+    /// <returns></returns>
     public static EventPayload? ParseMessage(Command command, in ReadOnlySpan<byte> payload)
     {
         BufferReader x = new BufferReader(payload);
+        Debug.Assert(x.ReadUInt8(0).EnumCast<Command>() == command, "inconsistent payload?");
 
         return command switch
         {
-            Command.GAME_START => ParseGameStart(x, payload),
+            Command.GAME_START => ParseGameStart(payload),
             Command.FRAME_START => ParseFrameStart(x),
             Command.PRE_FRAME_UPDATE => ParsePreFrameUpdate(x),
             Command.POST_FRAME_UPDATE => ParsePostFrameUpdate(x),
             Command.ITEM_UPDATE => ParseItemUpdate(x),
             Command.FRAME_BOOKEND => ParseFrameBookend(x),
             Command.GAME_END => ParseGameEnd(x),
-            Command.GECKO_LIST => ParseGeckoList(x, payload),
+            Command.GECKO_LIST => ParseGeckoList(payload),
             _ => null
         };
     }
@@ -157,7 +164,7 @@ public class SlpFile : IDisposable
     /// </summary>
     public GameEnd? GetGameEnd()
     {
-        if (!MessageSizes.TryGetValue((byte)Command.GAME_END, out int gameEndPayloadSize) || gameEndPayloadSize <= 0)
+        if (!MessageSizes.TryGetValue(Command.GAME_END, out int gameEndPayloadSize) || gameEndPayloadSize <= 0)
         {
             return null;
         }
@@ -185,7 +192,7 @@ public class SlpFile : IDisposable
     {
         // The following should exist on all replay versions
         int postFrameSize;
-        if (MessageSizes.TryGetValue((byte)Command.POST_FRAME_UPDATE, out int postFramePayloadSize))
+        if (MessageSizes.TryGetValue(Command.POST_FRAME_UPDATE, out int postFramePayloadSize))
         {
             postFrameSize = postFramePayloadSize + 1;
         }
@@ -196,7 +203,7 @@ public class SlpFile : IDisposable
         }
 
         int gameEndSize;
-        if (MessageSizes.TryGetValue((byte)Command.GAME_END, out int gameEndPayloadSize))
+        if (MessageSizes.TryGetValue(Command.GAME_END, out int gameEndPayloadSize))
         {
             gameEndSize = gameEndPayloadSize + 1;
         }
@@ -206,7 +213,7 @@ public class SlpFile : IDisposable
         }
 
         int frameBookendSize;
-        if (MessageSizes.TryGetValue((byte)Command.FRAME_BOOKEND, out int frameBookendPayloadSize))
+        if (MessageSizes.TryGetValue(Command.FRAME_BOOKEND, out int frameBookendPayloadSize))
         {
             frameBookendSize = frameBookendPayloadSize + 1;
         }
@@ -218,10 +225,11 @@ public class SlpFile : IDisposable
         int? frameNum = null;
         int postFramePosition = RawDataPosition + RawDataLength - gameEndSize - frameBookendSize - postFrameSize;
         List<PostFrameUpdate> postFrameUpdates = new List<PostFrameUpdate>();
+
+        Span<byte> buffer = stackalloc byte[postFrameSize];
         do
         {
-            byte[] buffer = new byte[postFrameSize];
-            SlpRef.ReadRef(buffer.AsSpan(), postFramePosition);
+            SlpRef.ReadRef(buffer, postFramePosition);
             if (buffer[0] != (byte)Command.POST_FRAME_UPDATE)
             {
                 break;
@@ -251,11 +259,13 @@ public class SlpFile : IDisposable
         return postFrameUpdates;
     }
 
-    private static EventPayload? ParseGameStart(in BufferReader x, in ReadOnlySpan<byte> payload)
+    private static GameStartPayload? ParseGameStart(in ReadOnlySpan<byte> payload)
     {
+        BufferReader x = new BufferReader(payload);
         const int matchIdLength = 51;
         const int matchIdStart = 0x2be;
         string? matchId = null;
+
         if (payload.Length >= matchIdStart + matchIdLength)
         {
             ReadOnlySpan<byte> matchIdBuf = payload.Slice(matchIdStart, matchIdLength);
@@ -427,7 +437,7 @@ public class SlpFile : IDisposable
         return enabledItems;
     }
 
-    private static EventPayload? ParseFrameStart(in BufferReader x)
+    private static FrameStartPayload? ParseFrameStart(in BufferReader x)
     {
         return new FrameStartPayload(
             new FrameStart(
@@ -438,7 +448,7 @@ public class SlpFile : IDisposable
         );
     }
 
-    private static EventPayload? ParsePreFrameUpdate(in BufferReader x)
+    private static PreFrameUpdatePayload? ParsePreFrameUpdate(in BufferReader x)
     {
         return new PreFrameUpdatePayload(
             new PreFrameUpdate(
@@ -465,7 +475,7 @@ public class SlpFile : IDisposable
         );
     }
 
-    private static EventPayload? ParsePostFrameUpdate(in BufferReader x)
+    private static PostFrameUpdatePayload? ParsePostFrameUpdate(in BufferReader x)
     {
         SelfInducedSpeeds selfInducedSpeeds = new SelfInducedSpeeds(
             airX: x.ReadFloat(0x35),
@@ -512,7 +522,7 @@ public class SlpFile : IDisposable
         );
     }
 
-    private static EventPayload? ParseItemUpdate(in BufferReader x)
+    private static ItemUpdatePayload? ParseItemUpdate(in BufferReader x)
     {
         return new ItemUpdatePayload(
             new ItemUpdate(
@@ -537,12 +547,12 @@ public class SlpFile : IDisposable
         );
     }
 
-    private static EventPayload? ParseFrameBookend(in BufferReader x)
+    private static FrameBookendPayload? ParseFrameBookend(in BufferReader x)
     {
         return new FrameBookendPayload(new FrameBookend(frame: x.ReadInt32(0x1), latestFinalizedFrame: x.ReadInt32(0x5)));
     }
 
-    private static EventPayload? ParseGameEnd(in BufferReader x)
+    private static GameEndPayload? ParseGameEnd(in BufferReader x)
     {
         List<Placement> placements = new List<Placement>(4);
         for (int i = 0; i < 4; i++)
@@ -563,8 +573,9 @@ public class SlpFile : IDisposable
         );
     }
 
-    private static EventPayload ParseGeckoList(in BufferReader x, in ReadOnlySpan<byte> payload)
+    private static GeckoListPayload ParseGeckoList(in ReadOnlySpan<byte> payload)
     {
+        BufferReader x = new BufferReader(payload);
         List<GeckoCode> codes = [];
         int pos = 1;
         while (pos < payload.Length)

@@ -3,6 +3,7 @@ using Slippi.NET.Melee.Types;
 using Slippi.NET.Slp.Parser.Types;
 using Slippi.NET.Types;
 using Slippi.NET.Utils;
+using System.Diagnostics;
 
 namespace Slippi.NET.Slp.Parser;
 
@@ -243,7 +244,6 @@ public class SlpParser
 
     private void HandleFrameUpdate(Command command, EventPayload payload)
     {
-        string location = command == Command.PRE_FRAME_UPDATE ? "pre" : "post";
         FrameUpdate frameUpdate = payload switch
         {
             PreFrameUpdatePayload preFrameUpdatePayload => preFrameUpdatePayload.PreFrameUpdate,
@@ -255,7 +255,7 @@ public class SlpParser
         int currentFrameNumber = frameUpdate.Frame!.Value;
         _latestFrameIndex = currentFrameNumber;
 
-        if (location == "pre" && !(frameUpdate.IsFollower ?? false))
+        if (command == Command.PRE_FRAME_UPDATE && !(frameUpdate.IsFollower ?? false))
         {
             _frames.TryGetValue(currentFrameNumber, out FrameEntry? currentFrameEntry);
 
@@ -275,7 +275,7 @@ public class SlpParser
                 currentFrame.Followers ??= [];
                 if (currentFrame.Followers.TryGetValue(frameUpdate.PlayerIndex!.Value, out PlayerFrameData? playerFrameData))
                 {
-                    if (location == "pre")
+                    if (command == Command.PRE_FRAME_UPDATE)
                     {
                         playerFrameData!.Pre = (frameUpdate as PreFrameUpdate)!;
                     }
@@ -286,7 +286,7 @@ public class SlpParser
                 }
                 else
                 {
-                    if (location == "pre")
+                    if (command == Command.PRE_FRAME_UPDATE)
                     {
                         currentFrame.Followers[frameUpdate.PlayerIndex!.Value] = new PlayerFrameData()
                         {
@@ -307,7 +307,7 @@ public class SlpParser
                 currentFrame.Players ??= [];
                 if (currentFrame.Players.TryGetValue(frameUpdate.PlayerIndex!.Value, out PlayerFrameData? playerFrameData))
                 {
-                    if (location == "pre")
+                    if (command == Command.PRE_FRAME_UPDATE)
                     {
                         playerFrameData!.Pre = (frameUpdate as PreFrameUpdate)!;
                     }
@@ -318,7 +318,7 @@ public class SlpParser
                 }
                 else
                 {
-                    if (location == "pre")
+                    if (command == Command.PRE_FRAME_UPDATE)
                     {
                         currentFrame.Players[frameUpdate.PlayerIndex!.Value] = new PlayerFrameData()
                         {
@@ -341,7 +341,7 @@ public class SlpParser
             if (field == "followers")
             {
                 newFrame.Followers = [];
-                if (location == "pre")
+                if (command == Command.PRE_FRAME_UPDATE)
                 {
                     newFrame.Followers[frameUpdate.PlayerIndex!.Value] = new PlayerFrameData()
                     {
@@ -359,7 +359,7 @@ public class SlpParser
             else
             {
                 newFrame.Players ??= [];
-                if (location == "pre")
+                if (command == Command.PRE_FRAME_UPDATE)
                 {
                     newFrame.Players[frameUpdate.PlayerIndex!.Value] = new PlayerFrameData()
                     {
@@ -420,6 +420,7 @@ public class SlpParser
 
         if (!_frames.TryGetValue(currentFrameNumber, out FrameEntry? frame))
         {
+            Debug.Fail("Unknown current frame?");
             _frames[currentFrameNumber] = new FrameEntry();
         }
 
@@ -450,6 +451,7 @@ public class SlpParser
         {
             int frameToFinalize = _lastFinalizedFrame + 1;
             FrameEntry frame = GetFrame(frameToFinalize)!;
+            Debug.Assert(frame is not null, "Bookend for unknown frame?");
 
             // Check that we have all the pre and post frame data for all players if we're in strict mode
             if (_options.Strict)

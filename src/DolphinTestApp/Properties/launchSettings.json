@@ -1,7 +1,8 @@
 {
   "profiles": {
     "DolphinConnectionTestApp": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "replay \"C:\\Users\\ander\\Downloads\\Game_20251116T134559.slp\""
     },
     "DolphinLaunchTestApp": {
       "commandName": "Project",

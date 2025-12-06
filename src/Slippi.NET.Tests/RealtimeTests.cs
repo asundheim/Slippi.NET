@@ -10,7 +10,7 @@ namespace Slippi.NET.Tests;
 public class RealtimeTests
 {
     [Fact]
-    public async Task ReadingLastFinalizedFrameFromSlpStream_ShouldNeverDecrease()
+    public void ReadingLastFinalizedFrameFromSlpStream_ShouldNeverDecrease()
     {
         const string testFile = "slp/finalizedFrame.slp";
         var stream = new SlpEventStream(new SlpStreamSettings() { Mode = SlpStreamModes.MANUAL });
@@ -50,7 +50,7 @@ public class RealtimeTests
             parserLastFinalizedFrame = frameEntry.Frame.Value;
         };
 
-        await PipeFileContentsAsync(testFile, stream);
+        PipeFileContents(testFile, stream);
 
         // The last finalized frame should be the same as what's recorded in the metadata
         var metadata = game.GetMetadata();
@@ -59,7 +59,7 @@ public class RealtimeTests
     }
 
     [Fact]
-    public async Task ReadingFinalizedFramesFromSlpParser_ShouldSupportOlderSlpFilesWithoutFrameBookend()
+    public void ReadingFinalizedFramesFromSlpParser_ShouldSupportOlderSlpFilesWithoutFrameBookend()
     {
         const string testFile = "slp/sheik_vs_ics_yoshis.slp";
         var stream = new SlpEventStream(new SlpStreamSettings() { Mode = SlpStreamModes.MANUAL });
@@ -81,7 +81,7 @@ public class RealtimeTests
             parser.HandleCommand(args.Command, args.Payload);
         };
 
-        await PipeFileContentsAsync(testFile, stream);
+        PipeFileContents(testFile, stream);
 
         var game = new SlippiGame(testFile, new StatOptions());
         var metadata = game.GetMetadata();
@@ -113,7 +113,7 @@ public class RealtimeTests
             parser.HandleCommand(args.Command, args.Payload);
         };
 
-        await PipeFileContentsAsync(testFile, stream);
+        PipeFileContents(testFile, stream);
 
         var game = new SlippiGame(testFile, new StatOptions());
         var metadata = game.GetMetadata();
@@ -121,12 +121,29 @@ public class RealtimeTests
         Assert.Equal(metadata.LastFrame, lastFinalizedFrame);
     }
 
-    private static async Task PipeFileContentsAsync(string filename, SlpEventStream destination)
+    private static void PipeFileContents(string filename, SlpEventStream destination)
     {
         using var readStream = new FileStream(filename, FileMode.Open, FileAccess.Read);
-        using var memoryStream = new MemoryStream(new byte[readStream.Length]);
-        await readStream.CopyToAsync(memoryStream);
 
-        destination.Write(memoryStream.ToArray());
+        // This ensures we buffer correctly and we're not off by 1 anywhere.
+        // Configurable for testing purposes.
+        const int chunkSize = 1;
+        Span<byte> buffer = stackalloc byte[chunkSize];
+        while (readStream.Position < readStream.Length)
+        {
+            if (readStream.Length - readStream.Position > chunkSize)
+            {
+                readStream.ReadExactly(buffer);
+                destination.Write(buffer);
+            }
+            else
+            {
+                Span<byte> remainder = stackalloc byte[(int)(readStream.Length - readStream.Position)];
+                readStream.ReadExactly(remainder);
+                destination.Write(remainder);
+
+                return;
+            }
+        }
     }
 }
