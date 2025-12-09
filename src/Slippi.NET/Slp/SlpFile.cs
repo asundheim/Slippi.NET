@@ -37,22 +37,22 @@ public class SlpFile : IDisposable
         int stopReadingAt = RawDataPosition + RawDataLength;
 
         // Generate read buffers for each message
-        Dictionary<Command, byte[]> commandPayloadBuffers = MessageSizes.ToDictionary(key => key.Key, value => new byte[value.Value + 1]);
-
+        Span<byte> readBuffer = stackalloc byte[MessageSizes.Values.Max() + 1];
         Span<byte> splitMessageBuffer = [];
         Span<byte> commandByteBuffer = stackalloc byte[1];
+        Span<byte> splitMessageBigBuffer = stackalloc byte[1024 * 64];
         while (readPosition < stopReadingAt)
         {
             SlpRef.ReadRef(commandByteBuffer, readPosition);
 
             Command command = Unsafe.As<byte, Command>(ref commandByteBuffer[0]);
-            if (!commandPayloadBuffers.TryGetValue(command, out byte[]? payloadBuffer))
+            if (!MessageSizes.TryGetValue(command, out int messageSize))
             {
                 // If we don't have an entry for this command, return false to indicate failed read
                 return readPosition;
             }
 
-            Span<byte> buffer = payloadBuffer.AsSpan();
+            Span<byte> buffer = readBuffer.Slice(0, messageSize + 1);
             if (buffer.Length > stopReadingAt - readPosition)
             {
                 // Can't read that many bytes
@@ -64,6 +64,11 @@ public class SlpFile : IDisposable
             SlpRef.ReadRef(buffer, readPosition);
             if (command == Command.SPLIT_MESSAGE)
             {
+                // TODO
+                // The heap allocs below actually show up as ~20% of the inner loop for parsing all frames in a file
+                // - Make this optional?
+                // - Force this to loop and keep all split buffer allocs on the stack?
+
                 // Here we have a split message, we will collect data from them until the last
                 // message of the list is received
                 BufferReader reader = new BufferReader(buffer);
@@ -93,7 +98,7 @@ public class SlpFile : IDisposable
             }
 
             EventPayload? parsedPayload = ParseMessage(command, buffer);
-            bool shouldStop = callback(command, parsedPayload, buffer.ToArray());
+            bool shouldStop = callback(command, buffer, parsedPayload);
             if (shouldStop)
             {
                 break;

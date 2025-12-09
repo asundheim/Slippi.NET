@@ -99,8 +99,8 @@ public class ActionsComputer : IStatComputer<IList<ActionCounts>>
 
     private void HandleActionCompute(PlayerActionState state, PlayerIndices indices, FrameEntry frame, Dictionary<int, FrameEntry> allFrames)
     {
-        var playerFrame = frame.Players![indices.PlayerIndex]!.Post;
-        var opponentFrame = frame.Players[indices.OpponentIndex]!.Post;
+        PostFrameUpdate playerFrame = frame.Players![indices.PlayerIndex]!.Post!;
+        PostFrameUpdate opponentFrame = frame.Players[indices.OpponentIndex]!.Post!;
 
         void ExecuteIf(Action execute, bool condition, Actions action = Actions.None)
         {
@@ -124,7 +124,9 @@ public class ActionsComputer : IStatComputer<IList<ActionCounts>>
         state.ActionFrameCounters.Add(currentFrameCounter);
 
         // Grab last 3 frames
-        var last3ActionStates = state.ActionStates.TakeLast(3).ToList();
+        List<ActionState> last3ActionStates = state.ActionStates.Count >= 3 ? state.ActionStates[^3..]
+            : state.ActionStates.Count >= 2 ? state.ActionStates[^2..] :
+              state.ActionStates.Count >= 1 ? state.ActionStates[^1..] : [];
 
         var currFFState = playerFrame.StateFlags2?.HasFlag(StateFlags2.IsFastFalling);
         if (currFFState == true)
@@ -147,12 +149,15 @@ public class ActionsComputer : IStatComputer<IList<ActionCounts>>
             ExecuteIf(() => { }, !wasFastFalling, Actions.FastFall);
         }
 
-        var prevAnimation = last3ActionStates.ElementAtOrDefault(last3ActionStates.Count - 2);
-        var prevFrameCounter = state.ActionFrameCounters.ElementAtOrDefault(state.ActionFrameCounters.Count - 2);
+        ActionState prevAnimation = last3ActionStates.ElementAtOrDefault(last3ActionStates.Count - 2);
+        float prevFrameCounter = state.ActionFrameCounters.ElementAtOrDefault(state.ActionFrameCounters.Count - 2);
 
         // New action if new animation or frame counter goes back down (repeated action)
-        var isNewAction = currentActionState != prevAnimation || prevFrameCounter > currentFrameCounter;
-        if (!isNewAction) return;
+        bool isNewAction = currentActionState != prevAnimation || prevFrameCounter > currentFrameCounter;
+        if (!isNewAction)
+        {
+            return;
+        }
 
         OnRawAction?.Invoke(this, new RawActionEventArgs() { ActionState = currentActionState, PlayerIndex = indices.PlayerIndex, Frame = frame });
 

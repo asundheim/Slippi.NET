@@ -55,16 +55,18 @@ public record class InputComputer : IStatComputer<IList<PlayerInput>>
         PlayerIndices indices,
         FrameEntry frame)
     {
-        var playerFrame = frame.Players![indices.PlayerIndex]?.Pre;
-        if (playerFrame == null) return;
+        if (frame.Players![indices.PlayerIndex]?.Pre is not PreFrameUpdate playerFrame)
+        {
+            return;
+        }
 
-        var currentFrameNumber = playerFrame.Frame ?? 0;
-        var prevFrameNumber = currentFrameNumber - 1;
-        var prevPlayerFrame = frames.TryGetValue(prevFrameNumber, out var prevFrame)
+        int currentFrameNumber = playerFrame.Frame ?? 0;
+        int prevFrameNumber = currentFrameNumber - 1;
+        PreFrameUpdate? prevPlayerFrameMaybe = frames.TryGetValue(prevFrameNumber, out var prevFrame)
             ? prevFrame.Players![indices.PlayerIndex]?.Pre
             : null;
 
-        if (currentFrameNumber < (int)Frames.FIRST_PLAYABLE || prevPlayerFrame == null)
+        if (currentFrameNumber < (int)Frames.FIRST_PLAYABLE || prevPlayerFrameMaybe is not PreFrameUpdate prevPlayerFrame)
         {
             // Don't count inputs until the game actually starts
             return;

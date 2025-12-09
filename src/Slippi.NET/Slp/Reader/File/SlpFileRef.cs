@@ -6,7 +6,8 @@ public class SlpFileRef : SlpRef, IDisposable
 {
     public SlpFileRef(string filePath)
     {
-        FileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.Asynchronous);
+        // 256KB buffer
+        FileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096 * 64, FileOptions.Asynchronous);
     }
 
     public override string Source => SlpInputSource.FILE;

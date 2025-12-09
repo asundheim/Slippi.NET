@@ -25,7 +25,7 @@ public class StockComputer : IStatComputer<IList<Stock>>
 
     public void ProcessFrame(FrameEntry frame, Dictionary<int, FrameEntry> allFrames)
     {
-        foreach (var indices in _playerPermutations)
+        foreach (PlayerIndices indices in _playerPermutations)
         {
             if (_state.TryGetValue(indices, out var state))
             {
@@ -52,17 +52,17 @@ public class StockComputer : IStatComputer<IList<Stock>>
             return;
         }
 
-        var currentFrameNumber = playerFrame.Frame ?? 0;
-        var prevFrameNumber = currentFrameNumber - 1;
-        var prevPlayerFrame = frames.TryGetValue(prevFrameNumber, out var prevFrame)
+        int currentFrameNumber = playerFrame?.Frame ?? 0;
+        int prevFrameNumber = currentFrameNumber - 1;
+        PostFrameUpdate? prevPlayerFrame = frames.TryGetValue(prevFrameNumber, out var prevFrame)
             ? prevFrame.Players![indices.PlayerIndex]?.Post
             : null;
 
         // If there is currently no active stock, wait until the player is no longer spawning.
         // Once the player is no longer spawning, start the stock
-        if (state.Stock == null)
+        if (state.Stock is null)
         {
-            if (StatsUtils.IsDead((ActionState)(playerFrame.ActionStateId ?? 0)))
+            if (StatsUtils.IsDead(playerFrame?.ActionStateId ?? 0))
             {
                 return;
             }
@@ -75,22 +75,22 @@ public class StockComputer : IStatComputer<IList<Stock>>
                 StartPercent = 0,
                 EndPercent = null,
                 CurrentPercent = 0,
-                Count = playerFrame.StocksRemaining ?? 0,
+                Count = playerFrame?.StocksRemaining ?? 0,
                 DeathAnimation = null
             };
 
             stocks.Add(state.Stock);
         }
-        else if (prevPlayerFrame != null && StatsUtils.DidLoseStock(playerFrame, prevPlayerFrame))
+        else if (prevPlayerFrame is not null && StatsUtils.DidLoseStock(playerFrame, prevPlayerFrame))
         {
-            state.Stock.EndFrame = playerFrame.Frame;
-            state.Stock.EndPercent = prevPlayerFrame.Percent ?? 0;
-            state.Stock.DeathAnimation = playerFrame.ActionStateId.HasValue ? (int)playerFrame.ActionStateId : null;
+            state.Stock.EndFrame = playerFrame?.Frame;
+            state.Stock.EndPercent = prevPlayerFrame?.Percent ?? 0;
+            state.Stock.DeathAnimation = playerFrame?.ActionStateId;
             state.Stock = null;
         }
         else
         {
-            state.Stock.CurrentPercent = playerFrame.Percent ?? 0;
+            state.Stock.CurrentPercent = playerFrame?.Percent ?? 0;
         }
     }
 }

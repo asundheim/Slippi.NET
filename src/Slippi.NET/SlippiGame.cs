@@ -8,6 +8,7 @@ using Slippi.NET.Stats;
 using Slippi.NET.Stats.Types;
 using Slippi.NET.Types;
 using Slippi.NET.Utils;
+using System;
 
 namespace Slippi.NET;
 
@@ -314,7 +315,7 @@ public class SlippiGame : IDisposable
 
         SlpFile slpFile = file ?? _input.OpenSlpFile();
         // Generate settings from iterating through file
-        _readPosition = slpFile.IterateEvents((command, payload, buffer) =>
+        _readPosition = slpFile.IterateEvents((command, buffer, payload) =>
         {
             if (payload is null)
             {
@@ -325,7 +326,7 @@ public class SlippiGame : IDisposable
 
             _parser.HandleCommand(command, payload);
 
-            return shouldStop(command, payload);
+            return shouldStop(command, [], payload);
         }, _readPosition);
 
         if (file is null)

@@ -111,18 +111,19 @@ public class SlpFileWriterTests
     {
         int pos = start;
         Span<byte> commandByteBuffer = stackalloc byte[1];
+        Span<byte> buffer = stackalloc byte[messageSizes.Values.Max() + 1];
         while (pos < end)
         {
             stream.Seek(pos, SeekOrigin.Begin);
             stream.ReadExactly(commandByteBuffer);
             int length = messageSizes[Unsafe.As<byte, Command>(ref commandByteBuffer[0])] + 1;
-
-            Span<byte> buffer = new byte[length];
+            Span<byte> readBuffer = buffer.Slice(0, length);
+            
             stream.Seek(pos, SeekOrigin.Begin);
-            stream.ReadExactly(buffer);
+            stream.ReadExactly(readBuffer);
 
             pos += length;
-            writeStream.Write(buffer);
+            writeStream.Write(readBuffer);
         }
     }
 }

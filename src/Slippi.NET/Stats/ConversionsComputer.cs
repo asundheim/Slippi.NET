@@ -112,8 +112,8 @@ public class ConversionsComputer : IStatComputer<IList<Conversion>>
         IList<Conversion> conversions)
     {
         int currentFrameNumber = frame.Frame!.Value;
-        var playerFrame = frame.Players![indices.PlayerIndex]!.Post;
-        var opponentFrame = frame.Players[indices.OpponentIndex]!.Post;
+        PostFrameUpdate playerFrame = frame.Players![indices.PlayerIndex]!.Post!;
+        PostFrameUpdate opponentFrame = frame.Players[indices.OpponentIndex]!.Post!;
 
         int prevFrameNumber = currentFrameNumber - 1;
         PostFrameUpdate? prevPlayerFrame = null;

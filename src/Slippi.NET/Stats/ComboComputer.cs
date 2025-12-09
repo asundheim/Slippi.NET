@@ -116,7 +116,7 @@ public class ComboComputer : IStatComputer<IList<ComboInfo>>
                     PlayerIndex = indices.OpponentIndex,
                     StartFrame = currentFrameNumber,
                     EndFrame = null,
-                    StartPercent = prevOpponentFrame is not null ? (prevOpponentFrame.Percent ?? 0) : 0,
+                    StartPercent = prevOpponentFrame?.Percent ?? 0,
                     CurrentPercent = opponentFrame.Percent ?? 0,
                     EndPercent = null,
                     Moves = [],
@@ -162,7 +162,7 @@ public class ComboComputer : IStatComputer<IList<ComboInfo>>
 
                 // Store previous frame animation to consider the case of a trade, the previous
                 // frame should always be the move that actually connected... I hope
-                state.LastHitAnimation = prevPlayerFrame is not null ? prevPlayerFrame.ActionStateId : null;
+                state.LastHitAnimation = prevPlayerFrame?.ActionStateId;
             }
 
             if (comboStarted)
@@ -218,7 +218,7 @@ public class ComboComputer : IStatComputer<IList<ComboInfo>>
         if (shouldTerminate)
         {
             state.Combo.EndFrame = playerFrame.Frame;
-            state.Combo.EndPercent = prevOpponentFrame is not null ? (prevOpponentFrame.Percent ?? 0) : 0;
+            state.Combo.EndPercent = prevOpponentFrame?.Percent ?? 0;
             state.Event = ComboEventNames.COMBO_END;
 
             state.Combo = null;

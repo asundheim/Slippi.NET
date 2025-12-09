@@ -48,7 +48,7 @@ public class DIComputer : IStatComputer<string>
         else if (!playerPost.ActionStateId.IsThrown() && allFrames.TryGetValue(frame.Frame!.Value - 1, out FrameEntry? prevFrame))
         {
             var prevPlayerPost = prevFrame!.Players![indices.PlayerIndex]!.Post!;
-            if (prevPlayerPost.ActionStateId.IsThrown() == true)
+            if (prevPlayerPost?.ActionStateId.IsThrown() == true)
             {
                 OnDI?.Invoke(this, new DIEventArgs()
                 {

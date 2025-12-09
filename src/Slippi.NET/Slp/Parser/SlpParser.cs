@@ -22,6 +22,9 @@ public class SlpParser
     private SlpParserOptions _options;
     private GeckoCodeList? _geckoList = null;
 
+    private bool _versionParsed = false;
+    private bool _isPostSheikFix = false;
+
     public SlpParser(SlpParserOptions? options = null)
     {
         _options = options ?? new SlpParserOptions();
@@ -38,31 +41,31 @@ public class SlpParser
         switch (command)
         {
             case Command.GAME_START:
-                HandleGameStart((payload as GameStartPayload)!);
+                HandleGameStart(((GameStartPayload)payload));
                 break;
             case Command.FRAME_START:
-                HandleFrameStart((payload as FrameStartPayload)!);
+                HandleFrameStart(((FrameStartPayload)payload));
                 break;
             case Command.POST_FRAME_UPDATE:
                 // We need to handle the post frame update first since that
                 // will finalize the settings object, before we fire the frame update
-                HandlePostFrameUpdate((payload as PostFrameUpdatePayload)!);
-                HandleFrameUpdate(command, (payload as EventPayload)!);
+                HandlePostFrameUpdate(((PostFrameUpdatePayload)payload));
+                HandleFrameUpdate(command, (EventPayload)payload);
                 break;
             case Command.PRE_FRAME_UPDATE:
-                HandleFrameUpdate(command, (payload as PreFrameUpdatePayload)!);
+                HandleFrameUpdate(command, (PreFrameUpdatePayload)payload);
                 break;
             case Command.ITEM_UPDATE:
-                HandleItemUpdate((payload as ItemUpdatePayload)!);
+                HandleItemUpdate(((ItemUpdatePayload)payload));
                 break;
             case Command.FRAME_BOOKEND:
-                HandleFrameBookend((payload as FrameBookendPayload)!);
+                HandleFrameBookend(((FrameBookendPayload)payload));
                 break;
             case Command.GAME_END:
-                HandleGameEnd((payload as GameEndPayload)!);
+                HandleGameEnd(((GameEndPayload)payload));
                 break;
             case Command.GECKO_LIST:
-                HandleGeckoList((payload as GeckoListPayload)!);
+                HandleGeckoList(((GeckoListPayload)payload));
                 break;
             default:
                 break;
@@ -189,7 +192,7 @@ public class SlpParser
 
         // Check to see if the file was created after the sheik fix so we know
         // we don't have to process the first frame of the game for the full settings
-        if (payload.GameStart.SlpVersion is not null &&
+        if ((_versionParsed && !_isPostSheikFix) || payload.GameStart.SlpVersion is not null &&
             SemVersion.Parse(payload.GameStart.SlpVersion).CompareSortOrderTo(SemVersion.Parse("1.6.0")) >= 0)
         {
             CompleteSettings();
@@ -244,22 +247,19 @@ public class SlpParser
 
     private void HandleFrameUpdate(Command command, EventPayload payload)
     {
-        FrameUpdate frameUpdate = payload switch
-        {
-            PreFrameUpdatePayload preFrameUpdatePayload => preFrameUpdatePayload.PreFrameUpdate,
-            PostFrameUpdatePayload postFrameUpdatePayload => postFrameUpdatePayload.PostFrameUpdate,
-            _ => throw new Exception("Unexpected payload type")
-        };
+        PreFrameUpdate? preFrameUpdate = (payload as PreFrameUpdatePayload)?.PreFrameUpdate;
+        PostFrameUpdate? postFrameUpdate = (payload as PostFrameUpdatePayload)?.PostFrameUpdate;
 
-        string field = (frameUpdate.IsFollower ?? false) ? "followers" : "player";
-        int currentFrameNumber = frameUpdate.Frame!.Value;
+        bool isFollower = preFrameUpdate?.IsFollower ?? postFrameUpdate?.IsFollower ?? false;
+        int currentFrameNumber = preFrameUpdate?.Frame ?? postFrameUpdate?.Frame ?? throw new InvalidOperationException("No frame number?");
+        int playerIndex = preFrameUpdate?.PlayerIndex ?? postFrameUpdate?.PlayerIndex ?? throw new InvalidOperationException("No player index?");
         _latestFrameIndex = currentFrameNumber;
 
-        if (command == Command.PRE_FRAME_UPDATE && !(frameUpdate.IsFollower ?? false))
+        if (command == Command.PRE_FRAME_UPDATE && !isFollower)
         {
             _frames.TryGetValue(currentFrameNumber, out FrameEntry? currentFrameEntry);
 
-            bool wasRolledBack = _rollbackCounter.CheckIfRollbackFrame(currentFrameEntry, frameUpdate.PlayerIndex!.Value);
+            bool wasRolledBack = _rollbackCounter.CheckIfRollbackFrame(currentFrameEntry, preFrameUpdate!.PlayerIndex!.Value);
             if (wasRolledBack)
             {
                 // frame is about to be overwritten
@@ -270,34 +270,34 @@ public class SlpParser
         // ew
         if (_frames.TryGetValue(currentFrameNumber, out FrameEntry? currentFrame))
         {
-            if (field == "followers")
+            if (isFollower)
             {
                 currentFrame.Followers ??= [];
-                if (currentFrame.Followers.TryGetValue(frameUpdate.PlayerIndex!.Value, out PlayerFrameData? playerFrameData))
+                if (currentFrame.Followers.TryGetValue(playerIndex, out PlayerFrameData? playerFrameData))
                 {
                     if (command == Command.PRE_FRAME_UPDATE)
                     {
-                        playerFrameData!.Pre = (frameUpdate as PreFrameUpdate)!;
+                        playerFrameData!.Pre = preFrameUpdate;
                     }
                     else
                     {
-                        playerFrameData!.Post = (frameUpdate as PostFrameUpdate)!;
+                        playerFrameData!.Post = postFrameUpdate;
                     }
                 }
                 else
                 {
                     if (command == Command.PRE_FRAME_UPDATE)
                     {
-                        currentFrame.Followers[frameUpdate.PlayerIndex!.Value] = new PlayerFrameData()
+                        currentFrame.Followers[playerIndex] = new PlayerFrameData()
                         {
-                            Pre = (frameUpdate as PreFrameUpdate)!
+                            Pre = preFrameUpdate
                         };
                     }
                     else
                     {
-                        currentFrame.Followers[frameUpdate.PlayerIndex!.Value] = new PlayerFrameData()
+                        currentFrame.Followers[playerIndex] = new PlayerFrameData()
                         {
-                            Post = (frameUpdate as PostFrameUpdate)!
+                            Post = postFrameUpdate
                         };
                     }
                 }
@@ -305,31 +305,31 @@ public class SlpParser
             else
             {
                 currentFrame.Players ??= [];
-                if (currentFrame.Players.TryGetValue(frameUpdate.PlayerIndex!.Value, out PlayerFrameData? playerFrameData))
+                if (currentFrame.Players.TryGetValue(playerIndex, out PlayerFrameData? playerFrameData))
                 {
                     if (command == Command.PRE_FRAME_UPDATE)
                     {
-                        playerFrameData!.Pre = (frameUpdate as PreFrameUpdate)!;
+                        playerFrameData!.Pre = preFrameUpdate;
                     }
                     else
                     {
-                        playerFrameData!.Post = (frameUpdate as PostFrameUpdate)!;
+                        playerFrameData!.Post = postFrameUpdate;
                     }
                 }
                 else
                 {
                     if (command == Command.PRE_FRAME_UPDATE)
                     {
-                        currentFrame.Players[frameUpdate.PlayerIndex!.Value] = new PlayerFrameData()
+                        currentFrame.Players[playerIndex] = new PlayerFrameData()
                         {
-                            Pre = (frameUpdate as PreFrameUpdate)!
+                            Pre = preFrameUpdate
                         };
                     }
                     else
                     {
-                        currentFrame.Players[frameUpdate.PlayerIndex!.Value] = new PlayerFrameData()
+                        currentFrame.Players[playerIndex] = new PlayerFrameData()
                         {
-                            Post = (frameUpdate as PostFrameUpdate)!
+                            Post = postFrameUpdate
                         };
                     }
                 }
@@ -338,21 +338,21 @@ public class SlpParser
         else
         {
             FrameEntry newFrame = new FrameEntry();
-            if (field == "followers")
+            if (isFollower)
             {
                 newFrame.Followers = [];
                 if (command == Command.PRE_FRAME_UPDATE)
                 {
-                    newFrame.Followers[frameUpdate.PlayerIndex!.Value] = new PlayerFrameData()
+                    newFrame.Followers[playerIndex] = new PlayerFrameData()
                     {
-                        Pre = (frameUpdate as PreFrameUpdate)!
+                        Pre = preFrameUpdate
                     };
                 }
                 else
                 {
-                    newFrame.Followers[frameUpdate.PlayerIndex!.Value] = new PlayerFrameData()
+                    newFrame.Followers[playerIndex] = new PlayerFrameData()
                     {
-                        Post = (frameUpdate as PostFrameUpdate)!
+                        Post = postFrameUpdate
                     };
                 }
             }
@@ -361,16 +361,16 @@ public class SlpParser
                 newFrame.Players ??= [];
                 if (command == Command.PRE_FRAME_UPDATE)
                 {
-                    newFrame.Players[frameUpdate.PlayerIndex!.Value] = new PlayerFrameData()
+                    newFrame.Players[playerIndex] = new PlayerFrameData()
                     {
-                        Pre = (frameUpdate as PreFrameUpdate)!
+                        Pre = preFrameUpdate
                     };
                 }
                 else
                 {
-                    newFrame.Players[frameUpdate.PlayerIndex!.Value] = new PlayerFrameData()
+                    newFrame.Players[playerIndex] = new PlayerFrameData()
                     {
-                        Post = (frameUpdate as PostFrameUpdate)!
+                        Post = postFrameUpdate
                     };
                 }
             }
@@ -382,9 +382,13 @@ public class SlpParser
 
         // If file is from before frame bookending, add frame to stats computer here. Does a little
         // more processing than necessary, but it works
-        GameStart? settings = GetSettings();
-        if (settings is not null &&
-            (settings.SlpVersion is null || SemVersion.Parse(settings.SlpVersion).CompareSortOrderTo(SemVersion.Parse("2.2.0")) <= 0))
+        if (!_versionParsed && GetSettings() is GameStart settings)
+        {
+            _isPostSheikFix = settings.SlpVersion is null || SemVersion.Parse(settings.SlpVersion).CompareSortOrderTo(SemVersion.Parse("2.2.0")) <= 0;
+            _versionParsed = true;
+        }
+
+        if (_versionParsed && !_isPostSheikFix)
         {
             OnFrame?.Invoke(this, _frames[currentFrameNumber]);
             // Finalize the previous frame since no bookending exists

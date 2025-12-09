@@ -1,6 +1,6 @@
 namespace Slippi.NET.Types;
 
-public record class PostFrameUpdate : FrameUpdate
+public record class PostFrameUpdate
 {
     public PostFrameUpdate(
         int? frame, 
@@ -68,28 +68,35 @@ public record class PostFrameUpdate : FrameUpdate
         InstanceId = instanceId;
     }
 
-    public byte? InternalCharacterId { get; set; }
-    public float? Percent { get; set; }
-    public float? ShieldSize { get; set; }
-    public byte? LastAttackLanded { get; set; }
-    public byte? CurrentComboCount { get; set; }
-    public byte? LastHitBy { get; set; }
-    public byte? StocksRemaining { get; set; }
-    public float? ActionStateCounter { get; set; }
-    public StateFlags1? StateFlags1 { get; set; }
-    public StateFlags3? StateFlags3 { get; set; }
-    public StateFlags2? StateFlags2 { get; set; }
-    public StateFlags4? StateFlags4 { get; set; }
-    public StateFlags5? StateFlags5 { get; set; }
-    public float? MiscActionState { get; set; }
-    public bool? IsAirborne { get; set; }
-    public ushort? LastGroundId { get; set; }
-    public byte? JumpsRemaining { get; set; }
-    public byte? LCancelStatus { get; set; }
-    public byte? HurtboxCollisionState { get; set; }
-    public SelfInducedSpeeds? SelfInducedSpeeds { get; set; }
-    public float? HitlagRemaining { get; set; }
-    public uint? AnimationIndex { get; set; }
-    public ushort? InstanceHitBy { get; set; }
-    public ushort? InstanceId { get; set; }
+    public int? Frame;
+    public byte? PlayerIndex;
+    public bool? IsFollower;
+    public ActionState? ActionStateId;
+    public float? PositionX;
+    public float? PositionY;
+    public float? FacingDirection;
+    public byte? InternalCharacterId;
+    public float? Percent;
+    public float? ShieldSize;
+    public byte? LastAttackLanded;
+    public byte? CurrentComboCount;
+    public byte? LastHitBy;
+    public byte? StocksRemaining;
+    public float? ActionStateCounter;
+    public StateFlags1? StateFlags1;
+    public StateFlags3? StateFlags3;
+    public StateFlags2? StateFlags2;
+    public StateFlags4? StateFlags4;
+    public StateFlags5? StateFlags5;
+    public float? MiscActionState;
+    public bool? IsAirborne;
+    public ushort? LastGroundId;
+    public byte? JumpsRemaining;
+    public byte? LCancelStatus;
+    public byte? HurtboxCollisionState;
+    public SelfInducedSpeeds? SelfInducedSpeeds;
+    public float? HitlagRemaining;
+    public uint? AnimationIndex;
+    public ushort? InstanceHitBy;
+    public ushort? InstanceId;
 }

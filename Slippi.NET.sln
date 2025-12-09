@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11123.170 d18.0
+VisualStudioVersion = 18.0.11123.170
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slippi.NET", "src\Slippi.NET\Slippi.NET.csproj", "{AB4174C7-F2A9-483A-9730-B6C9D815455F}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DolphinTestApp", "src\DolphinTestApp\DolphinTestApp.csproj", "{25EDED14-0CFA-4EAA-87C6-4E209F6452F8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DolphinENet", "src\DolphinENet\DolphinENet.vcxproj", "{61DE1493-CC9D-451C-B1C4-17DCCAB29CE1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileReadingTestApp", "src\FileReadingTestApp\FileReadingTestApp.csproj", "{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +91,18 @@ Global
 		{61DE1493-CC9D-451C-B1C4-17DCCAB29CE1}.Release|x64.Build.0 = Release|x64
 		{61DE1493-CC9D-451C-B1C4-17DCCAB29CE1}.Release|x86.ActiveCfg = Release|Win32
 		{61DE1493-CC9D-451C-B1C4-17DCCAB29CE1}.Release|x86.Build.0 = Release|Win32
+		{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}.Debug|x64.Build.0 = Debug|Any CPU
+		{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}.Debug|x86.Build.0 = Debug|Any CPU
+		{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}.Release|x64.ActiveCfg = Release|Any CPU
+		{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}.Release|x64.Build.0 = Release|Any CPU
+		{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}.Release|x86.ActiveCfg = Release|Any CPU
+		{8CBC8D18-1103-4E28-BD94-1CBFEA9F34F3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

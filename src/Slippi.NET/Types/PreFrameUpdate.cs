@@ -1,6 +1,6 @@
 namespace Slippi.NET.Types;
 
-public record class PreFrameUpdate : FrameUpdate
+public record class PreFrameUpdate
 {
     public PreFrameUpdate(
         int? frame, 
@@ -44,16 +44,23 @@ public record class PreFrameUpdate : FrameUpdate
         Percent = percent;
     }
 
-    public uint? Seed { get; set; }
-    public float? JoystickX { get; set; }
-    public float? JoystickY { get; set; }
-    public float? CStickX { get; set; }
-    public float? CStickY { get; set; }
-    public float? Trigger { get; set; }
-    public ProcessedButtons? Buttons { get; set; }
-    public PhysicalButtons? PhysicalButtons { get; set; }
-    public float? PhysicalLTrigger { get; set; }
-    public float? PhysicalRTrigger { get; set; }
-    public sbyte? RawJoystickX { get; set; }
-    public float? Percent { get; set; }
+    public int? Frame;
+    public byte? PlayerIndex;
+    public bool? IsFollower;
+    public ActionState? ActionStateId;
+    public float? PositionX;
+    public float? PositionY;
+    public float? FacingDirection;
+    public uint? Seed;
+    public float? JoystickX;
+    public float? JoystickY;
+    public float? CStickX;
+    public float? CStickY;
+    public float? Trigger;
+    public ProcessedButtons? Buttons;
+    public PhysicalButtons? PhysicalButtons;
+    public float? PhysicalLTrigger;
+    public float? PhysicalRTrigger;
+    public sbyte? RawJoystickX;
+    public float? Percent;
 }

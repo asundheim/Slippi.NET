@@ -29,7 +29,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="$(MSBuildThisFileDirectory)\..\DolphinENet\DolphinENet.vcxproj">
+		<ProjectReference Include="$(MSBuildThisFileDirectory)\..\DolphinENet\DolphinENet.vcxproj" Condition="'$(BuildingInsideVisualStudio)'=='true'">
 			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
 			<OutputItemType>Content</OutputItemType>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

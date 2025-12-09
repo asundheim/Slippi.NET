@@ -19,7 +19,7 @@ public class RollbackCounter
     /// <returns>True if the last frame was a rollback, otherwise false.</returns>
     public bool CheckIfRollbackFrame(FrameEntry? currentFrame, int playerIdx)
     {
-        if (_rollbackPlayerIdx == null)
+        if (_rollbackPlayerIdx is null)
         {
             // We only want to follow a single player to avoid double counting. So we use whoever is first.
             _rollbackPlayerIdx = playerIdx;
@@ -29,7 +29,7 @@ public class RollbackCounter
             return false;
         }
 
-        if (currentFrame != null && currentFrame.Players != null)
+        if (currentFrame is not null && currentFrame.Players is not null)
         {
             // Frame already exists for currentFrameNumber, so we must be rolling back.
             // Note: We detect during PreFrameUpdate, but new versions have a
