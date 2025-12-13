@@ -40,7 +40,6 @@ public class SlpFile : IDisposable
         Span<byte> readBuffer = stackalloc byte[MessageSizes.Values.Max() + 1];
         Span<byte> splitMessageBuffer = [];
         Span<byte> commandByteBuffer = stackalloc byte[1];
-        Span<byte> splitMessageBigBuffer = stackalloc byte[1024 * 64];
         while (readPosition < stopReadingAt)
         {
             SlpRef.ReadRef(commandByteBuffer, readPosition);
