@@ -5,8 +5,8 @@ This project is a port of [slippi-js](https://github.com/project-slippi/slippi-j
 Internally an attempt is made to use stack-allocated `System.Span<byte>` wherever possible.
 
 # Download
-This package is available on [nuget.org](https://www.nuget.org/) and can be referenced by simply adding a `<PackageReference>` to your project like:
-```
+This package is available on [nuget.org](https://www.nuget.org/) and can be referenced by adding a `<PackageReference>` to your project like:
+```xml
 <ItemGroup>
     <PackageReference Include="Slippi.NET" Version="0.8.0" />
 </ItemGroup>
@@ -19,9 +19,11 @@ SlippiGame game = new SlippiGame('./game.slp');
 // do things with game
 ```
 
-## Connection
-Using `DolphinConnection` is very straightforward, create a new `DolphinConnection` and call `Connect` with an IP address and port. You can listen to the
-events defined on the base `Connection` class for updates and information on the Dolphin instance.
+See `src/FileReadingTestApp` for a concrete example.
+
+## Dolphin Connection
+Create a new `DolphinConnection` and call `Connect` with an IP address and port. You can listen to the
+events defined on the base `Connection` class for updates and information on the Dolphin instance. Currently this is only supported for Windows.
 
 If Dolphin is local, you can use `127.0.0.1`. The `Ports` enumeration provides common values for ports, with `Default` (`51441`) being the standard
 one that Dolphin uses.
@@ -32,6 +34,7 @@ You can find an example in `src/DolphinConnectionTestApp/`.
 Restore and build `Slippi.NET.sln` from the root of the project.
 
 Currently all projects target .NET 8+ to make use of the latest `Span` improvements to the standard library.
+You will also need a native MSVC toolchain to build the `DolphinENet` project.
 
 ## Tests
 The `Slippi.NET.Tests` contains all unit tests for the project. All tests have been ported from `slippi-js`.
