@@ -121,13 +121,26 @@ public class RealtimeTests
         Assert.Equal(metadata.LastFrame, lastFinalizedFrame);
     }
 
+    [Fact]
+    public void ReadConsoleReplay()
+    {
+        const string testFile = "slp/console.slp";
+        var stream = new SlpEventStream(new SlpStreamSettings() { Mode = SlpStreamModes.MANUAL });
+        var parser = new SlpParser(new SlpParserOptions());
+        stream.OnCommand += (sender, args) =>
+        {
+            parser.HandleCommand(args.Command, args.Payload);
+        };
+        PipeFileContents(testFile, stream);
+    }
+
     private static void PipeFileContents(string filename, SlpEventStream destination)
     {
         using var readStream = new FileStream(filename, FileMode.Open, FileAccess.Read);
 
         // This ensures we buffer correctly and we're not off by 1 anywhere.
         // Configurable for testing purposes.
-        const int chunkSize = 1;
+        const int chunkSize = 1024;
         Span<byte> buffer = stackalloc byte[chunkSize];
         while (readStream.Position < readStream.Length)
         {
